@@ -11,9 +11,21 @@ export class TasksService {
   ) {}
 
   public async listTasks(userId: Types.ObjectId) {
-    await this.taskModel.find({
+    return await this.taskModel.find({
       userId,
     });
+  }
+
+  public async bulkCreateTasks(
+    userId: Types.ObjectId,
+    taskPayloads: ManageTaskDto[],
+  ) {
+    const tasks = taskPayloads.map((taskPayload) => ({
+      userId,
+      ...taskPayload,
+    }));
+
+    return await this.taskModel.insertMany(tasks);
   }
 
   public async saveTask(userId: Types.ObjectId, taskPayload: ManageTaskDto) {

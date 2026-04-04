@@ -9,6 +9,7 @@ jobs:
     permissions:
       contents: read
       models: read 
+      pull-requests: write
 
     steps:
       - name: Checkout code

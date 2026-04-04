@@ -59,7 +59,7 @@ export class TasksService {
     }
 
     if (updateResult.modifiedCount === 0) {
-      throw new Error(ErrorIds.FAILED_TO_UPDATE_RESOUCE);
+      throw new Error(ErrorIds.FAILED_TO_UPDATE_RESOURCE);
     }
   }
 

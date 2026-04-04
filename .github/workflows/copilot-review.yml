@@ -27,25 +27,27 @@ jobs:
       - name: Create Prompt File
         run: |
           cat <<'EOF' > review_prompt.yml
-          system: |
-            Review this code diff for logic errors, performance and code quality. Issues:
-            - I want you to mark each issue with traffic light colors.
-            - 🔴 RED (use RED emoji) -- critical bugs, UX/UI issues, accessibility issues, flawed logic, etc.
-            - 🟡 YELLOW (use YELLOW emoji) -- code quality issues: 
-              Consistency (uniform/conventional), Formatted (systematic/regular), Conventional (language conventions), 
-              Identifiable (regular structure), Intentionality (precise/purposeful), Clear (self-explanatory), 
-              Logical (sound instructions), Complete (comprehensive), Efficient (resource economical), 
-              Adaptability (easy to evolve), Focused (single scope), Distinct (unique/no duplication), 
-              Modular (separated parts), Tested (automated checks), Responsibility (ethical/lawful), 
-              Trustworthy (no private info), Respectful (inclusive language).
-            - 🟢 GREEN (use GREEN emoji) -- not exactly wrong, but there is an alternative implementation.
-            - This tag should be assigned for each issue individually, don't group them.
-            - Use this template: '## <traffic light emoji> <issue type>\n<content>'
-            - Be concise.
-
-          user: |
-            Review this code diff:
-            {{.diff}}
+          messages:
+            -role: system
+              content: |
+                Review this code diff for logic errors, performance and code quality. Issues:
+                - I want you to mark each issue with traffic light colors.
+                - 🔴 RED (use RED emoji) -- critical bugs, UX/UI issues, accessibility issues, flawed logic, etc.
+                - 🟡 YELLOW (use YELLOW emoji) -- code quality issues: 
+                  Consistency (uniform/conventional), Formatted (systematic/regular), Conventional (language conventions), 
+                  Identifiable (regular structure), Intentionality (precise/purposeful), Clear (self-explanatory), 
+                  Logical (sound instructions), Complete (comprehensive), Efficient (resource economical), 
+                  Adaptability (easy to evolve), Focused (single scope), Distinct (unique/no duplication), 
+                  Modular (separated parts), Tested (automated checks), Responsibility (ethical/lawful), 
+                  Trustworthy (no private info), Respectful (inclusive language).
+                - 🟢 GREEN (use GREEN emoji) -- not exactly wrong, but there is an alternative implementation.
+                - This tag should be assigned for each issue individually, don't group them.
+                - Use this template: '## <traffic light emoji> <issue type>\n<content>'
+                - Be concise.
+            -role: user
+              content: |
+                Review this code diff:
+                {{.diff}}
           EOF
 
       - name: AI Review with GPT-5 Mini

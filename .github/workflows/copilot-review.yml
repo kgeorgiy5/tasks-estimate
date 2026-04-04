@@ -24,8 +24,6 @@ jobs:
         run: |
           gh extension install github/gh-models || true
           
-          ESCAPED_DIFF=$(git diff "origin/$BASE_REF"...HEAD | jq -Rs .)
-          
           cat <<EOF > final_prompt.yml
           messages:
             - role: system
@@ -45,8 +43,11 @@ jobs:
                 - Use this template: '## <traffic light emoji> <issue type>\n<content>'
                 - Be concise.
             - role: user
-              content: "Review this diff $ESCAPED_DIFF"
+              content: |
+                Review this diff:
           EOF
+          
+          git diff "origin/$BASE_REF"...HEAD | sed 's/^/        /' >> final_prompt.yml
 
           gh models run openai/gpt-4o-mini --file final_prompt.yml > review_feedback.txt
           

@@ -15,7 +15,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Fetch PR Diff
-        run: git diff origin/${{ github.base_ref }}...origin/${{ github.head_ref }} > pr_diff.txt
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          # Use the environment variables with quotes to prevent shell injection
+          git diff "origin/$BASE_REF"..."origin/$HEAD_REF" > pr_diff.txt
 
       - name: AI Review with GPT-5 Mini
         env:

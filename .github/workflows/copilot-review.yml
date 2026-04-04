@@ -28,7 +28,7 @@ jobs:
           # Get list of changed files (excluding locks/docs)
           FILES=$(git diff "origin/$BASE_REF"...HEAD --name-only -- . ':(exclude)*.lock' ':(exclude)*.md')
           
-          echo "## 🤖 AI Review Summary" > total_feedback.md
+          echo "# 🤖 AI Review Summary" > total_feedback.md
           
           for file in $FILES; do
             echo "Processing $file..."
@@ -91,7 +91,17 @@ jobs:
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  body: "### 🤖 AI Code Review\n\n" + feedback
+                  body: feedback
                 });
               }
             }
+            
+      - name: Check for Critical Issues
+        run: |
+          RED_COUNT=$(grep -o "🔴" review_feedback.txt | wc -l)
+          echo "Found $RED_COUNT critical issues (🔴)."
+                     
+          if [ "$RED_COUNT" -gt 1 ]; then
+            echo "❌ FAILED: More than one critical issue found. Please fix the RED items."
+            exit 1
+          fi

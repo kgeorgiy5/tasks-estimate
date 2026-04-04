@@ -95,3 +95,13 @@ jobs:
                 });
               }
             }
+            
+      - name: Check for Critical Issues
+        run: |
+          RED_COUNT=$(grep -o "🔴" review_feedback.txt | wc -l)
+          echo "Found $RED_COUNT critical issues (🔴)."
+                     
+          if [ "$RED_COUNT" -gt 1 ]; then
+            echo "❌ FAILED: More than one critical issue found. Please fix the RED items."
+            exit 1
+          fi

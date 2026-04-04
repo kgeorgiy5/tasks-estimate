@@ -17,9 +17,16 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: Create Prompt File
+      - name: AI Review with GPT-4o Mini
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          cat <<'EOF' > review_prompt.yml
+          gh extension install github/gh-models || true
+          
+          git diff "origin/$BASE_REF"...HEAD > raw_diff.txt
+          
+          cat <<EOF > final_prompt.yml
           messages:
             - role: system
               content: |
@@ -39,25 +46,12 @@ jobs:
                 - Be concise.
             - role: user
               content: |
-                Review this code diff:
-                {{.diff}}
+                Review this diff:
+                $(cat raw_diff.txt)
           EOF
 
-      - name: AI Review with GPT-5 Mini
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          gh extension install github/gh-models || true
+          gh models run openai/gpt-4o-mini --file final_prompt.yml > review_feedback.txt
           
-          git diff "origin/$BASE_REF"...HEAD > raw_diff.txt
-          
-          SAFE_DIFF=$(jq -Rs . < raw_diff.txt)
-          
-          gh models run openai/gpt-4o-mini \
-            --file review_prompt.yml \
-            --var diff="$SAFE_DIFF" > review_feedback.txt
-
       - name: Post Review Comment
         uses: actions/github-script@v7
         with:

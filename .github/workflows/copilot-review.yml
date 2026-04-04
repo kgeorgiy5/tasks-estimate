@@ -60,7 +60,7 @@ jobs:
           
           # 3. Run the model using the .yml file and passing the diff as a variable
           # Using openai/gpt-4o-mini (the 0x/included model)
-          gh models run "openai/gpt-4o-mini" \
+          gh models run "openai/gpt-5-mini" "Review the PR using instructions from the attached file." \
             --file review_prompt.yml \
             --var diff="$(cat pr_diff.txt)" > review_feedback.txt
 

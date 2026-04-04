@@ -28,7 +28,7 @@ jobs:
         run: |
           cat <<'EOF' > review_prompt.yml
           messages:
-            -role: system
+            - role: system
               content: |
                 Review this code diff for logic errors, performance and code quality. Issues:
                 - I want you to mark each issue with traffic light colors.
@@ -44,7 +44,7 @@ jobs:
                 - This tag should be assigned for each issue individually, don't group them.
                 - Use this template: '## <traffic light emoji> <issue type>\n<content>'
                 - Be concise.
-            -role: user
+            - role: user
               content: |
                 Review this code diff:
                 {{.diff}}

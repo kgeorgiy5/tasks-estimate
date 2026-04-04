@@ -60,6 +60,7 @@ jobs:
                 - This tag should be assigned for each issue individually, don't group them.
                 - Use this template: '## <traffic light emoji> <issue type>\n<content>'
                 - Be concise.
+                - If a file has //SKIP_REVIEW comment at the top, skip the review 
             - role: user
               content: |
                 Review this diff:

@@ -54,7 +54,7 @@ export class AuthService {
     }
 
     const jwtPayload = {
-      sub: user._id,
+      sub: user._id.toString(),
       email: user.email,
     };
 
@@ -81,7 +81,7 @@ export class AuthService {
     });
 
     const jwtPayload = {
-      sub: user._id,
+      sub: user._id.toString(),
       email: user.email,
     };
 

@@ -64,6 +64,7 @@ jobs:
                 - Add issue if it's 100% needed and it's not already implemented. Generally, there should be no more than couple of issues per file. So please don't flood the list with garbage issues.
                 - Use this template: '## <traffic light emoji> <issue type>\n<content>'
                 - Be concise.
+                - If a file has //SKIP_REVIEW comment at the top, skip the review 
             - role: user
               content: |
                 Review this diff:

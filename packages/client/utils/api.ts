@@ -22,8 +22,8 @@ const BASE64_UNDERSCORE_RE = /_/g;
  */
 export function base64UrlDecode(input: string): string {
   let base64 = input
-    .replace(BASE64_DASH_RE, "+")
-    .replace(BASE64_UNDERSCORE_RE, "/");
+    .replaceAll(BASE64_DASH_RE, "+")
+    .replaceAll(BASE64_UNDERSCORE_RE, "/");
   while (base64.length % 4) base64 += "=";
   return Buffer.from(base64, "base64").toString("utf-8");
 }
@@ -114,12 +114,16 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
         "Request failed";
       const errorDto: ApiError = {
         statusCode: status,
-        message:
-          typeof message === "string"
-            ? message
-            : Array.isArray(message)
-              ? message
-              : String(message),
+        let formattedMessage: string | string[];
+        if (typeof message === "string") {
+          formattedMessage = message;
+        } else if (Array.isArray(message)) {
+          formattedMessage = message;
+        } else {
+          formattedMessage = String(message);
+        }
+
+        message: formattedMessage,
         error: (error.response as ErrorResponse)?.statusText ?? "Error",
       };
       return Promise.reject(errorDto);

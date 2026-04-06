@@ -22,16 +22,23 @@ const options: NextAuthOptions = {
         const backendClient = createApiClient(API_URL);
 
         try {
-          const response = await backendClient.post<{ access_token: string }>(AUTH_SIGNIN, {
-            email: credentials.email,
-            password: credentials.password,
-          });
+          const response = await backendClient.post<{ access_token: string }>(
+            AUTH_SIGNIN,
+            {
+              email: credentials.email,
+              password: credentials.password,
+            },
+          );
 
           const parsed = authResponseSchema.parse(response.data);
           const payload = parseJwtPayload(parsed.access_token);
           if (!payload) return null;
 
-          return { accessToken: parsed.access_token, email: payload.email, sub: payload.sub };
+          return {
+            accessToken: parsed.access_token,
+            email: payload.email,
+            sub: payload.sub,
+          };
         } catch {
           return null;
         }
@@ -51,25 +58,36 @@ const options: NextAuthOptions = {
     },
     async session({ session, token }: { session: unknown; token: unknown }) {
       // Narrow `token` safely (unknown -> record) and check types before assigning
-      const tokenRecord = typeof token === "object" && token !== null ? (token as Record<string, unknown>) : undefined;
+      const tokenRecord =
+        typeof token === "object" && token !== null
+          ? (token as Record<string, unknown>)
+          : undefined;
 
       // assign accessToken if present and a string
-      const accessToken = tokenRecord && typeof tokenRecord["accessToken"] === "string" ? (tokenRecord["accessToken"] as string) : undefined;
+      const accessToken =
+        tokenRecord && typeof tokenRecord["accessToken"] === "string"
+          ? tokenRecord["accessToken"]
+          : undefined;
       if (accessToken) {
         (session as Record<string, unknown>)["accessToken"] = accessToken;
       }
 
       // ensure session.user exists as an object
-      const sessionRecord = typeof session === "object" && session !== null ? (session as Record<string, unknown>) : {};
+      const sessionRecord =
+        typeof session === "object" && session !== null
+          ? (session as Record<string, unknown>)
+          : {};
       sessionRecord["user"] = sessionRecord["user"] ?? {};
 
       // assign email and id safely
       if (tokenRecord && typeof tokenRecord["email"] === "string") {
-        (sessionRecord["user"] as Record<string, unknown>)["email"] = tokenRecord["email"];
+        (sessionRecord["user"] as Record<string, unknown>)["email"] =
+          tokenRecord["email"];
       }
 
       if (tokenRecord && typeof tokenRecord["sub"] === "string") {
-        (sessionRecord["user"] as Record<string, unknown>)["id"] = tokenRecord["sub"];
+        (sessionRecord["user"] as Record<string, unknown>)["id"] =
+          tokenRecord["sub"];
       }
 
       return sessionRecord as unknown;

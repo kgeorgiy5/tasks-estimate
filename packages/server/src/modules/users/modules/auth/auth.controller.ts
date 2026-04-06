@@ -11,7 +11,7 @@ import { AuthModuleController } from "./decorators";
 
 @AuthModuleController()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post("sign-in")
   signIn(@Body(new ZodValidationPipe(signInSchema)) signInPayload: SignInDto) {

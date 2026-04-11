@@ -16,6 +16,34 @@ const BASE64_DASH_RE = /-/g;
 const BASE64_UNDERSCORE_RE = /_/g;
 
 /**
+ * ApiException wraps API error details in a proper Error instance so
+ * callers receive an Error when a request fails.
+ */
+class ApiException extends Error {
+  public statusCode: number;
+  public dtoMessage: string | string[];
+  public error: string;
+  public data?: unknown;
+
+  constructor(statusCode: number, message: string | string[], errorText: string, data?: unknown) {
+    super(typeof message === "string" ? message : message.join("; "));
+    this.name = "ApiException";
+    this.statusCode = statusCode;
+    this.dtoMessage = message;
+    this.error = errorText;
+    this.data = data;
+  }
+
+  toDto(): ApiError {
+    return {
+      statusCode: this.statusCode,
+      message: this.dtoMessage,
+      error: this.error,
+    };
+  }
+}
+
+/**
  * Decode a Base64URL-encoded string to UTF-8.
  * @param input base64url string
  */
@@ -49,16 +77,16 @@ export function parseJwtPayload(token: string) {
  * @param token JWT access token
  */
 export function setStoredAccessToken(token: string): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+  if (globalThis.window === undefined) return;
+  globalThis.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
 }
 
 /**
  * Gets access token from browser local storage.
  */
 export function getStoredAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  const token = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (globalThis.window === undefined) return null;
+  const token = globalThis.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   if (!token || token.length === 0) return null;
   return token;
 }
@@ -67,8 +95,8 @@ export function getStoredAccessToken(): string | null {
  * Clears access token from browser local storage.
  */
 export function clearStoredAccessToken(): void {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (globalThis.window === undefined) return;
+  globalThis.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
 }
 
 /**
@@ -123,12 +151,14 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
         formattedMessage = String(message);
       }
 
-      const errorDto: ApiError = {
-        statusCode: status,
-        message: formattedMessage,
-        error: (error.response as ErrorResponse)?.statusText ?? "Error",
-      };
-      return Promise.reject(errorDto);
+      const apiError = new ApiException(
+        status,
+        formattedMessage,
+        (error.response as ErrorResponse)?.statusText ?? "Error",
+        data,
+      );
+
+      return Promise.reject(apiError);
     },
   );
 

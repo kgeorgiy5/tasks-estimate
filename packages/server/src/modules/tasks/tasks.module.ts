@@ -4,7 +4,6 @@ import { TasksService } from "./tasks.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { TASK_MODEL_TOKEN, TaskSchema } from "./models";
 import { TasksController } from "./tasks.controller";
-import { AuthGuard } from "../users/modules/auth/guards/auth.guard";
 import { AuthModule } from "../users/modules/auth/auth.module";
 
 @Module({

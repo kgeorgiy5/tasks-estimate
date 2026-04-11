@@ -27,13 +27,13 @@ export class AuthService {
 
   private hashPassword(password: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const saltRounds = this.configService.get<number>("BCRYPT_SALT");
+      const saltRounds = Number(this.configService.get<number>("BCRYPT_SALT"));
 
-      hash(password, saltRounds, (err, hash) => {
+      hash(password, saltRounds, (err, hashed) => {
         if (err) {
           reject(err);
         } else {
-          resolve(hash);
+          resolve(hashed);
         }
       });
     });

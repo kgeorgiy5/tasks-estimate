@@ -1,36 +1,57 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import { Loader } from "./loader";
 import { ErrorIds } from "@tasks-estimate/shared";
-import "react-toastify/dist/ReactToastify.css";
+import { useAuthStore } from "@/stores";
+import type { ReactNode } from "react";
 
 type AuthGuardProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { data: _session, status } = useSession();
+const AUTH_ROUTES = new Set([NavigationPaths.SIGN_IN, NavigationPaths.SIGN_UP]);
+
+/**
+ * Protects private routes and redirects users based on auth status.
+ */
+export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthRoute = AUTH_ROUTES.has(pathname as NavigationPaths);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      toast.error(ErrorIds.NOT_AUTHENTICATED);
-      router.push(NavigationPaths.LOGIN);
+    if (!isInitialized) {
+      return;
     }
-  }, [status, router]);
 
-  if (status === "loading") {
+    if (!isAuthenticated && !isAuthRoute) {
+      toast.error(ErrorIds.NOT_AUTHENTICATED);
+      router.replace(NavigationPaths.SIGN_IN);
+      return;
+    }
+
+    if (isAuthenticated && isAuthRoute) {
+      router.replace(NavigationPaths.HOME);
+    }
+  }, [isAuthRoute, isAuthenticated, isInitialized, router]);
+
+  if (!isInitialized) {
     return <Loader />;
   }
 
-  if (status === "unauthenticated") {
-    return null; // Prevent rendering protected content
+  if (!isAuthenticated && !isAuthRoute) {
+    return null;
+  }
+
+  if (isAuthenticated && isAuthRoute) {
+    return null;
   }
 
   return <>{children}</>;
-};
+}

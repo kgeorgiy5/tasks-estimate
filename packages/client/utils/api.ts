@@ -6,15 +6,42 @@ import axios, {
 } from "axios";
 import { ErrorResponse } from "@/types";
 
-import { getSession } from "next-auth/react";
-
 import { ApiError } from "@/types/api";
 import { jwtPayloadSchema } from "@tasks-estimate/shared";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const ACCESS_TOKEN_STORAGE_KEY = "tasks-estimate-access-token";
 
 const BASE64_DASH_RE = /-/g;
 const BASE64_UNDERSCORE_RE = /_/g;
+
+/**
+ * ApiException wraps API error details in a proper Error instance so
+ * callers receive an Error when a request fails.
+ */
+class ApiException extends Error {
+  public statusCode: number;
+  public dtoMessage: string | string[];
+  public error: string;
+  public data?: unknown;
+
+  constructor(statusCode: number, message: string | string[], errorText: string, data?: unknown) {
+    super(typeof message === "string" ? message : message.join("; "));
+    this.name = "ApiException";
+    this.statusCode = statusCode;
+    this.dtoMessage = message;
+    this.error = errorText;
+    this.data = data;
+  }
+
+  toDto(): ApiError {
+    return {
+      statusCode: this.statusCode,
+      message: this.dtoMessage,
+      error: this.error,
+    };
+  }
+}
 
 /**
  * Decode a Base64URL-encoded string to UTF-8.
@@ -46,31 +73,35 @@ export function parseJwtPayload(token: string) {
 }
 
 /**
- * Shared logic to extract access token string from a NextAuth session object.
- * @param sessionObj value returned by getSession()
+ * Stores an access token in browser local storage.
+ * @param token JWT access token
  */
-export function extractTokenFromSession(sessionObj: unknown): string | null {
-  if (!sessionObj) return null;
-  const sessionRecord = sessionObj as Record<string, unknown>;
-  const candidates = [
-    sessionRecord["accessToken"],
-    sessionRecord["access_token"],
-    (sessionRecord["user"] as Record<string, unknown> | undefined)?.[
-      "accessToken"
-    ],
-    (sessionRecord["user"] as Record<string, unknown> | undefined)?.[
-      "access_token"
-    ],
-  ];
-  for (const c of candidates) {
-    if (typeof c === "string" && c.length > 0) return c;
-  }
-  return null;
+export function setStoredAccessToken(token: string): void {
+  if (globalThis.window === undefined) return;
+  globalThis.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+}
+
+/**
+ * Gets access token from browser local storage.
+ */
+export function getStoredAccessToken(): string | null {
+  if (globalThis.window === undefined) return null;
+  const token = globalThis.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  if (!token || token.length === 0) return null;
+  return token;
+}
+
+/**
+ * Clears access token from browser local storage.
+ */
+export function clearStoredAccessToken(): void {
+  if (globalThis.window === undefined) return;
+  globalThis.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
 }
 
 /**
  * Create an axios instance preconfigured with base URL and JSON headers.
- * Request interceptor attaches NextAuth access token when available.
+ * Request interceptor attaches stored access token when available.
  * Response interceptor normalizes errors into `ApiError`.
  * @param baseUrl optional base URL override
  */
@@ -84,17 +115,16 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
   });
 
   instance.interceptors.request.use(
-    async (config) => {
+    (config) => {
       try {
-        const session = await getSession();
-        const token = extractTokenFromSession(session);
+        const token = getStoredAccessToken();
         if (token) {
           const headers = new AxiosHeaders(config.headers);
           headers.set("Authorization", `Bearer ${token}`);
           config.headers = headers;
         }
       } catch {
-        // intentionally swallow session read errors; request proceeds without auth header
+        return config;
       }
       return config;
     },
@@ -112,21 +142,23 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
         (data && (data as Record<string, unknown>)["message"]) ||
         error.message ||
         "Request failed";
-      const errorDto: ApiError = {
-        statusCode: status,
-        let formattedMessage: string | string[];
-        if (typeof message === "string") {
-          formattedMessage = message;
-        } else if (Array.isArray(message)) {
-          formattedMessage = message;
-        } else {
-          formattedMessage = String(message);
-        }
+      let formattedMessage: string | string[];
+      if (typeof message === "string") {
+        formattedMessage = message;
+      } else if (Array.isArray(message)) {
+        formattedMessage = message;
+      } else {
+        formattedMessage = String(message);
+      }
 
-        message: formattedMessage,
-        error: (error.response as ErrorResponse)?.statusText ?? "Error",
-      };
-      return Promise.reject(errorDto);
+      const apiError = new ApiException(
+        status,
+        formattedMessage,
+        (error.response as ErrorResponse)?.statusText ?? "Error",
+        data,
+      );
+
+      return Promise.reject(apiError);
     },
   );
 

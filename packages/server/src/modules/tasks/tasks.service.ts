@@ -69,7 +69,5 @@ export class TasksService {
     if (deletionResult.deletedCount === 0) {
       throw new Error(ErrorIds.FAILED_TO_DELETE_RESOURCE);
     }
-
-    return;
   }
 }

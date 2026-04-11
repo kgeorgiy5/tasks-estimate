@@ -6,7 +6,7 @@ export class PathsUtil {
         segment
           .toString()
           .trim()
-          .replace(/(?:^\/+|\/+$)/g, ""),
+          .replaceAll(/(?:^\/+|\/+$)/g, ""),
       )
       .filter((segment) => segment.length > 0)
       .join("/");

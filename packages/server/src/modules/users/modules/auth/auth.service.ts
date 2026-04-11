@@ -17,7 +17,7 @@ import { ConfigService } from "@nestjs/config";
 export class AuthService {
   constructor(
     @InjectModel(USER_MODEL_TOKEN) private readonly userModel: Model<User>,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -54,7 +54,7 @@ export class AuthService {
     }
 
     const jwtPayload = {
-      sub: user._id,
+      sub: user._id.toString(),
       email: user.email,
     };
 
@@ -81,7 +81,7 @@ export class AuthService {
     });
 
     const jwtPayload = {
-      sub: user._id,
+      sub: user._id.toString(),
       email: user.email,
     };
 

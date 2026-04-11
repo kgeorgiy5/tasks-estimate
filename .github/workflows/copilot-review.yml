@@ -1,107 +1,101 @@
-name: "Copilot Code Review"
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+# name: "Copilot Code Review"
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
 
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      models: read 
-      pull-requests: write
+# jobs:
+#   review:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       models: read
+#       pull-requests: write
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: File-by-File Review (GPT 4o mini)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_REF: ${{ github.base_ref }}
-          MAX_CHARS: 20000 
-        run: |
-          gh extension install github/gh-models || true
-          
-          # Get list of changed files (excluding locks/docs)
-          FILES=$(git diff "origin/$BASE_REF"...HEAD --name-only -- . ':(exclude)*.lock' ':(exclude)*.md')
-          
-          echo "# 🤖 AI Review Summary" > total_feedback.md
-          
-          for file in $FILES; do
-            echo "Processing $file..."
-            git diff "origin/$BASE_REF"...HEAD -- "$file" > single_file.txt
-            
-            # 1. Skip check for empty or too large files
-            FILE_SIZE=$(wc -c < single_file.txt)
-            
-            if [ ! -s single_file.txt ]; then
-              continue
-            elif [ "$FILE_SIZE" -gt "$MAX_CHARS" ]; then
-              # Add entry to final feedback for skipped files
-              echo "### 📄 $file" >> total_feedback.md
-              echo "⚠️ **Skipped**: Diff is too large ($FILE_SIZE characters, limit is $MAX_CHARS). Please review manually." >> total_feedback.md
-              echo -e "\n---\n" >> total_feedback.md
-              continue
-            fi
-            
-            # 2. Build the prompt file
-            cat <<'EOF' > file_prompt.yml
-          messages:
-            - role: system
-              content: |
-                Review this code diff for logic errors, performance and code quality. Issues:
-                - I want you to mark each issue with traffic light colors.
-                - 🔴 RED (use RED emoji) -- critical bugs, UX/UI issues, accessibility issues, flawed logic, etc.
-                - 🟡 YELLOW (use YELLOW emoji) -- code quality issues.
-                - 🟢 GREEN (use GREEN emoji) -- not exactly wrong, but there is an alternative implementation.
-                - This tag should be assigned for each issue individually, don't group them.
-                - Use this template: '## <traffic light emoji> <issue type>\n<content>'
-                - Be concise.
-            - role: user
-              content: |
-                Review this diff:
-          EOF
+#       - name: File-by-File Review (GPT 4o mini)
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           BASE_REF: ${{ github.base_ref }}
+#           MAX_CHARS: 20000
+#         run: |
+#           gh extension install github/gh-models || true
 
-            # 3. Indent and append the diff
-            sed 's/^/                /' single_file.txt >> file_prompt.yml
-            
-            # 4. Run model and append feedback
-            echo "### 📄 $file" >> total_feedback.md
-            gh models run openai/gpt-4o-mini --file file_prompt.yml >> total_feedback.md
-            echo -e "\n---\n" >> total_feedback.md
+#           # Get list of changed files (excluding locks/docs)
+#           FILES=$(git diff "origin/$BASE_REF"...HEAD --name-only -- . ':(exclude)*.lock' ':(exclude)*.md')
 
-            sleep 1 
-          done
-          
-          cp total_feedback.md review_feedback.txt
+#           echo "# 🤖 AI Review Summary" > total_feedback.md
 
-          
-      - name: Post Review Comment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            if (fs.existsSync('review_feedback.txt')) {
-              const feedback = fs.readFileSync('review_feedback.txt', 'utf8').trim();
-              if (feedback.length > 0) {
-                github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: feedback
-                });
-              }
-            }
-            
-      - name: Check for Critical Issues
-        run: |
-          RED_COUNT=$(grep -o "🔴" review_feedback.txt | wc -l)
-          echo "Found $RED_COUNT critical issues (🔴)."
-                     
-          if [ "$RED_COUNT" -gt 1 ]; then
-            echo "❌ FAILED: More than one critical issue found. Please fix the RED items."
-            exit 1
-          fi
+#           for file in $FILES; do
+#             echo "Processing $file..."
+#             git diff "origin/$BASE_REF"...HEAD -- "$file" > single_file.txt
+
+#             # 1. Skip check for empty or too large files
+#             FILE_SIZE=$(wc -c < single_file.txt)
+
+#             if [ ! -s single_file.txt ]; then
+#               continue
+#             elif [ "$FILE_SIZE" -gt "$MAX_CHARS" ]; then
+#               # Add entry to final feedback for skipped files
+#               echo "### 📄 $file" >> total_feedback.md
+#               echo "⚠️ **Skipped**: Diff is too large ($FILE_SIZE characters, limit is $MAX_CHARS). Please review manually." >> total_feedback.md
+#               echo -e "\n---\n" >> total_feedback.md
+#               continue
+#             fi
+
+#             # 2. Build the prompt file
+#             cat <<'EOF' > file_prompt.yml
+#           messages:
+#             - role: system
+#               content: |
+#                 Review this code diff for logic errors, performance and code quality.
+#                 Issues:
+#                 - I want you to mark each issue with traffic light colors.
+#                 - 🔴 RED (use RED emoji) -- critical bugs, UX/UI issues, accessibility issues, flawed logic, etc.
+#                 - 🟡 YELLOW (use YELLOW emoji) -- code quality issues.
+#                 - 🟢 GREEN (use GREEN emoji) -- not exactly wrong, but there is an alternative implementation. Check if it's already implemented too, sometimes you can provide duplicate info.
+
+#                 General Rules for finding and displaying issues:
+#                 - This tag should be assigned for each issue individually, don't group them.
+#                 - Add issue if it's 100% needed and it's not already implemented. Generally, there should be no more than couple of issues per file. So please don't flood the list with garbage issues.
+#                 - Use this template: '## <traffic light emoji> <issue type>\n<content>'
+#                 - Be concise.
+#                 - If a file has //SKIP_REVIEW comment at the top, skip the review
+#             - role: user
+#               content: |
+#                 Review this diff:
+#           EOF
+
+#             # 3. Indent and append the diff
+#             sed 's/^/                /' single_file.txt >> file_prompt.yml
+
+#             # 4. Run model and append feedback
+#             echo "### 📄 $file" >> total_feedback.md
+#             gh models run openai/gpt-4o-mini --file file_prompt.yml >> total_feedback.md
+#             echo -e "\n---\n" >> total_feedback.md
+
+#             sleep 1
+#           done
+
+#           cp total_feedback.md review_feedback.txt
+
+#       - name: Post Review Comment
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const fs = require('fs');
+#             if (fs.existsSync('review_feedback.txt')) {
+#               const feedback = fs.readFileSync('review_feedback.txt', 'utf8').trim();
+#               if (feedback.length > 0) {
+#                 github.rest.issues.createComment({
+#                   issue_number: context.issue.number,
+#                   owner: context.repo.owner,
+#                   repo: context.repo.repo,
+#                   body: feedback
+#                 });
+#               }
+#             }

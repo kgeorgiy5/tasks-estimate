@@ -2,8 +2,8 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions, Session, User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import { parseJwtPayload } from "@/utils/api";
-import { serverSignIn } from "@/api/users/auth";
+import { authResponseSchema, signInSchema } from "@tasks-estimate/shared";
+import { createApiClient, parseJwtPayload } from "@/utils/api";
 
 const API_URL = process.env.API_URL ?? "";
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? "";
@@ -20,10 +20,20 @@ const options: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const parsed = await serverSignIn(
-            { email: credentials.email, password: credentials.password },
-            API_URL,
+          signInSchema.parse({
+            email: credentials.email,
+            password: credentials.password,
+          });
+
+          const client = createApiClient(API_URL);
+          const response = await client.post<{ access_token: string }>(
+            "/users/auth/sign-in",
+            {
+              email: credentials.email,
+              password: credentials.password,
+            },
           );
+          const parsed = authResponseSchema.parse(response.data);
 
           const payload = parseJwtPayload(parsed.access_token);
           if (!payload) return null;

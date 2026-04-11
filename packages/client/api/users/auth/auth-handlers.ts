@@ -11,8 +11,6 @@ import {
 
 import { createApiClient } from "../../../utils/api";
 
-const SERVER_AUTH_SIGNIN = "/users/auth/sign-in";
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 /**
@@ -54,20 +52,14 @@ export async function signIn(payload: SignInDto ): Promise<AuthResponseDto> {
  */
 export async function signUp(payload: SignUpDto): Promise<AuthResponseDto> {
   signUpSchema.parse(payload);
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
 
-  const res = await fetch(`${API_BASE}/users/auth/sign-up`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const response = await client.post<{ access_token: string }>(
+    "/users/auth/sign-up",
+    payload,
+  );
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(text || `Sign-up failed with status ${res.status}`);
-  }
-
-  const body = await res.json();
-  const parsed = authResponseSchema.parse(body);
+  const parsed = authResponseSchema.parse(response.data);
 
   await nextAuthSignIn("credentials", {
     redirect: false,
@@ -83,29 +75,4 @@ export async function signUp(payload: SignUpDto): Promise<AuthResponseDto> {
   }
 
   return parsed;
-}
-
-/**
- * Server-side helper to call backend sign-in endpoint directly.
- * Returns the parsed AuthResponseDto from the backend.
- * @param payload SignInDto
- * @param apiBase optional override for API base URL
- */
-export async function serverSignIn(
-  payload: SignInDto,
-  apiBase?: string,
-): Promise<AuthResponseDto> {
-  signInSchema.parse(payload);
-
-  const client = createApiClient(apiBase ?? process.env.NEXT_PUBLIC_API_URL ?? "");
-
-  const response = await client.post<{ access_token: string }>(
-    SERVER_AUTH_SIGNIN,
-    {
-      email: payload.email,
-      password: payload.password,
-    },
-  );
-
-  return authResponseSchema.parse(response.data);
 }

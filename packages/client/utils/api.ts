@@ -112,17 +112,17 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
         (data && (data as Record<string, unknown>)["message"]) ||
         error.message ||
         "Request failed";
+      let formattedMessage: string | string[];
+      if (typeof message === "string") {
+        formattedMessage = message;
+      } else if (Array.isArray(message)) {
+        formattedMessage = message;
+      } else {
+        formattedMessage = String(message);
+      }
+
       const errorDto: ApiError = {
         statusCode: status,
-        let formattedMessage: string | string[];
-        if (typeof message === "string") {
-          formattedMessage = message;
-        } else if (Array.isArray(message)) {
-          formattedMessage = message;
-        } else {
-          formattedMessage = String(message);
-        }
-
         message: formattedMessage,
         error: (error.response as ErrorResponse)?.statusText ?? "Error",
       };

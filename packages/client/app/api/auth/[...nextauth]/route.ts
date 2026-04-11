@@ -1,12 +1,12 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { NextAuthOptions } from "next-auth";
-import { authResponseSchema } from "@tasks-estimate/shared";
-import { createApiClient, parseJwtPayload } from "@/utils/api";
+import type { NextAuthOptions, Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import { parseJwtPayload } from "@/utils/api";
+import { serverSignIn } from "@/api/users/auth";
 
 const API_URL = process.env.API_URL ?? "";
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET ?? "";
-const AUTH_SIGNIN = "/users/auth/sign-in";
 
 const options: NextAuthOptions = {
   providers: [
@@ -16,29 +16,24 @@ const options: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, _req) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const backendClient = createApiClient(API_URL);
-
         try {
-          const response = await backendClient.post<{ access_token: string }>(
-            AUTH_SIGNIN,
-            {
-              email: credentials.email,
-              password: credentials.password,
-            },
+          const parsed = await serverSignIn(
+            { email: credentials.email, password: credentials.password },
+            API_URL,
           );
 
-          const parsed = authResponseSchema.parse(response.data);
           const payload = parseJwtPayload(parsed.access_token);
           if (!payload) return null;
 
           return {
+            id: payload.sub,
             accessToken: parsed.access_token,
             email: payload.email,
             sub: payload.sub,
-          };
+          } as unknown as User;
         } catch {
           return null;
         }
@@ -56,41 +51,28 @@ const options: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token }: { session: unknown; token: unknown }) {
-      // Narrow `token` safely (unknown -> record) and check types before assigning
-      const tokenRecord =
-        typeof token === "object" && token !== null
-          ? (token as Record<string, unknown>)
-          : undefined;
+    async session({ session, token }: { session: Session; token: JWT }): Promise<Session> {
+      const tokenRecord = token as Record<string, unknown> | undefined;
 
-      // assign accessToken if present and a string
-      const accessToken =
-        tokenRecord && typeof tokenRecord["accessToken"] === "string"
-          ? tokenRecord["accessToken"]
-          : undefined;
-      if (accessToken) {
-        (session as Record<string, unknown>)["accessToken"] = accessToken;
+      if (tokenRecord && typeof tokenRecord["accessToken"] === "string") {
+        (session as unknown as Record<string, unknown>)["accessToken"] =
+          tokenRecord["accessToken"];
       }
 
-      // ensure session.user exists as an object
-      const sessionRecord =
-        typeof session === "object" && session !== null
-          ? (session as Record<string, unknown>)
-          : {};
-      sessionRecord["user"] = sessionRecord["user"] ?? {};
+      // ensure session.user exists
+      if (!session.user) session.user = {} as unknown as Record<string, unknown>;
 
-      // assign email and id safely
       if (tokenRecord && typeof tokenRecord["email"] === "string") {
-        (sessionRecord["user"] as Record<string, unknown>)["email"] =
+        (session.user as unknown as Record<string, unknown>)["email"] =
           tokenRecord["email"];
       }
 
       if (tokenRecord && typeof tokenRecord["sub"] === "string") {
-        (sessionRecord["user"] as Record<string, unknown>)["id"] =
+        (session.user as unknown as Record<string, unknown>)["id"] =
           tokenRecord["sub"];
       }
 
-      return sessionRecord as unknown;
+      return session;
     },
   },
 };

@@ -9,6 +9,10 @@ import {
   signUpSchema,
 } from "@tasks-estimate/shared";
 
+import { createApiClient } from "../../../utils/api";
+
+const SERVER_AUTH_SIGNIN = "/users/auth/sign-in";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 /**
@@ -79,4 +83,29 @@ export async function signUp(payload: SignUpDto): Promise<AuthResponseDto> {
   }
 
   return parsed;
+}
+
+/**
+ * Server-side helper to call backend sign-in endpoint directly.
+ * Returns the parsed AuthResponseDto from the backend.
+ * @param payload SignInDto
+ * @param apiBase optional override for API base URL
+ */
+export async function serverSignIn(
+  payload: SignInDto,
+  apiBase?: string,
+): Promise<AuthResponseDto> {
+  signInSchema.parse(payload);
+
+  const client = createApiClient(apiBase ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+
+  const response = await client.post<{ access_token: string }>(
+    SERVER_AUTH_SIGNIN,
+    {
+      email: payload.email,
+      password: payload.password,
+    },
+  );
+
+  return authResponseSchema.parse(response.data);
 }

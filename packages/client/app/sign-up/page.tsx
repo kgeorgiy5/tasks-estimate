@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { JSX } from "react";
 import { signUp } from "@/api/users";
+import { parseErrorCode } from "@tasks-estimate/shared";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,20 +19,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const UNKNOWN_ERROR_MESSAGE = "Unable to sign up";
 type FormSubmitEvent =
   Parameters<NonNullable<JSX.IntrinsicElements["form"]["onSubmit"]>>[0];
 
-/**
- * Converts unknown errors into a message suitable for UI.
- */
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error && error.message.length > 0) {
-    return error.message;
-  }
-
-  return UNKNOWN_ERROR_MESSAGE;
-}
+const UNKNOWN_ERROR_MESSAGE = "Unable to sign up";
 
 /**
  * Renders the sign-up page and submits registration data.
@@ -56,7 +47,11 @@ export default function SignUpPage(): JSX.Element {
       await signUp({ email, password, confirmPassword });
       router.replace(NavigationPaths.HOME);
     } catch (error) {
-      setErrorMessage(getErrorMessage(error));
+      try {
+        setErrorMessage(parseErrorCode(error) ?? UNKNOWN_ERROR_MESSAGE);
+      } catch {
+        setErrorMessage(UNKNOWN_ERROR_MESSAGE);
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -1,12 +1,12 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import { Loader } from "./loader";
 import { ErrorIds } from "@tasks-estimate/shared";
+import { useAuthStore } from "@/stores";
 import type { ReactNode } from "react";
 
 type AuthGuardProps = {
@@ -19,32 +19,37 @@ const AUTH_ROUTES = new Set([NavigationPaths.SIGN_IN, NavigationPaths.SIGN_UP]);
  * Protects private routes and redirects users based on auth status.
  */
 export function AuthGuard({ children }: Readonly<AuthGuardProps>) {
-  const { data: _session, status } = useSession();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
   const router = useRouter();
   const pathname = usePathname();
   const isAuthRoute = AUTH_ROUTES.has(pathname as NavigationPaths);
 
   useEffect(() => {
-    if (status === "unauthenticated" && !isAuthRoute) {
+    if (!isInitialized) {
+      return;
+    }
+
+    if (!isAuthenticated && !isAuthRoute) {
       toast.error(ErrorIds.NOT_AUTHENTICATED);
       router.replace(NavigationPaths.SIGN_IN);
       return;
     }
 
-    if (status === "authenticated" && isAuthRoute) {
+    if (isAuthenticated && isAuthRoute) {
       router.replace(NavigationPaths.HOME);
     }
-  }, [isAuthRoute, router, status]);
+  }, [isAuthRoute, isAuthenticated, isInitialized, router]);
 
-  if (status === "loading" && !isAuthRoute) {
+  if (!isInitialized) {
     return <Loader />;
   }
 
-  if (status === "unauthenticated" && !isAuthRoute) {
+  if (!isAuthenticated && !isAuthRoute) {
     return null;
   }
 
-  if (status === "authenticated" && isAuthRoute) {
+  if (isAuthenticated && isAuthRoute) {
     return null;
   }
 

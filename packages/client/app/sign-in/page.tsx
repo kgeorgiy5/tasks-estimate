@@ -25,7 +25,7 @@ type FormSubmitEvent =
 const UNKNOWN_ERROR_MESSAGE = "Unable to sign in";
 
 /**
- * Renders the sign-in page and submits credentials using NextAuth.
+ * Renders the sign-in page and submits credentials via backend HTTP API.
  */
 export default function SignInPage(): JSX.Element {
   const router = useRouter();

@@ -1,6 +1,5 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import type { JSX, ReactNode } from "react";
 
 type AuthSessionProviderProps = {
@@ -8,10 +7,10 @@ type AuthSessionProviderProps = {
 };
 
 /**
- * Provides NextAuth session context to client components.
+ * Provides auth wrapper for client components.
  */
 export function AuthSessionProvider({
   children,
 }: Readonly<AuthSessionProviderProps>): JSX.Element {
-  return <SessionProvider>{children}</SessionProvider>;
+  return <>{children}</>;
 }

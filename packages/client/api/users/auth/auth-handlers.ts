@@ -1,5 +1,5 @@
-import { signIn as nextAuthSignIn, getSession } from "next-auth/react";
-import { extractTokenFromSession } from "../../../utils/api";
+import { createApiClient } from "../../../utils/api";
+import { useAuthStore } from "../../../stores";
 import {
   SignInDto,
   SignUpDto,
@@ -9,44 +9,31 @@ import {
   signUpSchema,
 } from "@tasks-estimate/shared";
 
-import { createApiClient } from "../../../utils/api";
-
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+const SERVER_AUTH_SIGNIN = "/users/auth/sign-in";
+const SERVER_AUTH_SIGNUP = "/users/auth/sign-up";
 
 /**
- * Sign in using NextAuth credentials provider.
- * Uses NextAuth client to perform credentials sign-in and returns the auth response
- * containing the `access_token` from the established NextAuth session.
+ * Sign in against backend using JSON HTTP request.
+ * Stores returned access token in local storage for subsequent API calls.
  * @param payload SignInDto
  * @returns Promise<AuthResponseDto>
  */
 export async function signIn(payload: SignInDto ): Promise<AuthResponseDto> {
   signInSchema.parse(payload);
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
 
-  const result = await nextAuthSignIn("credentials", {
-    redirect: false,
-    email: payload.email,
-    password: payload.password,
-  } as Record<string, unknown>);
-
-  if (result?.error) {
-    throw new Error(result.error as string);
-  }
-
-  const session = await getSession();
-  const accessToken = extractTokenFromSession(session);
-
-  if (typeof accessToken !== "string" || accessToken.length === 0) {
-    throw new Error("No access token available after sign in");
-  }
-
-  return authResponseSchema.parse({ access_token: accessToken });
+  const response = await client.post<{ access_token: string }>(
+    SERVER_AUTH_SIGNIN,
+    payload,
+  );
+  const parsed = authResponseSchema.parse(response.data);
+  useAuthStore.getState().setFromToken(parsed.access_token);
+  return parsed;
 }
 
 /**
- * Sign up a new user via backend and establish a NextAuth session.
- * Calls the backend sign-up endpoint, then performs a NextAuth credentials sign-in
- * to create the client session. Returns an AuthResponseDto with the resulting token.
+ * Sign up a new user via backend and store returned access token.
  * @param payload SignUpDto
  * @returns Promise<AuthResponseDto>
  */
@@ -55,24 +42,11 @@ export async function signUp(payload: SignUpDto): Promise<AuthResponseDto> {
   const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
 
   const response = await client.post<{ access_token: string }>(
-    "/users/auth/sign-up",
+    SERVER_AUTH_SIGNUP,
     payload,
   );
 
   const parsed = authResponseSchema.parse(response.data);
-
-  await nextAuthSignIn("credentials", {
-    redirect: false,
-    email: payload.email,
-    password: payload.password,
-  } as Record<string, unknown>);
-
-  const session = await getSession();
-  const accessToken = extractTokenFromSession(session);
-
-  if (typeof accessToken === "string" && accessToken.length > 0) {
-    return authResponseSchema.parse({ access_token: accessToken });
-  }
-
+  useAuthStore.getState().setFromToken(parsed.access_token);
   return parsed;
 }

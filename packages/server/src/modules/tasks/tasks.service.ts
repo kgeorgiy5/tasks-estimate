@@ -12,6 +12,9 @@ import { User, USER_MODEL_TOKEN } from "../users/models";
 
 @Injectable()
 export class TasksService {
+  private readonly DEFAULT_OFFSET = 0;
+  private readonly DEFAULT_LIMIT = 20;
+
   constructor(
     @InjectModel(TASK_MODEL_TOKEN) private readonly taskModel: Model<Task>,
     @InjectModel(TASK_ENTRY_MODEL_TOKEN)
@@ -23,10 +26,20 @@ export class TasksService {
   /**
    * Returns user tasks with aggregated tracked time from task entries.
    */
-  public async listTasks(userId: Types.ObjectId) {
-    const tasks = await this.taskModel.find({
-      userId,
-    });
+  public async listTasks(
+    userId: Types.ObjectId,
+    options?: {
+      offset?: number;
+      limit?: number;
+    },
+  ) {
+    const offset = options?.offset ?? this.DEFAULT_OFFSET;
+    const limit = options?.limit ?? this.DEFAULT_LIMIT;
+
+    const [tasks, total] = await Promise.all([
+      this.taskModel.find({ userId }).skip(offset).limit(limit).exec(),
+      this.taskModel.countDocuments({ userId }).exec(),
+    ]);
 
     const enrichedTasks = await Promise.all(
       tasks.map(async (task) => {
@@ -41,7 +54,12 @@ export class TasksService {
       }),
     );
 
-    return enrichedTasks;
+    return {
+      items: enrichedTasks,
+      total,
+      offset,
+      limit,
+    };
   }
 
   /**

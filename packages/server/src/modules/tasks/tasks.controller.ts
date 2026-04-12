@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Req,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { TasksModuleController } from "./decorators";
@@ -17,6 +18,8 @@ import {
   createTaskSchema,
   ManageTaskDto,
   manageTaskSchema,
+  paginationRequestSchema,
+  PaginationRequestDto,
 } from "@tasks-estimate/shared";
 import { Types } from "mongoose";
 
@@ -26,9 +29,13 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  public async listTasks(@Req() req: any) {
+  public async listTasks(
+    @Req() req: any,
+    @Query(new ZodValidationPipe(paginationRequestSchema))
+    pagination: PaginationRequestDto,
+  ) {
     const userId = new Types.ObjectId(req.user.sub);
-    return await this.tasksService.listTasks(userId);
+    return await this.tasksService.listTasks(userId, pagination);
   }
 
   @Post()

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentEntryStore } from "@/stores";
 import { createTask, endTaskEntry } from "@/api";
 
@@ -12,6 +13,7 @@ type PlayButtonProps = {
 export function PlayButton({ title, onStarted }: PlayButtonProps) {
   const entry = useCurrentEntryStore((s) => s.entry);
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleClick = async () => {
     if (loading) return;
@@ -37,6 +39,10 @@ export function PlayButton({ title, onStarted }: PlayButtonProps) {
 
         if (taskId) {
           await endTaskEntry(taskId);
+          // Invalidate tasks list so UI refreshes after ending an entry
+          try {
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+          } catch {}
           // Clear the current entry from store and stop polling
           useCurrentEntryStore.setState({ entry: null });
           useCurrentEntryStore.getState().stopPolling();

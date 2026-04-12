@@ -28,3 +28,9 @@ export async function getCurrentEntry() {
   const response = await client.get(`${TASKS_BASE}/current-entry`);
   return response.data;
 }
+
+export async function listTasks(offset = 0, limit = 20) {
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+  const response = await client.get(TASKS_BASE, { params: { offset, limit } });
+  return response.data;
+}

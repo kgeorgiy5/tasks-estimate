@@ -37,7 +37,7 @@ export class TasksService {
     const limit = options?.limit ?? this.DEFAULT_LIMIT;
 
     const [tasks, total] = await Promise.all([
-      this.taskModel.find({ userId }).skip(offset).limit(limit).exec(),
+      this.taskModel.find({ userId }).sort({ _id: -1 }).skip(offset).limit(limit).exec(),
       this.taskModel.countDocuments({ userId }).exec(),
     ]);
 

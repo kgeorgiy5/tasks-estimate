@@ -12,7 +12,12 @@ import { TasksModuleController } from "./decorators";
 import { TasksService } from "./tasks.service";
 import { AuthGuard } from "../users/modules/auth/guards/auth.guard";
 import { ZodValidationPipe } from "../../pipes";
-import { ManageTaskDto, manageTaskSchema } from "@tasks-estimate/shared";
+import {
+  CreateTaskDto,
+  createTaskSchema,
+  ManageTaskDto,
+  manageTaskSchema,
+} from "@tasks-estimate/shared";
 import { Types } from "mongoose";
 
 @TasksModuleController()
@@ -29,10 +34,10 @@ export class TasksController {
   @Post()
   public async createTask(
     @Req() req: any,
-    @Body(new ZodValidationPipe(manageTaskSchema)) taskPayload: ManageTaskDto,
+    @Body(new ZodValidationPipe(createTaskSchema)) taskPayload: CreateTaskDto,
   ) {
     const userId = new Types.ObjectId(req.user.sub);
-    return await this.tasksService.saveTask(userId, taskPayload);
+    return await this.tasksService.createTaskAndStartEntry(userId, taskPayload);
   }
 
   @Post("bulk")
@@ -57,5 +62,25 @@ export class TasksController {
   public async deleteTask(@Param("id") id: string) {
     const taskId = new Types.ObjectId(id);
     return await this.tasksService.deleteTask(taskId);
+  }
+
+  /**
+   * Starts a timer entry for a task.
+   */
+  @Post(":id/entries/start")
+  public async startTaskEntry(@Req() req: any, @Param("id") id: string) {
+    const userId = new Types.ObjectId(req.user.sub);
+    const taskId = new Types.ObjectId(id);
+    return await this.tasksService.startTaskEntry(userId, taskId);
+  }
+
+  /**
+   * Ends the active timer entry for a task.
+   */
+  @Post(":id/entries/end")
+  public async endTaskEntry(@Req() req: any, @Param("id") id: string) {
+    const userId = new Types.ObjectId(req.user.sub);
+    const taskId = new Types.ObjectId(id);
+    return await this.tasksService.endTaskEntry(userId, taskId);
   }
 }

@@ -45,6 +45,24 @@ export class TasksService {
   }
 
   /**
+   * Returns the user's current running task entry (or null if none).
+   */
+  public async getCurrentTaskEntry(userId: Types.ObjectId) {
+    const user = await this.userModel.findById(userId).lean();
+
+    if (!user) {
+      throw new NotFoundException(ErrorIds.USER_NOT_FOUND);
+    }
+
+    if (!user.currentTaskEntryId) return null;
+
+    // Populate the related task so the client can display task metadata
+    return await this.taskEntryModel
+      .findById(user.currentTaskEntryId)
+      .populate<{ taskId: any }>("taskId");
+  }
+
+  /**
    * Creates tasks and seeds initial task entries with assigned time.
    */
   public async bulkCreateTasks(

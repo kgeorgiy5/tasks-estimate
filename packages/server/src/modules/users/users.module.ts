@@ -16,5 +16,6 @@ import { UsersController } from "./users.controller";
   ],
   providers: [UsersService],
   controllers: [UsersController],
+  exports: [MongooseModule.forFeature([{ name: USER_MODEL_TOKEN, schema: UserSchema }])],
 })
 export class UsersModule {}

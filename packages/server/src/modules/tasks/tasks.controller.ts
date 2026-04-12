@@ -83,4 +83,13 @@ export class TasksController {
     const taskId = new Types.ObjectId(id);
     return await this.tasksService.endTaskEntry(userId, taskId);
   }
+
+  /**
+   * Get the authenticated user's current running task entry.
+   */
+  @Get("current-entry")
+  public async getCurrentEntry(@Req() req: any) {
+    const userId = new Types.ObjectId(req.user.sub);
+    return await this.tasksService.getCurrentTaskEntry(userId);
+  }
 }

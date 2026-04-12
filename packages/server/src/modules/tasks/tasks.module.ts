@@ -10,6 +10,7 @@ import {
 } from "./models";
 import { TasksController } from "./tasks.controller";
 import { AuthModule } from "../users/modules/auth/auth.module";
+import { UsersModule } from "../users/users.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthModule } from "../users/modules/auth/auth.module";
       { name: TASK_ENTRY_MODEL_TOKEN, schema: TaskEntrySchema },
     ]),
     AuthModule,
+    UsersModule,
   ],
   providers: [TasksService],
   controllers: [TasksController],

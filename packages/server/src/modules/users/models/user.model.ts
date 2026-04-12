@@ -1,5 +1,4 @@
 import { Schema, Document, Types, SchemaTypes } from "mongoose";
-import { TASK_ENTRY_MODEL_TOKEN } from "../../tasks/models/task-entry.model";
 
 export const USER_MODEL_TOKEN = "User";
 
@@ -14,6 +13,6 @@ export const UserSchema = new Schema<User>({
   password: { type: String, required: true },
   currentTaskEntryId: {
     type: SchemaTypes.ObjectId,
-    ref: TASK_ENTRY_MODEL_TOKEN,
+    ref: "TaskEntry",
   },
 });

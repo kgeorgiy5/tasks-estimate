@@ -36,9 +36,21 @@ export class TasksService {
     const offset = options?.offset ?? this.DEFAULT_OFFSET;
     const limit = options?.limit ?? this.DEFAULT_LIMIT;
 
+    // If the user has an active running entry (no endDateTime), exclude that
+    // task from the listing so the UI doesn't show the currently running task.
+    const activeEntry = await this.taskEntryModel.findOne({
+      userId,
+      endDateTime: { $exists: false },
+    }).select("taskId");
+
+    const taskFilter: any = { userId };
+    if (activeEntry?.taskId) {
+      taskFilter._id = { $ne: activeEntry.taskId };
+    }
+
     const [tasks, total] = await Promise.all([
-      this.taskModel.find({ userId }).sort({ _id: -1 }).skip(offset).limit(limit).exec(),
-      this.taskModel.countDocuments({ userId }).exec(),
+      this.taskModel.find(taskFilter).sort({ _id: -1 }).skip(offset).limit(limit).exec(),
+      this.taskModel.countDocuments(taskFilter).exec(),
     ]);
 
     const enrichedTasks = await Promise.all(

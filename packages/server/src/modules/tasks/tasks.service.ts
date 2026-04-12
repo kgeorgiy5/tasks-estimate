@@ -8,6 +8,7 @@ import {
 import { Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ErrorIds, ManageTaskDto, CreateTaskDto } from "@tasks-estimate/shared";
+import { User, USER_MODEL_TOKEN } from "../users/models";
 
 @Injectable()
 export class TasksService {
@@ -15,6 +16,8 @@ export class TasksService {
     @InjectModel(TASK_MODEL_TOKEN) private readonly taskModel: Model<Task>,
     @InjectModel(TASK_ENTRY_MODEL_TOKEN)
     private readonly taskEntryModel: Model<TaskEntry>,
+    @InjectModel(USER_MODEL_TOKEN)
+    private readonly userModel: Model<User>,
   ) {}
 
   /**
@@ -114,12 +117,17 @@ export class TasksService {
     const createdTask = await task.save();
     const now = new Date();
 
-    await this.taskEntryModel.create({
+    const createdEntry = await this.taskEntryModel.create({
       taskId: createdTask._id,
       userId,
       timeSeconds: 0,
       startDateTime: now,
     });
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $set: { currentTaskEntryId: createdEntry._id } },
+    );
 
     return createdTask;
   }
@@ -184,12 +192,19 @@ export class TasksService {
       throw new Error(ErrorIds.FAILED_TO_UPDATE_RESOURCE);
     }
 
-    return await this.taskEntryModel.create({
+    const createdEntry = await this.taskEntryModel.create({
       taskId,
       userId,
       timeSeconds: 0,
       startDateTime: new Date(),
     });
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $set: { currentTaskEntryId: createdEntry._id } },
+    );
+
+    return createdEntry;
   }
 
   /**
@@ -215,6 +230,11 @@ export class TasksService {
     activeTaskEntry.timeSeconds = Math.max(durationSeconds, 0);
 
     const savedTaskEntry = await activeTaskEntry.save();
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $unset: { currentTaskEntryId: "" } },
+    );
 
     await this.classifyTask(taskId);
 

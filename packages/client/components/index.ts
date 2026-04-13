@@ -9,4 +9,7 @@ export * from "./play-button";
 export * from "./project-selector";
 export * from "./project-card";
 export * from "./manage-project-dialog";
+export * from "./confirm-delete-dialog";
+export * from "./project-icon-picker";
+export * from "./project-color-picker";
 export * from "./sidebar";

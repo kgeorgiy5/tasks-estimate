@@ -10,8 +10,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ProjectIconPicker } from "./project-icon-picker";
+import { ProjectColorPicker } from "./project-color-picker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { parseErrorCode } from "@tasks-estimate/shared";
+import { parseErrorCode, type ProjectIcon } from "@tasks-estimate/shared";
 import { useEffect, useState } from "react";
 
 type ManageProjectDialogProps = Readonly<{
@@ -21,17 +23,23 @@ type ManageProjectDialogProps = Readonly<{
   projectId?: string;
   /** Initial title to prefill when editing */
   initialTitle?: string;
+  /** Initial icon to prefill when editing */
+  initialIcon?: ProjectIcon;
+  /** Initial color to prefill when editing */
+  initialColor?: string;
   /** Called after create or edit with resulting project id */
   onSaved?: (projectId: string) => void;
 }>;
 
-export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitle, onSaved }: ManageProjectDialogProps) {
+export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitle, initialIcon, initialColor, onSaved }: ManageProjectDialogProps) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
+  const [icon, setIcon] = useState<ProjectIcon | undefined>(undefined);
+  const [color, setColor] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: async (payload: { title: string }) => {
+    mutationFn: async (payload: { title: string; icon?: ProjectIcon; color?: string }) => {
       if (projectId) return await editProject(projectId, payload);
       return await createProject(payload);
     },
@@ -46,8 +54,12 @@ export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitl
   });
 
   useEffect(() => {
-    if (open) setTitle(initialTitle ?? "");
-  }, [open, initialTitle]);
+    if (open) {
+      setTitle(initialTitle ?? "");
+      setIcon(initialIcon ?? undefined);
+      setColor(initialColor ?? undefined);
+    }
+  }, [open, initialTitle, initialIcon, initialColor]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,10 +75,14 @@ export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitl
             setError(null);
             const t = title.trim();
             if (!t) return setError("Project title is required");
-            await mutation.mutateAsync({ title: t });
+            await mutation.mutateAsync({ title: t, icon: icon ?? undefined, color: color ?? undefined });
           }}
         >
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Project title" autoFocus disabled={mutation.isPending} />
+          <div className="flex gap-2 items-center">
+            <ProjectIconPicker value={icon} onChange={setIcon} disabled={mutation.isPending} />
+            <ProjectColorPicker value={color} onChange={setColor} disabled={mutation.isPending} />
+          </div>
           {error ? <p className="text-xs text-destructive">{error}</p> : null}
 
           <DialogFooter>

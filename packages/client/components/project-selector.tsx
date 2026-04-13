@@ -1,15 +1,7 @@
 "use client";
 
-import { createProject, listProjects } from "@/api";
+import { listProjects } from "@/api";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,10 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { parseErrorCode } from "@tasks-estimate/shared";
+import { useQuery } from "@tanstack/react-query";
 import { JSX, useMemo, useState } from "react";
+import { ProjectIcon } from "./project-icon";
+import { ManageProjectDialog } from "./manage-project-dialog";
 
 type ProjectSelectorProps = Readonly<{
   value?: string;
@@ -41,10 +33,7 @@ const NO_PROJECT_VALUE = "__none__";
  */
 export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
   const disabled = (arguments[0] as ProjectSelectorProps | undefined)?.disabled ?? false;
-  const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [projectTitle, setProjectTitle] = useState("");
-  const [createError, setCreateError] = useState<string | null>(null);
 
   const projectsQuery = useQuery({
     queryKey: ["projects"],
@@ -59,41 +48,21 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
     [projects, value],
   );
 
-  const createProjectMutation = useMutation({
-    mutationFn: createProject,
-    onSuccess: async (project) => {
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
-      onChange(project._id);
-      setProjectTitle("");
-      setCreateError(null);
-      setIsCreateDialogOpen(false);
-    },
-    onError: (error: unknown) => {
-      setCreateError(parseErrorCode(error));
-    },
-  });
+  
 
-  /**
-   * Submits project title and creates a project.
-   */
-  async function handleCreateProject(
-    event: FormSubmitEvent,
-  ): Promise<void> {
-    event.preventDefault();
-    setCreateError(null);
-
-    const title = projectTitle.trim();
-    if (!title) {
-      setCreateError("Project title is required");
-      return;
-    }
-
-    await createProjectMutation.mutateAsync({ title });
+  let triggerContent: any = null;
+  if (projectsQuery.isLoading) {
+    triggerContent = "Loading projects...";
+  } else if (selectedProject) {
+    triggerContent = (
+      <div className="flex items-center gap-3 w-full">
+        <ProjectIcon icon={selectedProject.icon} color={selectedProject.color} className="h-6 w-6" />
+        <span className="truncate">{selectedProject.title}</span>
+      </div>
+    );
+  } else {
+    triggerContent = "Select project";
   }
-
-  const triggerLabel = selectedProject?.title
-    ? `Project: ${selectedProject.title}`
-    : "Select project";
 
   return (
     <>
@@ -104,7 +73,7 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
               className="w-full justify-between"
               disabled={projectsQuery.isLoading || disabled}
             >
-              {projectsQuery.isLoading ? "Loading projects..." : triggerLabel}
+              {triggerContent}
             </Button>
           </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
@@ -128,8 +97,9 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
               <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
             ) : (
               projects.map((project) => (
-                <DropdownMenuRadioItem key={project._id} value={project._id}>
-                  {project.title}
+                <DropdownMenuRadioItem key={project._id} value={project._id} className="flex items-center gap-3">
+                  <ProjectIcon icon={project.icon} color={project.color} className="h-5 w-5" iconClassName="h-3.5 w-3.5" />
+                  <span className="truncate">{project.title}</span>
                 </DropdownMenuRadioItem>
               ))
             )}
@@ -141,43 +111,13 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create a project</DialogTitle>
-            <DialogDescription>
-              Add a project, then use it for new tasks.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form className="space-y-3" onSubmit={handleCreateProject}>
-            <Input
-              aria-label="Project title"
-              placeholder="Project title"
-              value={projectTitle}
-              onChange={(event) => setProjectTitle(event.target.value)}
-              disabled={createProjectMutation.isPending}
-              autoFocus
-            />
-            {createError ? (
-              <p className="text-xs text-destructive">{createError}</p>
-            ) : null}
-            <DialogFooter>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setIsCreateDialogOpen(false)}
-                disabled={createProjectMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createProjectMutation.isPending}>
-                {createProjectMutation.isPending ? "Creating..." : "Create"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <ManageProjectDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSaved={(id) => {
+          onChange(id);
+        }}
+      />
     </>
   );
 }

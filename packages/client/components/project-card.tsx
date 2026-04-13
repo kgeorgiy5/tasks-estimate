@@ -7,6 +7,7 @@ import { FC, useState } from "react";
 import type { GetProjectDto } from "@tasks-estimate/shared";
 import { ManageProjectDialog } from "./manage-project-dialog";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
+import { ProjectIcon } from "./project-icon";
 
 type ProjectCardProps = {
   project: GetProjectDto;
@@ -40,7 +41,10 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
 
   return (
     <div className="w-full flex items-center justify-between rounded border px-3 py-2">
-      <div className="flex-1 text-sm">{project.title}</div>
+      <div className="flex-1 text-sm flex items-center gap-3">
+        <ProjectIcon icon={project.icon} color={project.color} />
+        <div className="truncate">{project.title}</div>
+      </div>
       <div className="flex gap-2">
         <Button
           variant="ghost"
@@ -97,6 +101,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
         onOpenChange={setEditOpen}
         projectId={project._id}
         initialTitle={project.title}
+        initialIcon={project.icon}
+        initialColor={project.color}
         onSaved={handleSaved}
       />
       <ConfirmDeleteDialog

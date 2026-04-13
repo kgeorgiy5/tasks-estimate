@@ -161,6 +161,8 @@ export class TasksService {
           },
           projectId: { $arrayElemAt: ["$project._id", 0] },
           projectTitle: { $arrayElemAt: ["$project.title", 0] },
+          projectIcon: { $arrayElemAt: ["$project.icon", 0] },
+          projectColor: { $arrayElemAt: ["$project.color", 0] },
         },
       },
       {
@@ -234,7 +236,7 @@ export class TasksService {
       .populate<{ taskId: PopulatedTask }>("taskId", "title projectId")
       .populate({
         path: "taskId",
-        populate: { path: "projectId", select: "title" },
+        populate: { path: "projectId", select: "title icon color" },
       });
 
     return entries.map((entry) => {
@@ -257,6 +259,8 @@ export class TasksService {
         projectId,
         projectTitle:
           project && (project as any)?._id ? (project as any).title : undefined,
+        projectIcon: project && (project as any)?._id ? (project as any).icon : undefined,
+        projectColor: project && (project as any)?._id ? (project as any).color : undefined,
         userId: entry.userId.toString(),
         timeSeconds: entry.timeSeconds,
         startDateTime: entry.startDateTime.toISOString(),

@@ -6,6 +6,7 @@ import { useCurrentEntryStore } from "@/stores";
 import { startTaskEntry } from "@/api";
 import TaskPlayButton from "@/components/task-play-button";
 import type { ListTaskDto } from "@tasks-estimate/shared";
+import { ProjectIcon } from "./project-icon";
 import { formatHHMMSS } from "@tasks-estimate/shared";
 
 type TaskCardProps = {
@@ -55,8 +56,14 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
           >
             {task.title}
           </div>
-          <div className="text-xs text-zinc-500 mt-0.5 truncate">
-            {task.projectTitle ?? "No project"}
+          <div className="text-xs text-zinc-500 mt-0.5 truncate flex items-center gap-2">
+            <ProjectIcon
+              icon={task.projectIcon as any}
+              color={task.projectColor ?? undefined}
+              className="h-5 w-5"
+              iconClassName="h-3 w-3"
+            />
+            <span className="truncate">{task.projectTitle ?? "No project"}</span>
           </div>
         </div>
       </div>

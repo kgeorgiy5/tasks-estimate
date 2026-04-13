@@ -8,6 +8,7 @@ import { ErrorResponse } from "@/types";
 
 import { ApiError } from "@/types/api";
 import { jwtPayloadSchema } from "@tasks-estimate/shared";
+import { NavigationPaths } from "@/config";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 const ACCESS_TOKEN_STORAGE_KEY = "tasks-estimate-access-token";
@@ -136,6 +137,9 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
     (error: AxiosError) => {
       const status =
         error.response?.status ?? HttpStatusCode.InternalServerError;
+
+      processUnauthorizedResponse(status);
+
       const data = error.response?.data;
       const message =
         (typeof data === "string" && data) ||
@@ -169,3 +173,15 @@ export function createApiClient(baseUrl?: string): AxiosInstance {
  * Default client using NEXT_PUBLIC_API_URL if present.
  */
 export const apiClient = createApiClient();
+
+function processUnauthorizedResponse(status: number) {
+  if (status === HttpStatusCode.Unauthorized) {
+    try {
+      clearStoredAccessToken();
+    } catch { }
+    if (globalThis.window !== undefined) {
+      globalThis.window.location.replace(NavigationPaths.SIGN_IN);
+    }
+  }
+}
+

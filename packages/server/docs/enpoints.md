@@ -270,7 +270,9 @@ Query:
 
 Body:
 
-Structure: `ManageTaskDto` (from `@tasks-estimate/shared`), validated with `ZodValidationPipe`.
+Structure: `CreateTaskDto` (from `@tasks-estimate/shared`), validated with `ZodValidationPipe`.
+
+Description: Creates a new task and immediately starts a running task entry for it (the created task entry has a `startDateTime` set and no `endDateTime`). This models a timer that is already started on creation.
 
 Response
 
@@ -280,7 +282,7 @@ Response
 { /* created task */ }
 ```
 
-Notes: Auth required.
+Notes: Auth required. Implemented in [src/modules/tasks/tasks.controller.ts](src/modules/tasks/tasks.controller.ts#L1).
 
 ### POST /tasks/bulk
 
@@ -288,7 +290,9 @@ Payload
 
 Body:
 
-Structure: `ManageTaskDto[]` (array), no explicit validation schema in controller besides pipe usage for single-task endpoints.
+Structure: `ManageTaskDto[]` (array).
+
+Description: Creates multiple tasks. For each created task an initial task entry is seeded containing the assigned `timeSeconds` (or `0` if not provided). These initial entries are created as completed entries (have both `startDateTime` and `endDateTime` set), representing pre-assigned time rather than a running timer.
 
 Response
 
@@ -311,6 +315,8 @@ Params:
 Body:
 
 Structure: `ManageTaskDto` (from `@tasks-estimate/shared`), validated with `ZodValidationPipe`.
+
+Description: Updates task metadata. If `timeSeconds` is provided in the payload, an additional completed task entry is appended to the task representing that assigned time (entry has both `startDateTime` and `endDateTime` set to the update time).
 
 Response
 
@@ -336,6 +342,54 @@ Response
 
 ```json
 { /* deletion result */ }
+```
+
+Notes: Auth required. Implemented in [src/modules/tasks/tasks.controller.ts](src/modules/tasks/tasks.controller.ts#L1).
+
+### POST /tasks/:id/entries/start
+
+Payload
+
+Params:
+
+- `id`: string (Mongo ObjectId) — task id
+
+Body:
+
+- none
+
+Description: Starts a running task entry (timer) for the specified task. Creates a `TaskEntry` with `startDateTime` and no `endDateTime`. If an active running entry already exists for the same user and task, the call will fail.
+
+Response
+
+200:
+
+```json
+{ /* created task entry */ }
+```
+
+Notes: Auth required. Implemented in [src/modules/tasks/tasks.controller.ts](src/modules/tasks/tasks.controller.ts#L1).
+
+### POST /tasks/:id/entries/end
+
+Payload
+
+Params:
+
+- `id`: string (Mongo ObjectId) — task id
+
+Body:
+
+- none
+
+Description: Ends the active running task entry for the specified task. Calculates the duration in seconds, sets `endDateTime` and `timeSeconds` on the entry, and persists it. After ending, the task classification hook is triggered to populate `classIds` if needed.
+
+Response
+
+200:
+
+```json
+{ /* updated task entry */ }
 ```
 
 Notes: Auth required. Implemented in [src/modules/tasks/tasks.controller.ts](src/modules/tasks/tasks.controller.ts#L1).

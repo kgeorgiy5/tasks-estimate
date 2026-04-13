@@ -7,7 +7,10 @@ import { ProjectIcon } from "@/components/project-icon";
 import { Button } from "@/components/ui/button";
 import { NavigationPaths } from "@/config";
 import { cn } from "@/lib/utils";
-import { listMarketplaceDomains, listMarketplaceWorkflows } from "@/api/workflows/workflows-handlers";
+import {
+  listMarketplaceDomains,
+  listMarketplaceWorkflows,
+} from "@/api/workflows/workflows-handlers";
 import { getDomainVisual, WorkflowCard } from "./components";
 import { CreateProjectDialog } from "@/components/index";
 import { useState } from "react";
@@ -69,7 +72,8 @@ export default function MarketplacePage() {
   const workflows = workflowsQuery.data ?? [];
   const domains = domainsQuery.data ?? [];
   const [createOpen, setCreateOpen] = useState(false);
-  const [selectedMarketplaceWorkflow, setSelectedMarketplaceWorkflow] = useState<null | ListMarketplaceWorkflowDto[number]>(null);
+  const [selectedMarketplaceWorkflow, setSelectedMarketplaceWorkflow] =
+    useState<null | ListMarketplaceWorkflowDto[number]>(null);
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">

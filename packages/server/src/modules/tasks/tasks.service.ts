@@ -7,8 +7,18 @@ import {
 } from "./models";
 import { Model, PipelineStage, QueryFilter, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { ErrorIds, ManageTaskDto, CreateTaskDto } from "@tasks-estimate/shared";
+import {
+  ErrorIds,
+  ManageTaskDto,
+  CreateTaskDto,
+  ListTaskEntryDto,
+} from "@tasks-estimate/shared";
 import { User, USER_MODEL_TOKEN } from "../users/models";
+
+type PopulatedTaskTitle = {
+  _id: Types.ObjectId;
+  title: string;
+};
 
 @Injectable()
 export class TasksService {
@@ -137,7 +147,9 @@ export class TasksService {
           timeSeconds: {
             $ifNull: [{ $arrayElemAt: ["$timeAgg.totalTimeSeconds", 0] }, 0],
           },
-          entriesCount: { $ifNull: [{ $arrayElemAt: ["$entriesCount.count", 0] }, 0] },
+          entriesCount: {
+            $ifNull: [{ $arrayElemAt: ["$entriesCount.count", 0] }, 0],
+          },
         },
       },
       {
@@ -183,6 +195,42 @@ export class TasksService {
     return await this.taskEntryModel
       .findById(user.currentTaskEntryId)
       .populate<{ taskId: Types.ObjectId }>("taskId");
+  }
+
+  /**
+   * Lists entries with populated task title.
+   */
+  public async listTaskEntries(
+    userId: Types.ObjectId,
+    taskId?: Types.ObjectId,
+  ): Promise<ListTaskEntryDto[]> {
+    if (taskId) {
+      await this.ensureTaskExists(taskId, userId);
+    }
+
+    const query: {
+      userId: Types.ObjectId;
+      taskId?: Types.ObjectId;
+    } = { userId };
+
+    if (taskId) {
+      query.taskId = taskId;
+    }
+
+    const entries = await this.taskEntryModel
+      .find(query)
+      .sort({ startDateTime: 1, _id: 1 })
+      .populate<{ taskId: PopulatedTaskTitle }>("taskId", "title");
+
+    return entries.map((entry) => ({
+      _id: entry._id.toString(),
+      taskId: entry.taskId._id.toString(),
+      taskTitle: entry.taskId.title,
+      userId: entry.userId.toString(),
+      timeSeconds: entry.timeSeconds,
+      startDateTime: entry.startDateTime.toISOString(),
+      endDateTime: entry.endDateTime ? entry.endDateTime.toISOString() : null,
+    }));
   }
 
   /**

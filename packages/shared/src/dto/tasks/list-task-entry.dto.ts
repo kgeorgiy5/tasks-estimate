@@ -1,0 +1,16 @@
+import { z } from "zod";
+import { objectIdSchema } from "../shared";
+
+export const listTaskEntrySchema = z.object({
+  _id: objectIdSchema,
+  taskId: objectIdSchema,
+  taskTitle: z.string(),
+  userId: objectIdSchema,
+  timeSeconds: z.number().int().nonnegative(),
+  startDateTime: z.string(),
+  endDateTime: z.string().nullable(),
+});
+
+export const listTaskEntriesSchema = z.array(listTaskEntrySchema);
+
+export type ListTaskEntryDto = z.infer<typeof listTaskEntrySchema>;

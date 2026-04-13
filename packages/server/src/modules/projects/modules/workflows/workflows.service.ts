@@ -130,6 +130,27 @@ export class WorkflowsService {
 
     await this.ensureProjectExists(targetProjectId, userId);
 
+    // If the source workflow is not linked to any project, assign it to the
+    // target project instead of creating a duplicate. Otherwise, create a
+    // copy of the workflow for the target project.
+    if (!sourceWorkflow.projectId) {
+      const updated = await this.workflowModel
+        .findOneAndUpdate(
+          { _id: workflowId, userId },
+          { $set: { projectId: targetProjectId } },
+          { new: true },
+        )
+        .lean();
+
+      if (!updated) {
+        throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
+      }
+
+      await this.assignProjectWorkflow(targetProjectId, userId, updated._id);
+
+      return getWorkflowSchema.parse(updated);
+    }
+
     const created = await this.workflowModel.create({
       userId,
       projectId: targetProjectId,

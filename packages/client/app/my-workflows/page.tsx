@@ -146,7 +146,7 @@ export default function MyWorkflowsPage() {
       return;
     }
 
-    setEditProjectId(workflowForEdit.projectId);
+    setEditProjectId(workflowForEdit.projectId ?? "");
     setEditDomain(workflowForEdit.domain);
     setEditTitle(workflowForEdit.title);
     setEditDescription(workflowForEdit.description);
@@ -243,15 +243,32 @@ export default function MyWorkflowsPage() {
                 key={workflow._id}
                 className="w-full flex items-center justify-between rounded border px-3 py-2"
               >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">
-                    {formatTitle(workflow.title)}
-                  </div>
-                  <div className="truncate text-xs text-zinc-600">
-                    {workflow.description}
-                  </div>
-                  <div className="truncate text-xs text-zinc-500">
-                    {`Project: ${workflow.projectTitle ?? "Unknown project"}`}
+                <div className="min-w-0 flex items-center flex-row gap-2">
+                  {!workflow.projectId && (
+                    <span
+                      title="No project assigned"
+                      className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 text-xs"
+                      aria-hidden
+                    >
+                      !
+                    </span>
+                  )}
+                  <div>
+                    <div className="truncate text-sm font-medium flex items-center gap-2">
+                      <span>{formatTitle(workflow.title)}</span>
+                    </div>
+                    <div className="truncate text-xs text-zinc-600">
+                      {workflow.description}
+                    </div>
+                    {workflow.projectId ? (
+                      <div className="truncate text-xs text-zinc-500">
+                        {`Project: ${workflow.projectTitle ?? "Unknown project"}`}
+                      </div>
+                    ) : (
+                      <div className="truncate text-xs text-zinc-500">
+                        No project assigned
+                      </div>
+                    )}
                   </div>
                 </div>
 

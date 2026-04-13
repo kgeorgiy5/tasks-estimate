@@ -4,7 +4,7 @@ export const WORKFLOW_MODEL_TOKEN = "Workflow";
 
 export interface Workflow extends Document {
   userId: Types.ObjectId;
-  projectId: Types.ObjectId;
+  projectId?: Types.ObjectId;
   domain: string;
   title: string;
   description: string;
@@ -13,7 +13,7 @@ export interface Workflow extends Document {
 
 export const WorkflowSchema = new Schema<Workflow>({
   userId: { type: SchemaTypes.ObjectId, required: true },
-  projectId: { type: SchemaTypes.ObjectId, required: true, ref: "Project" },
+  projectId: { type: SchemaTypes.ObjectId, required: false, ref: "Project" },
   domain: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },

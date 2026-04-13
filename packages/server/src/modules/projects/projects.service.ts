@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { PROJECT_MODEL_TOKEN, Project } from "./models";
+import { WORKFLOW_MODEL_TOKEN, Workflow } from "./modules/workflows/models";
 import {
   ManageProjectDto,
   getProjectSchema,
@@ -14,6 +15,8 @@ export class ProjectsService {
   constructor(
     @InjectModel(PROJECT_MODEL_TOKEN)
     private readonly projectModel: Model<Project>,
+    @InjectModel(WORKFLOW_MODEL_TOKEN)
+    private readonly workflowModel: Model<Workflow>,
   ) {}
 
   public async createProject(
@@ -54,6 +57,10 @@ export class ProjectsService {
     if (res.deletedCount === 0) {
       throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
     }
+
+    await this.workflowModel
+      .updateMany({ projectId, userId }, { $unset: { projectId: "" } })
+      .exec();
   }
 
   public async listProjects(userId: Types.ObjectId) {

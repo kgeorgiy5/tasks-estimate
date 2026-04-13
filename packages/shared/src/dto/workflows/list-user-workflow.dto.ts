@@ -5,7 +5,7 @@ import { objectIdSchema } from "../shared";
 export const listUserWorkflowSchema = z.object({
   _id: objectIdSchema,
   userId: objectIdSchema,
-  projectId: objectIdSchema,
+  projectId: objectIdSchema.optional(),
   projectTitle: z.string().optional(),
   domain: z.string(),
   title: z.string(),

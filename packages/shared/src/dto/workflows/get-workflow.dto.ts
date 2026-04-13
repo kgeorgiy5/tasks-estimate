@@ -4,7 +4,7 @@ import { objectIdSchema } from "../shared";
 export const getWorkflowSchema = z.object({
   _id: objectIdSchema,
   userId: objectIdSchema,
-  projectId: objectIdSchema,
+  projectId: objectIdSchema.optional(),
   domain: z.string(),
   title: z.string(),
   description: z.string(),

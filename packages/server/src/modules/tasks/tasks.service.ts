@@ -105,6 +105,31 @@ export class TasksService {
         },
       },
       {
+        $lookup: {
+          from: entryColl,
+          let: { taskId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$taskId", "$$taskId"] },
+                    { $eq: ["$userId", userId] },
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          as: "entriesCount",
+        },
+      },
+      {
         $addFields: {
           lastEntryStartDateTime: {
             $arrayElemAt: ["$lastEntry.startDateTime", 0],
@@ -112,6 +137,7 @@ export class TasksService {
           timeSeconds: {
             $ifNull: [{ $arrayElemAt: ["$timeAgg.totalTimeSeconds", 0] }, 0],
           },
+          entriesCount: { $ifNull: [{ $arrayElemAt: ["$entriesCount.count", 0] }, 0] },
         },
       },
       {

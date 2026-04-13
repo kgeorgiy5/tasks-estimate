@@ -12,14 +12,13 @@ type TaskCardProps = {
   task: ListTaskDto;
 };
 
-export const TaskCard:FC<TaskCardProps> = ({ task }) => {
+export const TaskCard: FC<TaskCardProps> = ({ task }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const currentEntry = useCurrentEntryStore((s) => s.entry);
 
   const rawId = task._id ?? "";
-  const taskId =
-    typeof rawId === "string" ? rawId : String(rawId);
+  const taskId = typeof rawId === "string" ? rawId : String(rawId);
 
   const handleStart = async () => {
     if (loading || !!currentEntry) return;
@@ -39,19 +38,28 @@ export const TaskCard:FC<TaskCardProps> = ({ task }) => {
 
   return (
     <div className="flex items-center justify-between rounded border px-3 py-2">
-      <div className="truncate">{task.title}</div>
+      <div className="flex flex-row gap-2 items-center">
+        {(task.entriesCount ?? 0) > 1 ? (
+          <div className="text-sm text-zinc-500">{task.entriesCount}</div>
+        ) : null}
+        <div className="truncate">{task.title}</div>
+      </div>
 
       <div className="ml-4 flex items-center gap-3">
-        <div className="w-20 text-left text-sm text-zinc-600">{formatHHMMSS(task.timeSeconds ?? 0)}</div>
+        <div className="w-20 text-left text-sm text-zinc-600">
+          {formatHHMMSS(task.timeSeconds ?? 0)}
+        </div>
 
         <TaskPlayButton
           onClick={handleStart}
           loading={loading}
           disabled={!!currentEntry}
-          ariaLabel={currentEntry ? "Another entry is running" : `Start ${task.title}`}
+          ariaLabel={
+            currentEntry ? "Another entry is running" : `Start ${task.title}`
+          }
           variant="ghost"
         />
       </div>
     </div>
   );
-}
+};

@@ -5,6 +5,8 @@ export const listTaskEntrySchema = z.object({
   _id: objectIdSchema,
   taskId: objectIdSchema,
   taskTitle: z.string(),
+  projectId: objectIdSchema.optional(),
+  projectTitle: z.string().optional(),
   userId: objectIdSchema,
   timeSeconds: z.number().int().nonnegative(),
   startDateTime: z.string(),

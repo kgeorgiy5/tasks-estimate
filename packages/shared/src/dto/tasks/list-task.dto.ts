@@ -6,6 +6,8 @@ export const listTaskSchema = z.object({
   title: z.string(),
   classIds: z.array(objectIdSchema).optional(),
   userId: objectIdSchema,
+  projectId: objectIdSchema.optional(),
+  projectTitle: z.string().optional(),
   timeSeconds: z.number().int().nonnegative().optional(),
   entriesCount: z.number().int().nonnegative().optional(),
   lastEntryStartDateTime: z.string().optional(),

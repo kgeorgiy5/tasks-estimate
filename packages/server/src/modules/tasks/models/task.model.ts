@@ -6,10 +6,12 @@ export interface Task extends Document {
   title: string;
   classIds: Types.ObjectId[];
   userId: Types.ObjectId;
+  projectId?: Types.ObjectId;
 }
 
 export const TaskSchema = new Schema<Task>({
   title: { type: String, required: true },
   classIds: [{ type: SchemaTypes.ObjectId }],
   userId: { type: SchemaTypes.ObjectId, required: true },
+  projectId: { type: SchemaTypes.ObjectId, ref: "Project" },
 });

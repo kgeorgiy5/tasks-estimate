@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ClassificationModule } from "./modules/classification/classification.module";
+import { ProjectsModule } from "../projects/projects.module";
 import { TasksService } from "./tasks.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import {
@@ -21,6 +22,7 @@ import { UsersModule } from "../users/users.module";
     ]),
     AuthModule,
     UsersModule,
+    ProjectsModule,
   ],
   providers: [TasksService],
   controllers: [TasksController],

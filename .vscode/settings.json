@@ -1,5 +1,9 @@
 {
   "cSpell.words": [
     "Hugeicons"
-  ]
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "kgeorgiy5",
+    "projectKey": "kgeorgiy5_tasks-estimate"
+  }
 }

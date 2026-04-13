@@ -8,6 +8,7 @@ import { TasksModule } from "./modules/tasks/tasks.module";
 import { EstimatesModule } from "./modules/estimates/estimates.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
 import { MongooseModule } from "@nestjs/mongoose";
+import { ProjectsModule } from "./modules/projects/projects.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MongooseModule } from "@nestjs/mongoose";
     TasksModule,
     EstimatesModule,
     DocumentsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

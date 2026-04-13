@@ -5,6 +5,9 @@ import {
   TASK_ENTRY_MODEL_TOKEN,
   TASK_MODEL_TOKEN,
 } from "./models";
+import { Project, PROJECT_MODEL_TOKEN } from "../projects/models";
+import { PopulatedTask } from "./types/populated-task";
+import { TaskInsertItem } from "./types/task-insert-item";
 import { Model, PipelineStage, QueryFilter, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import {
@@ -14,11 +17,6 @@ import {
   ListTaskEntryDto,
 } from "@tasks-estimate/shared";
 import { User, USER_MODEL_TOKEN } from "../users/models";
-
-type PopulatedTaskTitle = {
-  _id: Types.ObjectId;
-  title: string;
-};
 
 @Injectable()
 export class TasksService {
@@ -31,6 +29,8 @@ export class TasksService {
     private readonly taskEntryModel: Model<TaskEntry>,
     @InjectModel(USER_MODEL_TOKEN)
     private readonly userModel: Model<User>,
+    @InjectModel(PROJECT_MODEL_TOKEN)
+    private readonly projectModel: Model<Project>,
   ) {}
 
   /**
@@ -63,9 +63,18 @@ export class TasksService {
     const total = await this.taskModel.countDocuments(taskFilter).exec();
 
     const entryColl = this.taskEntryModel.collection.name;
+    const projectColl = this.projectModel.collection.name;
 
     const pipeline: PipelineStage[] = [
       { $match: taskFilter },
+      {
+        $lookup: {
+          from: projectColl,
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
       {
         $lookup: {
           from: entryColl,
@@ -150,6 +159,10 @@ export class TasksService {
           entriesCount: {
             $ifNull: [{ $arrayElemAt: ["$entriesCount.count", 0] }, 0],
           },
+          projectId: { $arrayElemAt: ["$project._id", 0] },
+          projectTitle: { $arrayElemAt: ["$project.title", 0] },
+          projectIcon: { $arrayElemAt: ["$project.icon", 0] },
+          projectColor: { $arrayElemAt: ["$project.color", 0] },
         },
       },
       {
@@ -166,7 +179,7 @@ export class TasksService {
       { $sort: { _sortKey: -1, _id: -1 } },
       { $skip: offset },
       { $limit: limit },
-      { $project: { lastEntry: 0, timeAgg: 0, _sortKey: 0 } },
+      { $project: { lastEntry: 0, timeAgg: 0, _sortKey: 0, project: 0 } },
     ];
 
     const enrichedTasks = await this.taskModel.aggregate(pipeline).exec();
@@ -220,17 +233,42 @@ export class TasksService {
     const entries = await this.taskEntryModel
       .find(query)
       .sort({ startDateTime: 1, _id: 1 })
-      .populate<{ taskId: PopulatedTaskTitle }>("taskId", "title");
+      .populate<{ taskId: PopulatedTask }>("taskId", "title projectId")
+      .populate({
+        path: "taskId",
+        populate: { path: "projectId", select: "title icon color" },
+      });
 
-    return entries.map((entry) => ({
-      _id: entry._id.toString(),
-      taskId: entry.taskId._id.toString(),
-      taskTitle: entry.taskId.title,
-      userId: entry.userId.toString(),
-      timeSeconds: entry.timeSeconds,
-      startDateTime: entry.startDateTime.toISOString(),
-      endDateTime: entry.endDateTime ? entry.endDateTime.toISOString() : null,
-    }));
+    return entries.map((entry) => {
+      const project = entry.taskId.projectId as
+        | Types.ObjectId
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+        | Project
+        | undefined;
+
+      let projectId: string | undefined;
+      if (project?._id) {
+        projectId = project._id.toString();
+      } else if (project) {
+        projectId = String(project);
+      } else {
+        projectId = undefined;
+      }
+
+      return {
+        _id: entry._id.toString(),
+        taskId: entry.taskId._id.toString(),
+        taskTitle: entry.taskId.title,
+        projectId,
+        projectTitle: project?._id ? (project as Project).title : undefined,
+        projectIcon: project?._id ? (project as Project).icon : undefined,
+        projectColor: project?._id ? (project as Project).color : undefined,
+        userId: entry.userId.toString(),
+        timeSeconds: entry.timeSeconds,
+        startDateTime: entry.startDateTime.toISOString(),
+        endDateTime: entry.endDateTime ? entry.endDateTime.toISOString() : null,
+      };
+    });
   }
 
   /**
@@ -240,12 +278,37 @@ export class TasksService {
     userId: Types.ObjectId,
     taskPayloads: ManageTaskDto[],
   ) {
-    const tasks = taskPayloads.map(
-      ({ timeSeconds: _timeSeconds, ...taskPayload }) => ({
+    const tasks: TaskInsertItem[] = taskPayloads.map(
+      ({ timeSeconds: _timeSeconds, title, classIds, projectId }) => ({
         userId,
-        ...taskPayload,
+        title,
+        classIds,
+        projectId,
       }),
     );
+
+    const projectIds = Array.from(
+      new Set(
+        tasks
+          .map((t) => t.projectId)
+          .filter(
+            (id): id is string | Types.ObjectId =>
+              id !== undefined && id !== null,
+          )
+          .map((id) => id.toString()),
+      ),
+    );
+
+    if (projectIds.length) {
+      const found = await this.projectModel
+        .find({ _id: { $in: projectIds }, userId })
+        .select("_id")
+        .lean();
+
+      if (found.length !== projectIds.length) {
+        throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
+      }
+    }
 
     const createdTasks = await this.taskModel.insertMany(tasks);
 
@@ -268,6 +331,13 @@ export class TasksService {
    */
   public async saveTask(userId: Types.ObjectId, taskPayload: ManageTaskDto) {
     const { timeSeconds, ...taskData } = taskPayload;
+
+    if ((taskData as any).projectId) {
+      await this.ensureProjectExists(
+        new Types.ObjectId((taskData as any).projectId),
+        userId,
+      );
+    }
 
     const task = new this.taskModel({
       userId,
@@ -296,6 +366,13 @@ export class TasksService {
     taskPayload: CreateTaskDto,
   ) {
     const { classIds, ...taskData } = taskPayload;
+
+    if ((taskData as any).projectId) {
+      await this.ensureProjectExists(
+        new Types.ObjectId((taskData as any).projectId),
+        userId,
+      );
+    }
 
     const task = new this.taskModel({
       userId,
@@ -509,6 +586,20 @@ export class TasksService {
     });
 
     if (!task) {
+      throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
+    }
+  }
+
+  private async ensureProjectExists(
+    projectId: Types.ObjectId,
+    userId: Types.ObjectId,
+  ) {
+    const project = await this.projectModel.findOne({
+      _id: projectId,
+      userId,
+    });
+
+    if (!project) {
       throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
     }
   }

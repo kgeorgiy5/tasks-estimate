@@ -1,10 +1,14 @@
 import { createApiClient } from "../../utils/api";
+import { CreateTaskDto } from "@tasks-estimate/shared";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 const TASKS_BASE = "/tasks";
 
-export async function createTask(payload: { title: string; classIds?: string[] }) {
+/**
+ * Creates a new task for the current user.
+ */
+export async function createTask(payload: CreateTaskDto) {
   const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
 
   const response = await client.post(TASKS_BASE, payload);

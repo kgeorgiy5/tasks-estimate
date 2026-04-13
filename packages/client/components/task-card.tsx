@@ -6,6 +6,7 @@ import { useCurrentEntryStore } from "@/stores";
 import { startTaskEntry } from "@/api";
 import TaskPlayButton from "@/components/task-play-button";
 import type { ListTaskDto } from "@tasks-estimate/shared";
+import { ProjectIcon } from "./project-icon";
 import { formatHHMMSS } from "@tasks-estimate/shared";
 
 type TaskCardProps = {
@@ -42,17 +43,28 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
         {(task.entriesCount ?? 0) > 1 ? (
           <div className="text-sm text-zinc-500">{task.entriesCount}</div>
         ) : null}
-        <div
-          className="flex-1 min-w-0"
-          style={{
-            display: "-webkit-box",
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {task.title}
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-medium"
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {task.title}
+          </div>
+          <div className="text-xs text-zinc-500 mt-0.5 truncate flex items-center gap-2">
+            <ProjectIcon
+              icon={task.projectIcon}
+              color={task.projectColor ?? undefined}
+              className="h-5 w-5"
+              iconClassName="h-3 w-3"
+            />
+            <span className="truncate">{task.projectTitle ?? "No project"}</span>
+          </div>
         </div>
       </div>
 

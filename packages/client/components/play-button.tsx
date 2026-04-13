@@ -53,15 +53,31 @@ export function PlayButton({ title, onStarted }: PlayButtonProps) {
     }
   };
 
-  const label = entry ? "Stop" : "Play";
+  const isRunning = Boolean(entry);
 
   return (
     <button
       onClick={handleClick}
       disabled={loading || (!entry && !title)}
-      className="ml-2 rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
+      aria-label={isRunning ? "Stop timer" : "Start timer"}
+      className={`ml-2 rounded-full w-10 h-10 flex items-center justify-center text-white disabled:opacity-50 ${
+        isRunning ? "bg-red-600" : "bg-green-600"
+      }`}
     >
-      {loading ? "..." : label}
+      {loading ? (
+        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeOpacity="0.25" />
+          <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      ) : isRunning ? (
+        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="12" height="12" fill="currentColor" />
+        </svg>
+      ) : (
+        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 5v14l11-7z" fill="currentColor" />
+        </svg>
+      )}
     </button>
   );
 }

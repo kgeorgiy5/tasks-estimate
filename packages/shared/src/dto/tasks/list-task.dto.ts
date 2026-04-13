@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { objectIdSchema } from "../shared";
+import { projectIconSchema } from "../projects";
 
 export const listTaskSchema = z.object({
   _id: objectIdSchema,
@@ -8,7 +9,7 @@ export const listTaskSchema = z.object({
   userId: objectIdSchema,
   projectId: objectIdSchema.optional(),
   projectTitle: z.string().optional(),
-  projectIcon: z.string().optional(),
+  projectIcon: projectIconSchema.optional(),
   projectColor: z.string().optional(),
   timeSeconds: z.number().int().nonnegative().optional(),
   entriesCount: z.number().int().nonnegative().optional(),

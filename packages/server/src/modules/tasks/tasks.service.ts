@@ -240,13 +240,13 @@ export class TasksService {
       });
 
     return entries.map((entry) => {
-      const project = entry.taskId.projectId;
+      // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+      const project = entry.taskId.projectId as Project | undefined;
 
       let projectId: string | undefined;
-      if (project && (project as any)._id !== "undefined") {
-        projectId = (project as any)._id.toString();
+      if (project?._id) {
+        projectId = project._id.toString();
       } else if (project) {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         projectId = String(project);
       } else {
         projectId = undefined;
@@ -257,10 +257,9 @@ export class TasksService {
         taskId: entry.taskId._id.toString(),
         taskTitle: entry.taskId.title,
         projectId,
-        projectTitle:
-          project && (project as any)?._id ? (project as any).title : undefined,
-        projectIcon: project && (project as any)?._id ? (project as any).icon : undefined,
-        projectColor: project && (project as any)?._id ? (project as any).color : undefined,
+        projectTitle: project?._id ? project.title : undefined,
+        projectIcon: project?._id ? project.icon : undefined,
+        projectColor: project?._id ? project.color : undefined,
         userId: entry.userId.toString(),
         timeSeconds: entry.timeSeconds,
         startDateTime: entry.startDateTime.toISOString(),

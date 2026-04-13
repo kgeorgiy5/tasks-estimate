@@ -58,7 +58,7 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
           </div>
           <div className="text-xs text-zinc-500 mt-0.5 truncate flex items-center gap-2">
             <ProjectIcon
-              icon={task.projectIcon as any}
+              icon={task.projectIcon}
               color={task.projectColor ?? undefined}
               className="h-5 w-5"
               iconClassName="h-3 w-3"

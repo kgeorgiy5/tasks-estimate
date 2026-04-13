@@ -9,7 +9,7 @@ import useCurrentEntryQuery from "@/hooks/use-current-entry-query";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function Home() {
-  const email = useAuthStore((s) => s.email);
+  const _email = useAuthStore((s) => s.email);
   const [title, setTitle] = useState("");
   const currentEntry = useCurrentEntryStore((s) => s.entry);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);

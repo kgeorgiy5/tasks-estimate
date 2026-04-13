@@ -1,15 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { useCurrentEntryStore } from "@/stores";
-
-function formatHHMMSS(totalSeconds: number) {
-  const hrs = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  const secs = totalSeconds % 60;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-}
+import { formatHHMMSS } from "@tasks-estimate/shared";
 
 export function Timer(): JSX.Element {
   const entry = useCurrentEntryStore((s) => s.entry);
@@ -22,7 +15,6 @@ export function Timer(): JSX.Element {
   });
 
   useEffect(() => {
-    // Recompute immediately when entry changes
     const startDate = entry?.startDateTime;
     if (!startDate) {
       setSeconds(0);
@@ -36,7 +28,6 @@ export function Timer(): JSX.Element {
       return;
     }
 
-    // running timer
     setSeconds(Math.max(0, Math.floor((Date.now() - start) / 1000)));
     const id = globalThis.setInterval(() => {
       setSeconds(Math.max(0, Math.floor((Date.now() - start) / 1000)));

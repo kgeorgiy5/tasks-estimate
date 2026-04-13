@@ -56,7 +56,7 @@ export function PlayButton({ title, onStarted, variant = "solid" }: PlayButtonPr
 
   const isRunning = Boolean(entry);
 
-  const baseClasses = "ml-2 rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-50";
+  const baseClasses = "ml-2 rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed";
 
   const solidClasses = isRunning ? "bg-red-600 text-white" : "bg-green-600 text-white";
   const ghostClasses = isRunning ? "bg-transparent text-red-600" : "bg-transparent text-green-600";

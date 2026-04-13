@@ -5,7 +5,7 @@ import {
   TASK_ENTRY_MODEL_TOKEN,
   TASK_MODEL_TOKEN,
 } from "./models";
-import { Model, Types } from "mongoose";
+import { Model, QueryFilter, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ErrorIds, ManageTaskDto, CreateTaskDto } from "@tasks-estimate/shared";
 import { User, USER_MODEL_TOKEN } from "../users/models";
@@ -43,7 +43,7 @@ export class TasksService {
       })
       .select("taskId");
 
-    const taskFilter: any = { userId };
+    const taskFilter: QueryFilter<Task> = { userId };
     if (activeEntry?.taskId) {
       taskFilter._id = { $ne: activeEntry.taskId };
     }

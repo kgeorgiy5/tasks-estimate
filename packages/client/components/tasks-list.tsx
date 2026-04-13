@@ -1,10 +1,12 @@
-"use client"
+"use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
 import DateSeparator from "@/components/date-separator";
+import type { ListTaskDto } from "@tasks-estimate/shared";
+import { JSX } from "react";
 
-const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const DEFAULT_LIMIT = 20;
 
 function formatTimeSeconds(totalSeconds: number) {
@@ -19,7 +21,9 @@ function formatTimeSeconds(totalSeconds: number) {
 export default function TasksList() {
   const query = useInfiniteQuery({
     queryKey: ["tasks"],
-    queryFn: ({ pageParam = 0 }) => listTasks(pageParam, DEFAULT_LIMIT),
+    initialPageParam: 0,
+    queryFn: ({ pageParam = 0 }: { pageParam?: number }) =>
+      listTasks(pageParam, DEFAULT_LIMIT),
     getNextPageParam: (lastPage) => {
       const nextOffset = lastPage.offset + lastPage.items.length;
       return nextOffset < lastPage.total ? nextOffset : undefined;
@@ -29,9 +33,15 @@ export default function TasksList() {
     staleTime: REFRESH_INTERVAL_MS,
   });
 
-  const pages = query.data?.pages ?? [];
-  const items = pages.flatMap((p: any) => p.items ?? []);
-  const total = pages[0]?.total ?? 0;
+  type ListTasksResponse = {
+    items: ListTaskDto[];
+    total: number;
+    offset: number;
+    limit: number;
+  };
+
+  const pages = (query.data?.pages as ListTasksResponse[] | undefined) ?? [];
+  const items = pages.flatMap((p) => p.items ?? []);
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -39,59 +49,46 @@ export default function TasksList() {
 
       <div className="space-y-2 overflow-auto flex-1 pr-2">
         {(() => {
-          const nodes: any[] = [];
+          const nodes: JSX.Element[] = [];
           let lastDateKey: string | null = null;
 
           for (let i = 0; i < items.length; i++) {
-            const task = items[i];
-            const rawId = task._id ?? "";
-            const idStr = typeof rawId === "string" ? rawId : String((rawId as any)._id ?? rawId.toString());
+            const task: ListTaskDto = items[i];
+            const rawIdForKey = task._id ?? "";
+            const idStrKey =
+              typeof rawIdForKey === "string"
+                ? rawIdForKey
+                : String((rawIdForKey as any)._id ?? String(rawIdForKey));
 
-            // Try to locate a 24-char hex ObjectId in the id string (handles
-            // cases where the id may be wrapped in an object or serialized).
-            let hex = null as string | null;
-            const m = idStr.match(/[0-9a-fA-F]{24}/);
-            if (m) hex = m[0];
-            else if (idStr.length >= 24 && /^[0-9a-fA-F]+$/.test(idStr)) hex = idStr.slice(0, 24);
-
-            // extract timestamp from ObjectId hex (first 8 chars => seconds)
             let dateKey = "";
             let displayLabel = "";
-            try {
-              let d: Date | null = null;
-              if (hex) {
-                const seconds = parseInt(hex.substring(0, 8), 16);
-                if (!Number.isNaN(seconds) && seconds > 0) d = new Date(seconds * 1000);
-              }
-
-              // fallback: if task has a createdAt/timestamp field, use it
-              if (!d && task.createdAt) {
-                d = new Date(task.createdAt as string);
-              }
-
-              if (d && !Number.isNaN(d.getTime())) {
-                dateKey = d.toISOString().split("T")[0];
-                displayLabel = d.toLocaleDateString("en-GB", {
+            if (task.lastEntryStartDateTime) {
+              const iso = String(task.lastEntryStartDateTime);
+              const [isoDate] = iso.split("T");
+              if (isoDate) {
+                dateKey = isoDate;
+                displayLabel = new Intl.DateTimeFormat("en-GB", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
-                });
+                  timeZone: "UTC",
+                }).format(new Date(iso));
               }
-            } catch {
-              dateKey = "";
-              displayLabel = "";
             }
 
             if (dateKey && dateKey !== lastDateKey) {
               nodes.push(
-                <DateSeparator key={`sep-${dateKey}-${i}`} label={displayLabel || dateKey} />,
+                <DateSeparator
+                  key={`sep-${dateKey}-${i}`}
+                  label={displayLabel || dateKey}
+                />,
               );
               lastDateKey = dateKey;
             }
 
             nodes.push(
               <div
-                key={`task-${idStr}-${i}`}
+                key={`task-${idStrKey}-${i}`}
                 className="flex items-center justify-between rounded border px-3 py-2"
               >
                 <div className="truncate">{task.title}</div>

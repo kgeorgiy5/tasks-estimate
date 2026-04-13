@@ -1,6 +1,5 @@
 import {
   Body,
-  Controller,
   Delete,
   Get,
   Param,
@@ -14,9 +13,10 @@ import { AuthGuard } from "../users/modules/auth/guards/auth.guard";
 import { ZodValidationPipe } from "../../pipes";
 import { ManageProjectDto, manageProjectSchema } from "@tasks-estimate/shared";
 import { Types } from "mongoose";
+import { ProjectsModuleController } from "./decorators";
 
 @UseGuards(AuthGuard)
-@Controller("projects")
+@ProjectsModuleController()
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 

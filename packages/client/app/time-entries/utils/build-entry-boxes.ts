@@ -1,5 +1,6 @@
+import { TimeEntryBox } from "@/utils";
 import { scaleLinear } from "d3";
-import type { TimeEntryBox } from "@/utils";
+import { toMinutesSinceDayStart } from "../utils";
 
 export type RenderTimeEntryBox = TimeEntryBox & {
   x: number;
@@ -7,18 +8,6 @@ export type RenderTimeEntryBox = TimeEntryBox & {
   width: number;
   height: number;
 };
-
-/**
- * Returns number of minutes from local day start.
- */
-export function toMinutesSinceDayStart(date: Date): number {
-  return (
-    date.getHours() * 60 +
-    date.getMinutes() +
-    date.getSeconds() / 60 +
-    date.getMilliseconds() / 60000
-  );
-}
 
 /**
  * Builds render geometry for each clipped entry box.

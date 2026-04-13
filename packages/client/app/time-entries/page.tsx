@@ -3,6 +3,7 @@
 import { select } from "d3";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { JSX } from "react";
 import { listTaskEntries } from "@/api";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ import {
 } from "@/utils";
 import { buildRenderableTimeEntryBoxes } from "./utils";
 
-const MAX_CONSECUTIVE_DAYS = 10;
+const MAX_CONSECUTIVE_DAYS = 14;
 const DEFAULT_DAY_COUNT = 7;
 const DEFAULT_INTERVAL_MINUTES = 15;
 const DAY_COUNT_OPTIONS = Array.from(
@@ -37,17 +38,21 @@ const DAY_COUNT_OPTIONS = Array.from(
 );
 const INTERVAL_OPTIONS = [1, 5, 10, 15, 30, 60] as const;
 const TIME_COLUMN_WIDTH_PX = 80;
-const DAY_COLUMN_WIDTH_PX = 220;
+const DAY_COLUMN_WIDTH_PX = 500;
 const SLOT_ROW_HEIGHT_PX = 40;
 
 /**
  * Time entries page with SVG timeline rendering.
  */
 export default function TimeEntriesPage(): JSX.Element {
-  const [startDate, setStartDate] = useState<string>(() =>
-    toDateInputValue(new Date()),
-  );
-  const [dayCount, setDayCount] = useState<number>(DEFAULT_DAY_COUNT);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const initialStart = searchParams?.get("start") ?? toDateInputValue(new Date());
+  const initialDayCount = Number(searchParams?.get("days") ?? DEFAULT_DAY_COUNT) || DEFAULT_DAY_COUNT;
+
+  const [startDate, setStartDate] = useState<string>(() => initialStart);
+  const [dayCount, setDayCount] = useState<number>(initialDayCount);
   const [intervalMinutes, setIntervalMinutes] = useState<number>(
     DEFAULT_INTERVAL_MINUTES,
   );
@@ -87,6 +92,27 @@ export default function TimeEntriesPage(): JSX.Element {
     () => buildSlotStarts(intervalMinutes),
     [intervalMinutes],
   );
+
+  // keep state in sync when user navigates with browser controls
+  useEffect(() => {
+    const spStart = searchParams?.get("start") ?? toDateInputValue(new Date());
+    const spDays = Number(searchParams?.get("days") ?? DEFAULT_DAY_COUNT) || DEFAULT_DAY_COUNT;
+    if (spStart !== startDate) setStartDate(spStart);
+    if (spDays !== dayCount) setDayCount(spDays);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams();
+      params.set("start", startDate);
+      params.set("days", String(dayCount));
+      const url = `${globalThis.location.pathname}?${params.toString()}`;
+      router.replace(url);
+    } catch (e) {
+      console.error("Failed to update URL with current timeline state", e);
+    }
+  }, [startDate, dayCount, router]);
 
   const rangeStart = dayRange[0] ?? parseDateInput(startDate);
   const rangeEnd = addDaysLocal(

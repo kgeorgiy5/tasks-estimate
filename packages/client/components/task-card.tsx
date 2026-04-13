@@ -42,17 +42,22 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
         {(task.entriesCount ?? 0) > 1 ? (
           <div className="text-sm text-zinc-500">{task.entriesCount}</div>
         ) : null}
-        <div
-          className="flex-1 min-w-0"
-          style={{
-            display: "-webkit-box",
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {task.title}
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-medium"
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {task.title}
+          </div>
+          <div className="text-xs text-zinc-500 mt-0.5 truncate">
+            {task.projectTitle ?? "No project"}
+          </div>
         </div>
       </div>
 

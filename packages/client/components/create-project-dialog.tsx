@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 
 import { ProjectColorPicker } from "./project-color-picker";
 import { ProjectIconPicker } from "./project-icon-picker";
+import { Label } from "./ui/label";
 
 type CreateProjectDialogProps = Readonly<{
   open: boolean;
@@ -137,12 +138,9 @@ export function CreateProjectDialog({
       const createdProject = await createProject(createProjectPayload);
 
       if (payload.selectedWorkflow.source === "my") {
-        await applyWorkflowToProject(
-          payload.selectedWorkflow.workflow._id,
-          {
-            projectId: createdProject._id,
-          },
-        );
+        await applyWorkflowToProject(payload.selectedWorkflow.workflow._id, {
+          projectId: createdProject._id,
+        });
       } else {
         const selectedMarketplaceWorkflow = payload.selectedWorkflow.workflow;
 
@@ -243,44 +241,74 @@ export function CreateProjectDialog({
 
   const stepLabel = getStepLabel(step);
 
-  const stepTitle =
-    step === "details" ? "Create project" : "Select workflow";
+  const stepTitle = step === "details" ? "Create project" : "Select workflow";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[50vw]! max-w-[50vw]! h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{stepTitle}</DialogTitle>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{stepLabel}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            {stepLabel}
+          </p>
         </DialogHeader>
 
         <div className="flex-1 overflow-auto px-4 py-2">
           {step === "details" ? (
             <form
-              className="space-y-3"
+              className="space-y-3 flex flex-col gap-6"
               onSubmit={async (event) => {
                 event.preventDefault();
                 handleNextFromDetails();
               }}
             >
-              <Input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Project title"
-                autoFocus
-                disabled={createMutation.isPending}
-              />
-              <div className="flex items-center gap-2">
-                <ProjectIconPicker
-                  value={icon}
-                  onChange={setIcon}
-                  disabled={createMutation.isPending}
-                />
-                <ProjectColorPicker
-                  value={color}
-                  onChange={setColor}
-                  disabled={createMutation.isPending}
-                />
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                <p className="font-semibold">Project and workflow</p>
+                <ul className="mt-2 list-disc pl-5 text-sm text-zinc-600 dark:text-zinc-300">
+                  <li>Project: used to organize your tasks.</li>
+                  <li>
+                    Workflow: a pack of related categories (stages, tags) you
+                    can apply to a project.
+                  </li>
+                  <li>
+                    Each project can have only one workflow assigned at a time.
+                  </li>
+                  <li>
+                    Workflows can be modified individually after assignment.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="project-title" className="mb-1">
+                    Enter project title{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    placeholder="Project title"
+                    autoFocus
+                    disabled={createMutation.isPending}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="mb-1">Choose project icon</Label>
+                  <ProjectIconPicker
+                    value={icon}
+                    onChange={setIcon}
+                    disabled={createMutation.isPending}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="mb-1">Choose project color</Label>
+                  <ProjectColorPicker
+                    value={color}
+                    onChange={setColor}
+                    disabled={createMutation.isPending}
+                  />
+                </div>
               </div>
             </form>
           ) : null}
@@ -442,8 +470,7 @@ export function CreateProjectDialog({
                 type="button"
                 onClick={handleCreate}
                 disabled={
-                  createMutation.isPending ||
-                  selectedWorkflow?.source !== "my"
+                  createMutation.isPending || selectedWorkflow?.source !== "my"
                 }
               >
                 {createMutation.isPending ? "Creating..." : "Create project"}

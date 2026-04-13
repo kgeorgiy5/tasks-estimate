@@ -7,4 +7,6 @@ export * from "./play-button-icon";
 export * from "./tasks-list";
 export * from "./play-button";
 export * from "./project-selector";
+export * from "./project-card";
+export * from "./manage-project-dialog";
 export * from "./sidebar";

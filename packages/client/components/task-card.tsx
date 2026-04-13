@@ -19,7 +19,7 @@ export const TaskCard:FC<TaskCardProps> = ({ task }) => {
 
   const rawId = task._id ?? "";
   const taskId =
-    typeof rawId === "string" ? rawId : String((rawId as any)._id ?? String(rawId));
+    typeof rawId === "string" ? rawId : String(rawId);
 
   const handleStart = async () => {
     if (loading || !!currentEntry) return;

@@ -46,15 +46,23 @@ export const TasksList: FC = () => {
           function getDateInfo(task: ListTaskDto) {
             if (!task.lastEntryStartDateTime) return { dateKey: "", displayLabel: "" };
             const iso = String(task.lastEntryStartDateTime);
-            const [isoDate] = iso.split("T");
-            if (!isoDate) return { dateKey: "", displayLabel: "" };
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return { dateKey: "", displayLabel: "" };
+
+            // dateKey in local date (YYYY-MM-DD) so grouping uses local days
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            const dateKeyLocal = `${y}-${m}-${day}`;
+
+            // display label using local timezone (no explicit timeZone option)
             const displayLabel = new Intl.DateTimeFormat("en-GB", {
               day: "2-digit",
               month: "short",
               year: "numeric",
-              timeZone: "UTC",
-            }).format(new Date(iso));
-            return { dateKey: isoDate, displayLabel };
+            }).format(d);
+
+            return { dateKey: dateKeyLocal, displayLabel };
           }
 
           for (let i = 0; i < items.length; i++) {

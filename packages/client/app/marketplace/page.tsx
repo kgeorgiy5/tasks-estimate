@@ -9,6 +9,8 @@ import { NavigationPaths } from "@/config";
 import { cn } from "@/lib/utils";
 import { listMarketplaceDomains, listMarketplaceWorkflows } from "@/api/workflows/workflows-handlers";
 import { getDomainVisual, WorkflowCard } from "./components";
+import { CreateProjectDialog } from "@/components/index";
+import { useState } from "react";
 
 /**
  * Formats a domain key to a readable title.
@@ -66,6 +68,8 @@ export default function MarketplacePage() {
 
   const workflows = workflowsQuery.data ?? [];
   const domains = domainsQuery.data ?? [];
+  const [createOpen, setCreateOpen] = useState(false);
+  const [selectedMarketplaceWorkflow, setSelectedMarketplaceWorkflow] = useState<null | ListMarketplaceWorkflowDto[number]>(null);
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -139,12 +143,29 @@ export default function MarketplacePage() {
                     workflow={workflow}
                     visual={visual}
                     actionLabel="Apply the workflow"
+                    onAction={() => {
+                      setSelectedMarketplaceWorkflow(workflow);
+                      setCreateOpen(true);
+                    }}
                   />
                 );
               })}
             </div>
           ) : null}
         </section>
+        <CreateProjectDialog
+          open={createOpen}
+          onOpenChange={(v) => {
+            setCreateOpen(v);
+            if (!v) setSelectedMarketplaceWorkflow(null);
+          }}
+          initialSelectedWorkflow={
+            selectedMarketplaceWorkflow
+              ? { source: "marketplace", workflow: selectedMarketplaceWorkflow }
+              : null
+          }
+          initialStep={"marketplace"}
+        />
       </main>
     </div>
   );

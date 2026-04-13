@@ -28,16 +28,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-
 import { ProjectColorPicker } from "./project-color-picker";
 import { ProjectIconPicker } from "./project-icon-picker";
 import { Label } from "./ui/label";
+import { Input } from "./ui/input";
 
 type CreateProjectDialogProps = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved?: (projectId: string) => void;
+  initialSelectedWorkflow?: SelectedWorkflow | null;
+  initialStep?: CreateProjectStep;
 }>;
 
 type CreateProjectStep = "details" | "my-workflows" | "marketplace";

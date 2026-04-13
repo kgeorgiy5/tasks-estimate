@@ -78,7 +78,7 @@ export function WorkflowCard({
       {actionLabel ? (
         <Button
           type="button"
-          className="mt-4 h-12 w-full text-base font-semibold"
+          className="mt-4 h-12 w-full text-base font-semibold cursor-pointer"
           onClick={onAction}
           disabled={disabled}
         >

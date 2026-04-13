@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from "@nestjs/common";
@@ -47,9 +48,18 @@ export class ProjectsController {
   }
 
   @Delete(":id")
-  public async deleteProject(@Req() req: any, @Param("id") id: string) {
+  public async deleteProject(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Query("cascade") cascade?: string,
+  ) {
     const userId = new Types.ObjectId(req.user.sub);
     const projectId = new Types.ObjectId(id);
-    return await this.projectsService.deleteProject(projectId, userId);
+    const cascadeBool = cascade === "true" || cascade === "1";
+    return await this.projectsService.deleteProject(
+      projectId,
+      userId,
+      cascadeBool,
+    );
   }
 }

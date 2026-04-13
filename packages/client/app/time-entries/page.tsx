@@ -40,6 +40,7 @@ const INTERVAL_OPTIONS = [1, 5, 10, 15, 30, 60] as const;
 const TIME_COLUMN_WIDTH_PX = 80;
 const DAY_COLUMN_WIDTH_PX = 500;
 const SLOT_ROW_HEIGHT_PX = 40;
+const ENTRY_TITLE_TRUNCATE_LENGTH = 100;
 
 /**
  * Time entries page with SVG timeline rendering.
@@ -93,7 +94,6 @@ export default function TimeEntriesPage(): JSX.Element {
     [intervalMinutes],
   );
 
-  // keep state in sync when user navigates with browser controls
   useEffect(() => {
     const spStart = searchParams?.get("start") ?? toDateInputValue(new Date());
     const spDays = Number(searchParams?.get("days") ?? DEFAULT_DAY_COUNT) || DEFAULT_DAY_COUNT;
@@ -214,6 +214,11 @@ export default function TimeEntriesPage(): JSX.Element {
         .attr("ry", 2);
 
       if (entryBox.isStart && entryBox.height >= 14) {
+        const rawTitle = String(entryBox.dto.taskTitle ?? "");
+        const truncate = (s: string, max = ENTRY_TITLE_TRUNCATE_LENGTH) =>
+          s.length > max ? `${s.slice(0, max)}...` : s;
+        const titleToRender = truncate(rawTitle, ENTRY_TITLE_TRUNCATE_LENGTH);
+
         entryGroup
           .append("text")
           .attr("x", 4)
@@ -222,7 +227,7 @@ export default function TimeEntriesPage(): JSX.Element {
           .attr("fill", "#065f46")
           .attr("font-size", 10)
           .attr("font-weight", 600)
-          .text(entryBox.dto.taskTitle);
+          .text(titleToRender);
 
         if (entryBox.height >= 26) {
           entryGroup
@@ -249,7 +254,7 @@ export default function TimeEntriesPage(): JSX.Element {
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4">
-      <div className="mx-auto min-h-screen bg-white flex w-full max-w-7xl flex-col gap-4">
+      <div className="mx-auto min-h-screen bg-white flex w-full max-w-[80vw] flex-col gap-4">
         <div className="grid gap-3 rounded p-4 sm:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm">
             Start day

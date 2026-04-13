@@ -37,15 +37,26 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
   };
 
   return (
-    <div className="flex items-center justify-between rounded border px-3 py-2">
-      <div className="flex flex-row gap-2 items-center">
+    <div className="w-full flex items-center justify-between rounded border px-3 py-2 min-w-0">
+      <div className="flex flex-row gap-2 items-center min-w-0">
         {(task.entriesCount ?? 0) > 1 ? (
           <div className="text-sm text-zinc-500">{task.entriesCount}</div>
         ) : null}
-        <div className="truncate">{task.title}</div>
+        <div
+          className="flex-1 min-w-0"
+          style={{
+            display: "-webkit-box",
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {task.title}
+        </div>
       </div>
 
-      <div className="ml-4 flex items-center gap-3">
+      <div className="ml-4 shrink-0 flex items-center gap-3">
         <div className="w-20 text-left text-sm text-zinc-600">
           {formatHHMMSS(task.timeSeconds ?? 0)}
         </div>

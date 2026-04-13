@@ -6,3 +6,4 @@ export * from "./task-card";
 export * from "./play-button-icon";
 export * from "./tasks-list";
 export * from "./play-button";
+export * from "./sidebar";

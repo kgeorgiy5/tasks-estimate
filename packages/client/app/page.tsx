@@ -17,10 +17,7 @@ export default function Home() {
   const currentEntryQuery = useCurrentEntryQuery({ enabled: isAuthenticated });
 
   useEffect(() => {
-    if (!currentEntry) {
-      setTitle("");
-      return;
-    }
+    if (!currentEntry) return;
 
     const task = currentEntry.taskId as any;
     const titleFromEntry =
@@ -29,9 +26,20 @@ export default function Home() {
         : (currentEntry as any).taskTitle ?? "";
 
     setTitle(titleFromEntry);
+    const rawProject = task?.projectId ?? (currentEntry as any).projectId;
+    let projectIdFromEntry: string | undefined = undefined;
+    if (rawProject) {
+      if (typeof rawProject === "string") projectIdFromEntry = rawProject;
+      else if (rawProject._id) projectIdFromEntry = String(rawProject._id);
+      else projectIdFromEntry = String(rawProject);
+    }
+    
+    if (projectIdFromEntry) {
+      setSelectedProjectId(projectIdFromEntry);
+    }
   }, [currentEntry]);
 
-  const handleStarted = () => setTitle("");
+  const handleStarted = () => {};
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -49,6 +57,7 @@ export default function Home() {
             <ProjectSelector
               value={selectedProjectId}
               onChange={setSelectedProjectId}
+              disabled={!!currentEntry}
             />
           </div>
           <div className="ml-2 shrink-0">

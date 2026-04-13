@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
 import { DateSeparator } from "./date-separator";
 import { TaskCard } from "./task-card";
+import { Button } from "@/components/ui/button";
 import type { ListTaskDto } from "@tasks-estimate/shared";
 import { FC, JSX } from "react";
 
@@ -42,6 +43,20 @@ export const TasksList: FC = () => {
           const nodes: JSX.Element[] = [];
           let lastDateKey: string | null = null;
 
+          function getDateInfo(task: ListTaskDto) {
+            if (!task.lastEntryStartDateTime) return { dateKey: "", displayLabel: "" };
+            const iso = String(task.lastEntryStartDateTime);
+            const [isoDate] = iso.split("T");
+            if (!isoDate) return { dateKey: "", displayLabel: "" };
+            const displayLabel = new Intl.DateTimeFormat("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              timeZone: "UTC",
+            }).format(new Date(iso));
+            return { dateKey: isoDate, displayLabel };
+          }
+
           for (let i = 0; i < items.length; i++) {
             const task: ListTaskDto = items[i];
             const rawIdForKey = task._id ?? "";
@@ -50,53 +65,43 @@ export const TasksList: FC = () => {
                 ? rawIdForKey
                 : String((rawIdForKey as any)._id ?? String(rawIdForKey));
 
-            let dateKey = "";
-            let displayLabel = "";
-            if (task.lastEntryStartDateTime) {
-              const iso = String(task.lastEntryStartDateTime);
-              const [isoDate] = iso.split("T");
-              if (isoDate) {
-                dateKey = isoDate;
-                displayLabel = new Intl.DateTimeFormat("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  timeZone: "UTC",
-                }).format(new Date(iso));
-              }
-            }
+            const { dateKey, displayLabel } = getDateInfo(task);
 
             if (dateKey && dateKey !== lastDateKey) {
               nodes.push(
-                <DateSeparator
-                  key={`sep-${dateKey}-${i}`}
-                  label={displayLabel || dateKey}
-                />,
+                <DateSeparator key={`sep-${dateKey}-${i}`} label={displayLabel || dateKey} />,
               );
               lastDateKey = dateKey;
             }
 
-            nodes.push(<TaskCard key={`task-${idStrKey}-${i}`} task={task} />);
+            const isLastTask = i === items.length - 1 && !query.isLoading && !query.hasNextPage;
+            nodes.push(
+              <div key={`task-${idStrKey}-${i}`} className={isLastTask ? "mb-8" : ""}>
+                <TaskCard task={task} />
+              </div>,
+            );
+          }
+
+          if (query.isLoading) {
+            nodes.push(
+              <div key="loading" className="mt-2 mb-8 flex items-center justify-center">
+                <span className="text-sm text-zinc-600">Loading…</span>
+              </div>,
+            );
+          }
+
+          if (query.hasNextPage) {
+            nodes.push(
+              <div key="load-more" className="mt-2 mb-8 flex items-center justify-center">
+                <Button variant="outline" onClick={() => query.fetchNextPage()} disabled={query.isFetching}>
+                  {query.isFetching ? "Loading…" : "Load more"}
+                </Button>
+              </div>,
+            );
           }
 
           return nodes;
         })()}
-      </div>
-
-      <div className="mt-4 flex items-center justify-center">
-        {query.isLoading ? (
-          <span className="text-sm text-zinc-600">Loading…</span>
-        ) : null}
-
-        {query.hasNextPage ? (
-          <button
-            onClick={() => query.fetchNextPage()}
-            className="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
-            disabled={query.isFetching}
-          >
-            {query.isFetching ? "Loading…" : "Load more"}
-          </button>
-        ) : null}
       </div>
     </div>
   );

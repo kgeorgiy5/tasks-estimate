@@ -28,6 +28,7 @@ import { JSX, useMemo, useState } from "react";
 type ProjectSelectorProps = Readonly<{
   value?: string;
   onChange: (projectId?: string) => void;
+  disabled?: boolean;
 }>;
 
 type FormSubmitEvent =
@@ -39,6 +40,7 @@ const NO_PROJECT_VALUE = "__none__";
  * Renders a projects dropdown with in-place project creation modal.
  */
 export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
+  const disabled = (arguments[0] as ProjectSelectorProps | undefined)?.disabled ?? false;
   const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
@@ -96,15 +98,15 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between"
-            disabled={projectsQuery.isLoading}
-          >
-            {projectsQuery.isLoading ? "Loading projects..." : triggerLabel}
-          </Button>
-        </DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              disabled={projectsQuery.isLoading || disabled}
+            >
+              {projectsQuery.isLoading ? "Loading projects..." : triggerLabel}
+            </Button>
+          </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
           <DropdownMenuLabel>Projects</DropdownMenuLabel>
           <DropdownMenuSeparator />

@@ -1,12 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { Timer } from "@/components/timer";
-import PlayButton from "@/components/play-button";
-import TasksList from "@/components/tasks-list";
 import { useCurrentEntryStore } from "@/stores";
 import useCurrentEntryQuery from "@/hooks/use-current-entry-query";
 import { useAuthStore } from "@/stores/auth-store";
+import { PlayButton, TasksList, Timer } from "@components/index";
 
 export default function Home() {
   const _email = useAuthStore((s) => s.email);

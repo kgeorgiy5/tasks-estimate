@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FC, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentEntryStore } from "@/stores";
 import { startTaskEntry } from "@/api";
@@ -12,7 +12,7 @@ type TaskCardProps = {
   task: ListTaskDto;
 };
 
-export default function TaskCard({ task }: Readonly<TaskCardProps>) {
+export const TaskCard:FC<TaskCardProps> = ({ task }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const currentEntry = useCurrentEntryStore((s) => s.entry);

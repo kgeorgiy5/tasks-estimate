@@ -1,16 +1,18 @@
-"use client"
+"use client";
 
-import { JSX, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useCurrentEntryStore } from "@/stores";
 import { formatHHMMSS } from "@tasks-estimate/shared";
 
-export function Timer(): JSX.Element {
+export const Timer: FC = () => {
   const entry = useCurrentEntryStore((s) => s.entry);
   const [seconds, setSeconds] = useState<number>(() => {
     const startDate = entry?.startDateTime;
     if (!startDate) return 0;
     const start = new Date(startDate).getTime();
-    const end = entry?.endDateTime ? new Date(entry.endDateTime).getTime() : Date.now();
+    const end = entry?.endDateTime
+      ? new Date(entry.endDateTime).getTime()
+      : Date.now();
     return Math.max(0, Math.floor((end - start) / 1000));
   });
 
@@ -41,4 +43,4 @@ export function Timer(): JSX.Element {
       <span className="font-mono text-sm">{formatHHMMSS(seconds)}</span>
     </div>
   );
-}
+};

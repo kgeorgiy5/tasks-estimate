@@ -2,24 +2,15 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
-import DateSeparator from "@/components/date-separator";
-import TaskCard from "@/components/task-card";
+import { DateSeparator } from "./date-separator";
+import { TaskCard } from "./task-card";
 import type { ListTaskDto } from "@tasks-estimate/shared";
-import { JSX } from "react";
+import { FC, JSX } from "react";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const DEFAULT_LIMIT = 20;
 
-function formatTimeSeconds(totalSeconds: number) {
-  const hrs = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  const secs = totalSeconds % 60;
-  if (hrs > 0) return `${hrs}h ${mins}m`;
-  if (mins > 0) return `${mins}m ${secs}s`;
-  return `${secs}s`;
-}
-
-export default function TasksList() {
+export const TasksList: FC = () => {
   const query = useInfiniteQuery({
     queryKey: ["tasks"],
     initialPageParam: 0,
@@ -85,9 +76,7 @@ export default function TasksList() {
               lastDateKey = dateKey;
             }
 
-            nodes.push(
-              <TaskCard key={`task-${idStrKey}-${i}`} task={task} />,
-            );
+            nodes.push(<TaskCard key={`task-${idStrKey}-${i}`} task={task} />);
           }
 
           return nodes;
@@ -111,4 +100,4 @@ export default function TasksList() {
       </div>
     </div>
   );
-}
+};

@@ -1,10 +1,12 @@
-"use client"
+"use client";
+
+import { FC } from "react";
 
 type DateSeparatorProps = {
   label: string;
 };
 
-export default function DateSeparator({ label }: DateSeparatorProps) {
+export const DateSeparator: FC<DateSeparatorProps> = ({ label }) => {
   return (
     <div className="flex items-center my-3">
       <div className="flex-1 h-px bg-zinc-200" />
@@ -12,4 +14,4 @@ export default function DateSeparator({ label }: DateSeparatorProps) {
       <div className="flex-1 h-px bg-zinc-200" />
     </div>
   );
-}
+};

@@ -19,7 +19,7 @@ type CurrentEntryStore = {
   stopPolling: () => void;
 };
 
-let intervalId: number | null = null;
+let intervalId: ReturnType<typeof setInterval> | null = null;
 
 export const useCurrentEntryStore = create<CurrentEntryStore>((set, get) => ({
   entry: null,
@@ -27,14 +27,10 @@ export const useCurrentEntryStore = create<CurrentEntryStore>((set, get) => ({
   refresh: async () => {
     try {
       const data = await getCurrentEntry();
-        set({ entry: data ?? null });
-        // Log the fetched entry for debugging
-        // NOTE: intentional runtime debug output
-        // eslint-disable-next-line no-console
-        console.dir(data ?? null);
+      set({ entry: data ?? null });
+      // eslint-disable-next-line no-console
+      console.dir(data ?? null);
     } catch (err: unknown) {
-      // log and reset entry on error
-      // NOTE: swallow errors to keep polling running
       // eslint-disable-next-line no-console
       console.error(err);
       set({ entry: null });
@@ -42,7 +38,6 @@ export const useCurrentEntryStore = create<CurrentEntryStore>((set, get) => ({
   },
   startPolling: () => {
     if (get().isPolling) return;
-    // fetch immediately
     get().refresh();
     intervalId = globalThis.setInterval(() => {
       get().refresh();
@@ -58,16 +53,16 @@ export const useCurrentEntryStore = create<CurrentEntryStore>((set, get) => ({
   },
 }));
 
-// Auto start/stop polling based on auth state
-useAuthStore.subscribe(
-  (s) => s.isAuthenticated,
-  (isAuthenticated) => {
-    const store = useCurrentEntryStore.getState();
-    if (isAuthenticated) {
-      store.startPolling();
-    } else {
-      store.stopPolling();
-      store.refresh();
-    }
-  },
-);
+let _prevAuth = useAuthStore.getState().isAuthenticated;
+useAuthStore.subscribe((state) => {
+  const isAuthenticated = state.isAuthenticated;
+  if (isAuthenticated === _prevAuth) return;
+  _prevAuth = isAuthenticated;
+  const store = useCurrentEntryStore.getState();
+  if (isAuthenticated) {
+    store.startPolling();
+  } else {
+    store.stopPolling();
+    store.refresh();
+  }
+});

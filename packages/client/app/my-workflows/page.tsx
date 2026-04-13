@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { CategoriesChips } from "./components/categories-chips";
 import { NavigationPaths } from "@/config";
 
 /**
@@ -61,6 +62,14 @@ export default function MyWorkflowsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editCategories, setEditCategories] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
+  const editCategoriesArray = useMemo(
+    () =>
+      editCategories
+        .split(",")
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0),
+    [editCategories],
+  );
 
   const workflowsQuery = useQuery({
     queryKey: ["my-workflows"],
@@ -426,12 +435,14 @@ export default function MyWorkflowsPage() {
               disabled={editMutation.isPending}
             />
 
-            <Textarea
-              value={editCategories}
-              onChange={(event) => setEditCategories(event.target.value)}
-              placeholder="Categories separated by comma"
-              disabled={editMutation.isPending}
-            />
+              <div>
+                <label className="text-xs text-muted-foreground block mb-2">Categories</label>
+                <CategoriesChips
+                  categories={editCategoriesArray}
+                  onChange={(arr) => setEditCategories(arr.join(", "))}
+                  disabled={editMutation.isPending}
+                />
+              </div>
 
             {editError ? (
               <p className="text-xs text-destructive">{editError}</p>

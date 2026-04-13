@@ -15,7 +15,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { JSX, useMemo, useState } from "react";
 import { ProjectIcon } from "./project-icon";
-import { ManageProjectDialog } from "./manage-project-dialog";
+import { CreateProjectDialog } from "./create-project-dialog";
 
 type ProjectSelectorProps = Readonly<{
   value?: string;
@@ -111,7 +111,7 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ManageProjectDialog
+      <CreateProjectDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSaved={(id) => {

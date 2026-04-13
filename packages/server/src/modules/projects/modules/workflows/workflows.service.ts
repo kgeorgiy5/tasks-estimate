@@ -139,6 +139,8 @@ export class WorkflowsService {
       categories: sourceWorkflow.categories,
     });
 
+    await this.assignProjectWorkflow(targetProjectId, userId, created._id);
+
     return getWorkflowSchema.parse(created.toObject());
   }
 
@@ -149,19 +151,20 @@ export class WorkflowsService {
     userId: Types.ObjectId,
     payload: ManageWorkflowDto,
   ) {
-    await this.ensureProjectExists(
-      new Types.ObjectId(payload.projectId),
-      userId,
-    );
+    const projectId = new Types.ObjectId(payload.projectId);
+
+    await this.ensureProjectExists(projectId, userId);
 
     const created = await this.workflowModel.create({
       userId,
-      projectId: payload.projectId,
+      projectId,
       domain: payload.domain,
       title: payload.title,
       description: payload.description,
       categories: payload.categories,
     });
+
+    await this.assignProjectWorkflow(projectId, userId, created._id);
 
     return getWorkflowSchema.parse(created.toObject());
   }
@@ -263,5 +266,30 @@ export class WorkflowsService {
     }
 
     return workflow;
+  }
+
+  /**
+   * Assigns workflow id to the target project.
+   */
+  private async assignProjectWorkflow(
+    projectId: Types.ObjectId,
+    userId: Types.ObjectId,
+    workflowId: Types.ObjectId,
+  ) {
+    const project = await this.projectModel
+      .findOneAndUpdate(
+        { _id: projectId, userId },
+        {
+          $set: {
+            workflowId,
+          },
+        },
+        { new: true },
+      )
+      .lean();
+
+    if (!project) {
+      throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
+    }
   }
 }

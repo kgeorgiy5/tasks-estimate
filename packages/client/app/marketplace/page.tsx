@@ -1,65 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  ListMarketplaceWorkflowDto,
-  ProjectIcon as ProjectIconType,
-} from "@tasks-estimate/shared";
+import { ListMarketplaceWorkflowDto } from "@tasks-estimate/shared";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ProjectIcon } from "@/components/project-icon";
 import { Button } from "@/components/ui/button";
 import { NavigationPaths } from "@/config";
 import { cn } from "@/lib/utils";
 import { listMarketplaceDomains, listMarketplaceWorkflows } from "@/api/workflows/workflows-handlers";
-import { WorkflowCard } from "./components";
-
-type DomainVisual = Readonly<{
-  icon: ProjectIconType;
-  color: string;
-}>;
-
-const fallbackDomainVisual: DomainVisual = {
-  icon: "brush",
-  color: "#e4e4e7",
-};
-
-const domainVisualMap: Record<string, DomainVisual> = {
-  personal: {
-    icon: "pen",
-    color: "#dbeafe",
-  },
-  "software development": {
-    icon: "gears",
-    color: "#d1fae5",
-  },
-  marketing: {
-    icon: "bill",
-    color: "#fed7aa",
-  },
-  sales: {
-    icon: "bill",
-    color: "#fecdd3",
-  },
-  design: {
-    icon: "pen",
-    color: "#e9d5ff",
-  },
-  operations: {
-    icon: "gears",
-    color: "#c7d2fe",
-  },
-  finance: {
-    icon: "bill",
-    color: "#fde68a",
-  },
-};
-
-/**
- * Gets icon and background color for a domain.
- */
-function getDomainVisual(domain: string): DomainVisual {
-  return domainVisualMap[domain] ?? fallbackDomainVisual;
-}
+import { getDomainVisual, WorkflowCard } from "./components";
 
 /**
  * Formats a domain key to a readable title.
@@ -75,14 +24,6 @@ function formatDomainLabel(domain: string): string {
       return `${part[0].toUpperCase()}${part.slice(1)}`;
     })
     .join(" ");
-}
-
-/**
- * Ensures workflow title starts with an uppercase letter.
- */
-function formatTitle(title: string): string {
-  if (!title || title.length === 0) return title;
-  return `${title[0].toUpperCase()}${title.slice(1)}`;
 }
 
 /**
@@ -192,7 +133,14 @@ export default function MarketplacePage() {
               {workflows.map((workflow) => {
                 const visual = getDomainVisual(workflow.domain);
 
-                return <WorkflowCard key={workflow._id} workflow={workflow} visual={visual} />;
+                return (
+                  <WorkflowCard
+                    key={workflow._id}
+                    workflow={workflow}
+                    visual={visual}
+                    actionLabel="Apply the workflow"
+                  />
+                );
               })}
             </div>
           ) : null}

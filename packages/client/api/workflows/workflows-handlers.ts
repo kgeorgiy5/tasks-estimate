@@ -42,6 +42,17 @@ export async function listMyWorkflows(): Promise<ListUserWorkflowsDto> {
 }
 
 /**
+ * Creates a workflow for a specific project.
+ */
+export async function createWorkflow(
+  payload: ManageWorkflowDto,
+): Promise<GetWorkflowDto> {
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+  const response = await client.post(WORKFLOWS_BASE, payload);
+  return response.data as GetWorkflowDto;
+}
+
+/**
  * Applies one workflow to another project.
  */
 export async function applyWorkflowToProject(

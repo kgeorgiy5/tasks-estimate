@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listProjects } from "@/api";
-import { ManageProjectDialog, ProjectCard } from "@/components/index";
+import { CreateProjectDialog, ProjectCard } from "@/components/index";
 import { Button } from "@/components/ui/button";
 
 export default function ProjectsPage() {
@@ -33,7 +33,7 @@ export default function ProjectsPage() {
             ))}
           </div>
 
-          <ManageProjectDialog open={open} onOpenChange={setOpen} />
+          <CreateProjectDialog open={open} onOpenChange={setOpen} />
         </div>
       </main>
     </div>

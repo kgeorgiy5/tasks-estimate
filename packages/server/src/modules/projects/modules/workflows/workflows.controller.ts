@@ -32,7 +32,14 @@ const listWorkflowsQuerySchema = z.object({
   projectId: objectIdSchema,
 });
 
+const listMarketplaceWorkflowsQuerySchema = z.object({
+  domain: z.string().trim().min(1).optional(),
+});
+
 type ListWorkflowsQueryDto = z.infer<typeof listWorkflowsQuerySchema>;
+type ListMarketplaceWorkflowsQueryDto = z.infer<
+  typeof listMarketplaceWorkflowsQuerySchema
+>;
 
 @UseGuards(AuthGuard)
 @ProjectsModuleController("workflows")
@@ -59,8 +66,19 @@ export class WorkflowsController {
    * Lists marketplace workflows (pre-seeded templates).
    */
   @Get("marketplace")
-  public async listMarketplace() {
-    return await this.workflowsService.listMarketplaceWorkflows();
+  public async listMarketplace(
+    @Query(new ZodValidationPipe(listMarketplaceWorkflowsQuerySchema))
+    query: ListMarketplaceWorkflowsQueryDto,
+  ) {
+    return await this.workflowsService.listMarketplaceWorkflows(query.domain);
+  }
+
+  /**
+   * Lists distinct domains from the marketplace.
+   */
+  @Get("marketplace/domains")
+  public async listMarketplaceDomains() {
+    return await this.workflowsService.listMarketplaceDomains();
   }
 
   /**

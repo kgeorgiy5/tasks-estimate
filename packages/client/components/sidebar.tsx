@@ -98,6 +98,34 @@ export const Sidebar: FC = () => {
                 </span>
               </Link>
             </li>
+            <li>
+              <Link
+                href={NavigationPaths.MARKETPLACE}
+                className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                    className="shrink-0"
+                  >
+                    <path d="M3 7h18" />
+                    <path d="M6 12h12" />
+                    <path d="M9 17h6" />
+                    <rect x="2" y="3" width="20" height="18" rx="2" />
+                  </svg>
+                  <span>Marketplace</span>
+                </span>
+              </Link>
+            </li>
           </ul>
         </nav>
 

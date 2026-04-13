@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
 import DateSeparator from "@/components/date-separator";
+import TaskCard from "@/components/task-card";
 import type { ListTaskDto } from "@tasks-estimate/shared";
 import { JSX } from "react";
 
@@ -45,8 +46,6 @@ export default function TasksList() {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <h2 className="mb-2 text-lg font-semibold">Tasks</h2>
-
       <div className="space-y-2 overflow-auto flex-1 pr-2">
         {(() => {
           const nodes: JSX.Element[] = [];
@@ -87,15 +86,7 @@ export default function TasksList() {
             }
 
             nodes.push(
-              <div
-                key={`task-${idStrKey}-${i}`}
-                className="flex items-center justify-between rounded border px-3 py-2"
-              >
-                <div className="truncate">{task.title}</div>
-                <div className="ml-4 text-sm text-zinc-600">
-                  {formatTimeSeconds(task.timeSeconds ?? 0)}
-                </div>
-              </div>,
+              <TaskCard key={`task-${idStrKey}-${i}`} task={task} />,
             );
           }
 

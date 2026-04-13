@@ -5,7 +5,7 @@ import {
   TASK_ENTRY_MODEL_TOKEN,
   TASK_MODEL_TOKEN,
 } from "./models";
-import { Model, QueryFilter, Types } from "mongoose";
+import { Model, PipelineStage, QueryFilter, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ErrorIds, ManageTaskDto, CreateTaskDto } from "@tasks-estimate/shared";
 import { User, USER_MODEL_TOKEN } from "../users/models";
@@ -33,8 +33,10 @@ export class TasksService {
       limit?: number;
     },
   ) {
-    const offset = options?.offset ?? this.DEFAULT_OFFSET;
-    const limit = options?.limit ?? this.DEFAULT_LIMIT;
+    let offset = Number(options?.offset ?? this.DEFAULT_OFFSET);
+    if (!Number.isFinite(offset) || offset < 0) offset = this.DEFAULT_OFFSET;
+    let limit = Number(options?.limit ?? this.DEFAULT_LIMIT);
+    if (!Number.isFinite(limit) || limit <= 0) limit = this.DEFAULT_LIMIT;
 
     const activeEntry = await this.taskEntryModel
       .findOne({
@@ -48,35 +50,88 @@ export class TasksService {
       taskFilter._id = { $ne: activeEntry.taskId };
     }
 
-    const [tasks, total] = await Promise.all([
-      this.taskModel
-        .find(taskFilter)
-        .sort({ _id: -1 })
-        .skip(offset)
-        .limit(limit)
-        .exec(),
-      this.taskModel.countDocuments(taskFilter).exec(),
-    ]);
+    const total = await this.taskModel.countDocuments(taskFilter).exec();
 
-    const enrichedTasks = await Promise.all(
-      tasks.map(async (task) => {
-        const timeSeconds = await this.countTaskEntriesTimeSeconds(
-          task._id,
-          userId,
-        );
+    const entryColl = this.taskEntryModel.collection.name;
 
-        const lastEntry = await this.taskEntryModel
-          .findOne({ taskId: task._id, userId })
-          .sort({ startDateTime: -1 })
-          .lean();
+    const pipeline: PipelineStage[] = [
+      { $match: taskFilter },
+      {
+        $lookup: {
+          from: entryColl,
+          let: { taskId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$taskId", "$$taskId"] },
+                    { $eq: ["$userId", userId] },
+                  ],
+                },
+              },
+            },
+            { $sort: { startDateTime: -1 } },
+            { $limit: 1 },
+            { $project: { startDateTime: 1 } },
+          ],
+          as: "lastEntry",
+        },
+      },
+      {
+        $lookup: {
+          from: entryColl,
+          let: { taskId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$taskId", "$$taskId"] },
+                    { $eq: ["$userId", userId] },
+                    { $ne: ["$endDateTime", null] },
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                totalTimeSeconds: { $sum: { $ifNull: ["$timeSeconds", 0] } },
+              },
+            },
+          ],
+          as: "timeAgg",
+        },
+      },
+      {
+        $addFields: {
+          lastEntryStartDateTime: {
+            $arrayElemAt: ["$lastEntry.startDateTime", 0],
+          },
+          timeSeconds: {
+            $ifNull: [{ $arrayElemAt: ["$timeAgg.totalTimeSeconds", 0] }, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          _sortKey: {
+            $cond: [
+              { $ifNull: ["$lastEntryStartDateTime", false] },
+              "$lastEntryStartDateTime",
+              new Date(0),
+            ],
+          },
+        },
+      },
+      { $sort: { _sortKey: -1, _id: -1 } },
+      { $skip: offset },
+      { $limit: limit },
+      { $project: { lastEntry: 0, timeAgg: 0, _sortKey: 0 } },
+    ];
 
-        return {
-          ...task.toObject(),
-          timeSeconds,
-          lastEntryStartDateTime: lastEntry?.startDateTime ?? null,
-        };
-      }),
-    );
+    const enrichedTasks = await this.taskModel.aggregate(pipeline).exec();
 
     return {
       items: enrichedTasks,
@@ -101,7 +156,7 @@ export class TasksService {
     // Populate the related task so the client can display task metadata
     return await this.taskEntryModel
       .findById(user.currentTaskEntryId)
-      .populate<{ taskId: any }>("taskId");
+      .populate<{ taskId: Types.ObjectId }>("taskId");
   }
 
   /**

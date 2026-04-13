@@ -8,9 +8,10 @@ import { createTask, endTaskEntry } from "@/api";
 type PlayButtonProps = {
   title: string;
   onStarted?: () => void;
+  variant?: "solid" | "ghost";
 };
 
-export function PlayButton({ title, onStarted }: PlayButtonProps) {
+export function PlayButton({ title, onStarted, variant = "solid" }: PlayButtonProps) {
   const entry = useCurrentEntryStore((s) => s.entry);
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -55,14 +56,19 @@ export function PlayButton({ title, onStarted }: PlayButtonProps) {
 
   const isRunning = Boolean(entry);
 
+  const baseClasses = "ml-2 rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-50";
+
+  const solidClasses = isRunning ? "bg-red-600 text-white" : "bg-green-600 text-white";
+  const ghostClasses = isRunning ? "bg-transparent text-red-600" : "bg-transparent text-green-600";
+
+  const classes = `${baseClasses} ${variant === "solid" ? solidClasses : ghostClasses}`;
+
   return (
     <button
       onClick={handleClick}
       disabled={loading || (!entry && !title)}
       aria-label={isRunning ? "Stop timer" : "Start timer"}
-      className={`ml-2 rounded-full w-10 h-10 flex items-center justify-center text-white disabled:opacity-50 ${
-        isRunning ? "bg-red-600" : "bg-green-600"
-      }`}
+      className={classes}
     >
       {loading ? (
         <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">

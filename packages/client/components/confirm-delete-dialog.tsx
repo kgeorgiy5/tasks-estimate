@@ -3,6 +3,7 @@
 import { useState, useEffect, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -17,12 +18,13 @@ type ConfirmDeleteDialogProps = Readonly<{
   onOpenChange: (open: boolean) => void;
   title: string;
   type: string;
-  onConfirm: () => Promise<void> | void;
+  onConfirm: (cascade?: boolean) => Promise<void> | void;
 }>;
 
 export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm }: ConfirmDeleteDialogProps) {
   const [input, setInput] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [cascade, setCascade] = useState(false);
   const inputId = useId();
   const matches = input === title;
 
@@ -34,7 +36,7 @@ export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm
     if (!matches) return;
     try {
       setIsPending(true);
-      await onConfirm();
+      await onConfirm(cascade);
       onOpenChange(false);
     } finally {
       setIsPending(false);
@@ -55,6 +57,16 @@ export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm
           <label htmlFor={inputId} className="text-xs text-muted-foreground block">Type the title to confirm</label>
           <Input id={inputId} value={input} onChange={(e) => setInput(e.target.value)} placeholder={`Type "${title}" to confirm`} />
         </div>
+
+        <label className="flex items-center gap-2 mt-3 cursor-pointer">
+          <Checkbox
+            id={`${inputId}-cascade`}
+            checked={cascade}
+            className="cursor-pointer"
+            onCheckedChange={(v) => setCascade(Boolean(v))}
+          />
+          <span className="text-sm select-none">Delete all tasks assigned to this {type}</span>
+        </label>
 
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>

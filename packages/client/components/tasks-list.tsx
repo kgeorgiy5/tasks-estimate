@@ -23,6 +23,7 @@ export const TasksList: FC = () => {
     },
     refetchInterval: REFRESH_INTERVAL_MS,
     refetchOnWindowFocus: true,
+    refetchOnMount: "always",
     staleTime: REFRESH_INTERVAL_MS,
   });
 

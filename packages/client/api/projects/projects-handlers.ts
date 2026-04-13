@@ -35,7 +35,9 @@ export async function editProject(id: string, payload: ManageProjectDto): Promis
 /**
  * Deletes a project by id.
  */
-export async function deleteProject(id: string): Promise<void> {
+export type DeleteProjectOptions = { id: string; cascade?: boolean };
+
+export async function deleteProject({ id, cascade }: DeleteProjectOptions): Promise<void> {
   const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
-  await client.delete(`${PROJECTS_BASE}/${id}`);
+  await client.delete(`${PROJECTS_BASE}/${id}`, { params: { cascade } });
 }

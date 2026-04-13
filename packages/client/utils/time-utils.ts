@@ -123,7 +123,7 @@ export function toEntryRange(dto: ListTaskEntryDto): EntryRange | null {
     return null;
   }
 
-  const end = endCandidate > start ? endCandidate : start;
+  const end = new Date(Math.max(endCandidate.getTime(), start.getTime()));
   return { dto, start, end };
 }
 
@@ -188,8 +188,8 @@ function clipRangeToWindow(
   rangeStart: Date,
   rangeEnd: Date,
 ): { start: Date; end: Date } | null {
-  const clippedStart = start > rangeStart ? start : rangeStart;
-  const clippedEnd = end < rangeEnd ? end : rangeEnd;
+  const clippedStart = new Date(Math.max(start.getTime(), rangeStart.getTime()));
+  const clippedEnd = new Date(Math.min(end.getTime(), rangeEnd.getTime()));
 
   if (clippedEnd <= clippedStart) {
     return null;
@@ -212,8 +212,8 @@ function splitEntryByDay(
   for (let dayIndex = 0; dayIndex < dayRange.length; dayIndex += 1) {
     const dayStart = dayRange[dayIndex];
     const dayEnd = addDaysLocal(dayStart, 1);
-    const partStart = clippedStart > dayStart ? clippedStart : dayStart;
-    const partEnd = clippedEnd < dayEnd ? clippedEnd : dayEnd;
+    const partStart = new Date(Math.max(clippedStart.getTime(), dayStart.getTime()));
+    const partEnd = new Date(Math.min(clippedEnd.getTime(), dayEnd.getTime()));
 
     if (partEnd <= partStart) {
       continue;
@@ -236,6 +236,50 @@ function splitEntryByDay(
 /**
  * Assigns horizontal lane indexes per day so intersecting entries stack side by side.
  */
+function assignLanesForDay(dayDrafts: TimeEntryBoxDraft[]): TimeEntryBox[] {
+  const sortedDrafts = [...dayDrafts].sort((a, b) => {
+    if (a.start.getTime() !== b.start.getTime()) {
+      return a.start.getTime() - b.start.getTime();
+    }
+    return a.end.getTime() - b.end.getTime();
+  });
+
+  const laneEnds: Date[] = [];
+
+  for (const draft of sortedDrafts) {
+    let laneIndex = -1;
+
+    for (let index = 0; index < laneEnds.length; index += 1) {
+      if (draft.start >= laneEnds[index]) {
+        laneIndex = index;
+        break;
+      }
+    }
+
+    if (laneIndex === -1) {
+      laneIndex = laneEnds.length;
+      laneEnds.push(draft.end);
+    } else {
+      laneEnds[laneIndex] = draft.end;
+    }
+
+    draft.laneIndex = laneIndex;
+  }
+
+  const laneCount = Math.max(laneEnds.length, 1);
+
+  return sortedDrafts.map((draft) => ({
+    dto: draft.dto,
+    start: draft.start,
+    end: draft.end,
+    dayIndex: draft.dayIndex,
+    laneIndex: draft.laneIndex,
+    laneCount,
+    isStart: draft.isStart,
+    continuationOf: draft.continuationOf,
+  }));
+}
+
 function assignLaneIndexesByDay(drafts: TimeEntryBoxDraft[]): TimeEntryBox[] {
   const byDay = new Map<number, TimeEntryBoxDraft[]>();
 
@@ -248,49 +292,7 @@ function assignLaneIndexesByDay(drafts: TimeEntryBoxDraft[]): TimeEntryBox[] {
   const boxes: TimeEntryBox[] = [];
 
   for (const [, dayDrafts] of byDay) {
-    const sortedDrafts = [...dayDrafts].sort((a, b) => {
-      if (a.start.getTime() !== b.start.getTime()) {
-        return a.start.getTime() - b.start.getTime();
-      }
-      return a.end.getTime() - b.end.getTime();
-    });
-
-    const laneEnds: Date[] = [];
-
-    for (const draft of sortedDrafts) {
-      let laneIndex = -1;
-
-      for (let index = 0; index < laneEnds.length; index += 1) {
-        if (draft.start >= laneEnds[index]) {
-          laneIndex = index;
-          break;
-        }
-      }
-
-      if (laneIndex === -1) {
-        laneIndex = laneEnds.length;
-        laneEnds.push(draft.end);
-      } else {
-        laneEnds[laneIndex] = draft.end;
-      }
-
-      draft.laneIndex = laneIndex;
-    }
-
-    const laneCount = laneEnds.length > 0 ? laneEnds.length : 1;
-
-    for (const draft of sortedDrafts) {
-      boxes.push({
-        dto: draft.dto,
-        start: draft.start,
-        end: draft.end,
-        dayIndex: draft.dayIndex,
-        laneIndex: draft.laneIndex,
-        laneCount,
-        isStart: draft.isStart,
-        continuationOf: draft.continuationOf,
-      });
-    }
+    boxes.push(...assignLanesForDay(dayDrafts));
   }
 
   return boxes;

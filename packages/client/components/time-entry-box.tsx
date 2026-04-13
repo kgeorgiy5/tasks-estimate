@@ -2,15 +2,16 @@
 
 import type { TimeEntryBox as TimeEntryBoxModel } from "@/utils";
 import { formatClockLabel } from "@/utils";
+import { FC } from "react";
 
-type Props = {
+type TimeEntryBoxProps = {
   timeEntryBox: TimeEntryBoxModel;
 };
 
 /**
  * Renders one visual box segment for a task time entry.
  */
-export function TimeEntryBox({ timeEntryBox }: Props) {
+export const TimeEntryBox: FC<TimeEntryBoxProps> = ({ timeEntryBox }) => {
   const showLabels = !timeEntryBox.continuationOf && timeEntryBox.isStart;
 
   return (
@@ -23,10 +24,11 @@ export function TimeEntryBox({ timeEntryBox }: Props) {
         <>
           <div className="truncate">{timeEntryBox.dto.taskTitle}</div>
           <div>
-            {formatClockLabel(timeEntryBox.start)}- {formatClockLabel(timeEntryBox.end)}
+            {formatClockLabel(timeEntryBox.start)}-{" "}
+            {formatClockLabel(timeEntryBox.end)}
           </div>
         </>
       ) : null}
     </div>
   );
-}
+};

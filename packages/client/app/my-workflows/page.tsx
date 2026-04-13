@@ -274,7 +274,7 @@ export default function MyWorkflowsPage() {
                         {`Project: ${workflow.projectTitle ?? "Unknown project"}`}
                       </div>
                     ) : (
-                      <div className="truncate text-xs text-zinc-500">
+                      <div className="truncate text-xs text-red-500">
                         No project assigned
                       </div>
                     )}
@@ -289,13 +289,15 @@ export default function MyWorkflowsPage() {
                   >
                     Apply to another project
                   </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setWorkflowForEdit(workflow)}
-                    disabled={editMutation.isPending}
-                  >
-                    Edit
-                  </Button>
+                    {workflow.projectId ? (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setWorkflowForEdit(workflow)}
+                        disabled={editMutation.isPending}
+                      >
+                        Edit
+                      </Button>
+                    ) : null}
                   <Button
                     variant="destructive"
                     onClick={() => setWorkflowForDelete(workflow)}

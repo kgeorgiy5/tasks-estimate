@@ -36,12 +36,12 @@ export class TasksService {
     const offset = options?.offset ?? this.DEFAULT_OFFSET;
     const limit = options?.limit ?? this.DEFAULT_LIMIT;
 
-    // If the user has an active running entry (no endDateTime), exclude that
-    // task from the listing so the UI doesn't show the currently running task.
-    const activeEntry = await this.taskEntryModel.findOne({
-      userId,
-      endDateTime: { $exists: false },
-    }).select("taskId");
+    const activeEntry = await this.taskEntryModel
+      .findOne({
+        userId,
+        endDateTime: { $exists: false },
+      })
+      .select("taskId");
 
     const taskFilter: any = { userId };
     if (activeEntry?.taskId) {
@@ -49,7 +49,12 @@ export class TasksService {
     }
 
     const [tasks, total] = await Promise.all([
-      this.taskModel.find(taskFilter).sort({ _id: -1 }).skip(offset).limit(limit).exec(),
+      this.taskModel
+        .find(taskFilter)
+        .sort({ _id: -1 })
+        .skip(offset)
+        .limit(limit)
+        .exec(),
       this.taskModel.countDocuments(taskFilter).exec(),
     ]);
 
@@ -59,9 +64,16 @@ export class TasksService {
           task._id,
           userId,
         );
+
+        const lastEntry = await this.taskEntryModel
+          .findOne({ taskId: task._id, userId })
+          .sort({ startDateTime: -1 })
+          .lean();
+
         return {
           ...task.toObject(),
           timeSeconds,
+          lastEntryStartDateTime: lastEntry?.startDateTime ?? null,
         };
       }),
     );

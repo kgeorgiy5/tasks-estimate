@@ -45,16 +45,31 @@ export default function TasksList() {
           for (let i = 0; i < items.length; i++) {
             const task = items[i];
             const rawId = task._id ?? "";
-            const idStr =
-              typeof rawId === "string" ? rawId : String((rawId as any)._id ?? rawId.toString());
+            const idStr = typeof rawId === "string" ? rawId : String((rawId as any)._id ?? rawId.toString());
+
+            // Try to locate a 24-char hex ObjectId in the id string (handles
+            // cases where the id may be wrapped in an object or serialized).
+            let hex = null as string | null;
+            const m = idStr.match(/[0-9a-fA-F]{24}/);
+            if (m) hex = m[0];
+            else if (idStr.length >= 24 && /^[0-9a-fA-F]+$/.test(idStr)) hex = idStr.slice(0, 24);
 
             // extract timestamp from ObjectId hex (first 8 chars => seconds)
             let dateKey = "";
             let displayLabel = "";
             try {
-              if (idStr.length >= 8) {
-                const seconds = parseInt(idStr.substring(0, 8), 16);
-                const d = new Date(seconds * 1000);
+              let d: Date | null = null;
+              if (hex) {
+                const seconds = parseInt(hex.substring(0, 8), 16);
+                if (!Number.isNaN(seconds) && seconds > 0) d = new Date(seconds * 1000);
+              }
+
+              // fallback: if task has a createdAt/timestamp field, use it
+              if (!d && task.createdAt) {
+                d = new Date(task.createdAt as string);
+              }
+
+              if (d && !Number.isNaN(d.getTime())) {
                 dateKey = d.toISOString().split("T")[0];
                 displayLabel = d.toLocaleDateString("en-GB", {
                   day: "2-digit",

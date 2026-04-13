@@ -42,7 +42,7 @@ export default function TaskCard({ task }: Readonly<TaskCardProps>) {
       <div className="truncate">{task.title}</div>
 
       <div className="ml-4 flex items-center gap-3">
-        <div className="text-sm text-zinc-600">{formatHHMMSS(task.timeSeconds ?? 0)}</div>
+        <div className="w-20 text-left text-sm text-zinc-600">{formatHHMMSS(task.timeSeconds ?? 0)}</div>
 
         <TaskPlayButton
           onClick={handleStart}

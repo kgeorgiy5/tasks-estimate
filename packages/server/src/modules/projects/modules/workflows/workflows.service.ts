@@ -2,9 +2,11 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import {
+  ApplyWorkflowDto,
   ErrorIds,
   getWorkflowSchema,
   listMarketplaceWorkflowSchema,
+  listUserWorkflowsSchema,
   listWorkflowSchema,
   ManageWorkflowDto,
 } from "@tasks-estimate/shared";
@@ -71,6 +73,73 @@ export class WorkflowsService {
     return domains
       .filter((domain): domain is string => typeof domain === "string")
       .sort((left, right) => left.localeCompare(right));
+  }
+
+  /**
+   * Lists all workflows for the authenticated user with project titles.
+   */
+  public async listUserWorkflows(userId: Types.ObjectId) {
+    const projectCollection = this.projectModel.collection.name;
+
+    const workflows = await this.workflowModel
+      .aggregate([
+        {
+          $match: { userId },
+        },
+        {
+          $lookup: {
+            from: projectCollection,
+            localField: "projectId",
+            foreignField: "_id",
+            as: "project",
+          },
+        },
+        {
+          $addFields: {
+            projectTitle: {
+              $arrayElemAt: ["$project.title", 0],
+            },
+          },
+        },
+        {
+          $project: {
+            project: 0,
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ])
+      .exec();
+
+    return listUserWorkflowsSchema.parse(workflows);
+  }
+
+  /**
+   * Copies an existing workflow into another project owned by the same user.
+   */
+  public async applyWorkflowToProject(
+    workflowId: Types.ObjectId,
+    userId: Types.ObjectId,
+    payload: ApplyWorkflowDto,
+  ) {
+    const sourceWorkflow = await this.findUserWorkflow(workflowId, userId);
+    const targetProjectId = new Types.ObjectId(payload.projectId);
+
+    await this.ensureProjectExists(targetProjectId, userId);
+
+    const created = await this.workflowModel.create({
+      userId,
+      projectId: targetProjectId,
+      domain: sourceWorkflow.domain,
+      title: sourceWorkflow.title,
+      description: sourceWorkflow.description,
+      categories: sourceWorkflow.categories,
+    });
+
+    return getWorkflowSchema.parse(created.toObject());
   }
 
   /**
@@ -176,5 +245,23 @@ export class WorkflowsService {
     if (!project) {
       throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
     }
+  }
+
+  /**
+   * Returns workflow by id only if it belongs to the authenticated user.
+   */
+  private async findUserWorkflow(
+    workflowId: Types.ObjectId,
+    userId: Types.ObjectId,
+  ) {
+    const workflow = await this.workflowModel
+      .findOne({ _id: workflowId, userId })
+      .lean();
+
+    if (!workflow) {
+      throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
+    }
+
+    return workflow;
   }
 }

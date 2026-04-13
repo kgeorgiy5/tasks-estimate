@@ -10,6 +10,8 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import {
+  ApplyWorkflowDto,
+  applyWorkflowSchema,
   ManageWorkflowDto,
   manageWorkflowSchema,
   objectIdSchema,
@@ -82,6 +84,15 @@ export class WorkflowsController {
   }
 
   /**
+   * Lists all workflows owned by the authenticated user.
+   */
+  @Get("my")
+  public async listMyWorkflows(@Req() req: AuthenticatedRequest) {
+    const userId = new Types.ObjectId(req.user.sub);
+    return await this.workflowsService.listUserWorkflows(userId);
+  }
+
+  /**
    * Creates a workflow for the authenticated user.
    */
   @Post()
@@ -92,6 +103,26 @@ export class WorkflowsController {
   ) {
     const userId = new Types.ObjectId(req.user.sub);
     return await this.workflowsService.createWorkflow(userId, payload);
+  }
+
+  /**
+   * Applies an existing workflow to another project owned by the user.
+   */
+  @Post(":id/apply")
+  public async applyWorkflowToAnotherProject(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(applyWorkflowSchema))
+    payload: ApplyWorkflowDto,
+  ) {
+    const userId = new Types.ObjectId(req.user.sub);
+    const workflowId = new Types.ObjectId(id);
+
+    return await this.workflowsService.applyWorkflowToProject(
+      workflowId,
+      userId,
+      payload,
+    );
   }
 
   /**

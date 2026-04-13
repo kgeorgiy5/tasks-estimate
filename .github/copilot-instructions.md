@@ -16,6 +16,7 @@ Rules:
 - reuse as much as possible from shared package
 - be concise, don't add major changes, prefer gradual changes with my assistance. ask before implementing
 - Use precise imports for types and components (e.g., `import { ReactNode } from "react"` instead of `React.ReactNode`).
+- Don't use default exports, always use named exports.
 
 Context:
 - The project is a monorepo with 3 packages: `shared`, `client`, and `server`.

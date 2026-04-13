@@ -34,3 +34,10 @@ export async function listTasks(offset = 0, limit = 20) {
   const response = await client.get(TASKS_BASE, { params: { offset, limit } });
   return response.data;
 }
+
+export async function listTaskEntries(taskId?: string) {
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+  const path = taskId ? `${TASKS_BASE}/${taskId}/entries` : `${TASKS_BASE}/entries`;
+  const response = await client.get(path);
+  return response.data;
+}

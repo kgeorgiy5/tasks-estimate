@@ -6,11 +6,11 @@ import {
   ProjectIcon as ProjectIconType,
 } from "@tasks-estimate/shared";
 import { useRouter, useSearchParams } from "next/navigation";
-import { listMarketplaceDomains, listMarketplaceWorkflows } from "@/api";
 import { ProjectIcon } from "@/components/project-icon";
 import { Button } from "@/components/ui/button";
 import { NavigationPaths } from "@/config";
 import { cn } from "@/lib/utils";
+import { listMarketplaceDomains, listMarketplaceWorkflows } from "@/api/workflows/workflows-handlers";
 
 type DomainVisual = Readonly<{
   icon: ProjectIconType;
@@ -18,21 +18,21 @@ type DomainVisual = Readonly<{
 }>;
 
 const fallbackDomainVisual: DomainVisual = {
-  icon: "bag",
+  icon: "brush",
   color: "#e4e4e7",
 };
 
 const domainVisualMap: Record<string, DomainVisual> = {
   personal: {
-    icon: "book",
+    icon: "pen",
     color: "#dbeafe",
   },
   "software development": {
-    icon: "screen",
+    icon: "gears",
     color: "#d1fae5",
   },
   marketing: {
-    icon: "pen",
+    icon: "bill",
     color: "#fed7aa",
   },
   sales: {
@@ -40,7 +40,7 @@ const domainVisualMap: Record<string, DomainVisual> = {
     color: "#fecdd3",
   },
   design: {
-    icon: "brush",
+    icon: "pen",
     color: "#e9d5ff",
   },
   operations: {
@@ -128,18 +128,18 @@ export default function MarketplacePage() {
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="h-screen w-full max-w-[80vw] overflow-hidden bg-white dark:bg-black">
-        <section className="h-[20%] min-h-[9.5rem] border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
+        <section className="h-[20%] min-h-38 border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
           <h1 className="text-2xl font-semibold">Marketplace</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
             Browse workflows by domain
           </p>
 
-          <div className="mt-4 overflow-x-auto">
+          <div className="mt-4 overflow-x-auto hide-scrollbar">
             <div className="flex w-max gap-3 pb-2">
               <Button
                 type="button"
                 variant={selectedDomain ? "outline" : "default"}
-                className="h-14 min-w-[220px] justify-start rounded-xl px-4 text-base font-semibold"
+                className="h-14 min-w-55 justify-start rounded-xl px-4 text-base font-semibold"
                 onClick={() => selectDomain()}
               >
                 All domains
@@ -155,7 +155,7 @@ export default function MarketplacePage() {
                     type="button"
                     variant={isSelected ? "default" : "outline"}
                     className={cn(
-                      "h-14 min-w-[220px] justify-start gap-3 rounded-xl px-3 text-base font-semibold",
+                      "h-14 min-w-55 justify-start gap-3 rounded-xl px-3 text-base font-semibold",
                     )}
                     onClick={() => selectDomain(domain)}
                   >
@@ -194,7 +194,7 @@ export default function MarketplacePage() {
                 return (
                   <article
                     key={workflow._id}
-                    className="flex min-h-[470px] flex-col rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
+                    className="flex min-h-117.5 flex-col rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
                   >
                     <div className="flex-1">
                       <div className="mb-4 aspect-square w-full overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100 p-4 dark:border-zinc-700 dark:bg-zinc-800">
@@ -215,7 +215,10 @@ export default function MarketplacePage() {
                       </p>
                     </div>
 
-                    <Button type="button" className="mt-4 h-12 w-full text-base font-semibold">
+                    <Button
+                      type="button"
+                      className="mt-4 h-12 w-full text-base font-semibold"
+                    >
                       Apply the workflow
                     </Button>
                   </article>

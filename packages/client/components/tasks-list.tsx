@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
+import DateSeparator from "@/components/date-separator";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_LIMIT = 20;
@@ -37,17 +38,57 @@ export default function TasksList() {
       <h2 className="mb-2 text-lg font-semibold">Tasks</h2>
 
       <div className="space-y-2 overflow-auto flex-1 pr-2">
-        {items.map((task: any) => (
-          <div
-            key={task._id}
-            className="flex items-center justify-between rounded border px-3 py-2"
-          >
-            <div className="truncate">{task.title}</div>
-            <div className="ml-4 text-sm text-zinc-600">
-              {formatTimeSeconds(task.timeSeconds ?? 0)}
-            </div>
-          </div>
-        ))}
+        {(() => {
+          const nodes: any[] = [];
+          let lastDateKey: string | null = null;
+
+          for (let i = 0; i < items.length; i++) {
+            const task = items[i];
+            const rawId = task._id ?? "";
+            const idStr =
+              typeof rawId === "string" ? rawId : String((rawId as any)._id ?? rawId.toString());
+
+            // extract timestamp from ObjectId hex (first 8 chars => seconds)
+            let dateKey = "";
+            let displayLabel = "";
+            try {
+              if (idStr.length >= 8) {
+                const seconds = parseInt(idStr.substring(0, 8), 16);
+                const d = new Date(seconds * 1000);
+                dateKey = d.toISOString().split("T")[0];
+                displayLabel = d.toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                });
+              }
+            } catch {
+              dateKey = "";
+              displayLabel = "";
+            }
+
+            if (dateKey && dateKey !== lastDateKey) {
+              nodes.push(
+                <DateSeparator key={`sep-${dateKey}-${i}`} label={displayLabel || dateKey} />,
+              );
+              lastDateKey = dateKey;
+            }
+
+            nodes.push(
+              <div
+                key={`task-${idStr}-${i}`}
+                className="flex items-center justify-between rounded border px-3 py-2"
+              >
+                <div className="truncate">{task.title}</div>
+                <div className="ml-4 text-sm text-zinc-600">
+                  {formatTimeSeconds(task.timeSeconds ?? 0)}
+                </div>
+              </div>,
+            );
+          }
+
+          return nodes;
+        })()}
       </div>
 
       <div className="mt-4 flex items-center justify-center">

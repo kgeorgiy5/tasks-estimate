@@ -33,9 +33,9 @@ export default function Home() {
   const handleStarted = () => setTitle("");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="w-full flex items-center gap-2">
+    <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="h-screen w-full max-w-3xl grid grid-rows-5 px-16 bg-white dark:bg-black sm:items-start">
+        <div className="w-full row-span-1 h-full flex items-center gap-2">
           <input
             aria-label="Task title"
             className="w-full rounded-md border px-3 py-2"
@@ -55,13 +55,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="w-full">
-          {email ? (
-            <p className="mb-4 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-              Signed in as: {email}
-            </p>
-          ) : null}
-
+        <div className="w-full row-span-4 h-full">
           <TasksList />
         </div>
       </main>

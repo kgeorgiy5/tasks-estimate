@@ -33,9 +33,10 @@ export default function TasksList() {
   const total = pages[0]?.total ?? 0;
 
   return (
-    <div className="w-full mt-6">
+    <div className="w-full h-full flex flex-col">
       <h2 className="mb-2 text-lg font-semibold">Tasks</h2>
-      <div className="space-y-2">
+
+      <div className="space-y-2 overflow-auto flex-1 pr-2">
         {items.map((task: any) => (
           <div
             key={task._id}

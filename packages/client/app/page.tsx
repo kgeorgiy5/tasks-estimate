@@ -32,7 +32,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="h-screen w-full max-w-3xl grid grid-rows-5 px-16 bg-white dark:bg-black sm:items-start">
+      <main className="h-screen w-full max-w-[80vw] grid grid-rows-5 px-16 bg-white dark:bg-black sm:items-start">
         <div className="w-full row-span-1 h-full flex items-center gap-2">
           <input
             aria-label="Task title"

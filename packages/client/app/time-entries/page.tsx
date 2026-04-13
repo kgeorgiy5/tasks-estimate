@@ -93,7 +93,6 @@ export default function TimeEntriesPage(): JSX.Element {
     [intervalMinutes],
   );
 
-  // keep state in sync when user navigates with browser controls
   useEffect(() => {
     const spStart = searchParams?.get("start") ?? toDateInputValue(new Date());
     const spDays = Number(searchParams?.get("days") ?? DEFAULT_DAY_COUNT) || DEFAULT_DAY_COUNT;
@@ -249,7 +248,7 @@ export default function TimeEntriesPage(): JSX.Element {
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4">
-      <div className="mx-auto min-h-screen bg-white flex w-full max-w-7xl flex-col gap-4">
+      <div className="mx-auto min-h-screen bg-white flex w-full max-w-[80vw] flex-col gap-4">
         <div className="grid gap-3 rounded p-4 sm:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm">
             Start day

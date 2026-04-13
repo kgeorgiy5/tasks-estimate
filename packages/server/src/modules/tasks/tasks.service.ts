@@ -240,8 +240,11 @@ export class TasksService {
       });
 
     return entries.map((entry) => {
-      // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-      const project = entry.taskId.projectId as Project | undefined;
+      const project = entry.taskId.projectId as
+        | Types.ObjectId
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+        | Project
+        | undefined;
 
       let projectId: string | undefined;
       if (project?._id) {
@@ -257,9 +260,9 @@ export class TasksService {
         taskId: entry.taskId._id.toString(),
         taskTitle: entry.taskId.title,
         projectId,
-        projectTitle: project?._id ? project.title : undefined,
-        projectIcon: project?._id ? project.icon : undefined,
-        projectColor: project?._id ? project.color : undefined,
+        projectTitle: project?._id ? (project as Project).title : undefined,
+        projectIcon: project?._id ? (project as Project).icon : undefined,
+        projectColor: project?._id ? (project as Project).color : undefined,
         userId: entry.userId.toString(),
         timeSeconds: entry.timeSeconds,
         startDateTime: entry.startDateTime.toISOString(),

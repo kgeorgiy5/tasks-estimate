@@ -5,7 +5,6 @@ import { projectIconSchema } from "../projects";
 export const listTaskSchema = z.object({
   _id: objectIdSchema,
   title: z.string(),
-  classIds: z.array(objectIdSchema).optional(),
   userId: objectIdSchema,
   projectId: objectIdSchema.optional(),
   projectTitle: z.string().optional(),

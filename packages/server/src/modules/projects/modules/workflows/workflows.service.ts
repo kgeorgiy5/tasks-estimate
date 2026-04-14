@@ -259,6 +259,26 @@ export class WorkflowsService {
   }
 
   /**
+   * Lists distinct categories used by workflows in the specified project.
+   */
+  public async listWorkflowCategories(
+    userId: Types.ObjectId,
+    projectId: Types.ObjectId,
+  ) {
+    await this.ensureProjectExists(projectId, userId);
+
+    const categories = await this.workflowModel
+      .distinct("categories", { userId, projectId })
+      .exec();
+
+    if (!Array.isArray(categories)) return [];
+
+    return categories
+      .filter((c): c is string => typeof c === "string")
+      .sort((a, b) => a.localeCompare(b));
+  }
+
+  /**
    * Ensures project exists and is owned by the authenticated user.
    */
   private async ensureProjectExists(

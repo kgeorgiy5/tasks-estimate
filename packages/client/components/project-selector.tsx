@@ -13,26 +13,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { JSX, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { ProjectIcon } from "./project-icon";
 import { CreateProjectDialog } from "./create-project-dialog";
+import { cn } from "@/lib/utils";
 
 type ProjectSelectorProps = Readonly<{
   value?: string;
   onChange: (projectId?: string) => void;
   disabled?: boolean;
+  className?: string;
 }>;
-
-type FormSubmitEvent =
-  Parameters<NonNullable<JSX.IntrinsicElements["form"]["onSubmit"]>>[0];
 
 const NO_PROJECT_VALUE = "__none__";
 
 /**
  * Renders a projects dropdown with in-place project creation modal.
  */
-export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
-  const disabled = (arguments[0] as ProjectSelectorProps | undefined)?.disabled ?? false;
+export const ProjectSelector: FC<ProjectSelectorProps> = ({
+  value,
+  onChange,
+  disabled = false,
+  className,
+}) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const projectsQuery = useQuery({
@@ -48,15 +51,17 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
     [projects, value],
   );
 
-  
-
   let triggerContent: any = null;
   if (projectsQuery.isLoading) {
     triggerContent = "Loading projects...";
   } else if (selectedProject) {
     triggerContent = (
       <div className="flex items-center gap-3 w-full">
-        <ProjectIcon icon={selectedProject.icon} color={selectedProject.color} className="h-6 w-6" />
+        <ProjectIcon
+          icon={selectedProject.icon}
+          color={selectedProject.color}
+          className="h-5 w-5"
+        />
         <span className="truncate">{selectedProject.title}</span>
       </div>
     );
@@ -67,16 +72,19 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
   return (
     <>
       <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              disabled={projectsQuery.isLoading || disabled}
-            >
-              {triggerContent}
-            </Button>
-          </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn("w-full justify-between", className)}
+            disabled={projectsQuery.isLoading || disabled}
+          >
+            {triggerContent}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          className="w-full"
+        >
           <DropdownMenuLabel>Projects</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
@@ -97,8 +105,17 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
               <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
             ) : (
               projects.map((project) => (
-                <DropdownMenuRadioItem key={project._id} value={project._id} className="flex items-center gap-3">
-                  <ProjectIcon icon={project.icon} color={project.color} className="h-5 w-5" iconClassName="h-3.5 w-3.5" />
+                <DropdownMenuRadioItem
+                  key={project._id}
+                  value={project._id}
+                  className="flex items-center gap-3"
+                >
+                  <ProjectIcon
+                    icon={project.icon}
+                    color={project.color}
+                    className="h-5 w-5"
+                    iconClassName="h-3.5 w-3.5"
+                  />
                   <span className="truncate">{project.title}</span>
                 </DropdownMenuRadioItem>
               ))
@@ -120,4 +137,4 @@ export function ProjectSelector({ value, onChange }: ProjectSelectorProps) {
       />
     </>
   );
-}
+};

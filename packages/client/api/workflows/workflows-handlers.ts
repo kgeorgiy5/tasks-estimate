@@ -83,3 +83,12 @@ export async function deleteWorkflow(workflowId: string): Promise<void> {
   const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
   await client.delete(`${WORKFLOWS_BASE}/${workflowId}`);
 }
+
+/**
+ * Lists distinct workflow categories for a project.
+ */
+export async function listWorkflowCategories(projectId: string): Promise<string[]> {
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+  const response = await client.get(`${WORKFLOWS_BASE}/${projectId}/categories`);
+  return response.data as string[];
+}

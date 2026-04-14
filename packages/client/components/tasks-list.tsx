@@ -11,6 +11,9 @@ import { FC, JSX } from "react";
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 const DEFAULT_LIMIT = 20;
 
+/**
+ * `TasksList` — renders the paginated list of user tasks grouped by date.
+ */
 export const TasksList: FC = () => {
   const query = useInfiniteQuery({
     queryKey: ["tasks"],
@@ -45,10 +48,12 @@ export const TasksList: FC = () => {
           let lastDateKey: string | null = null;
 
           function getDateInfo(task: ListTaskDto) {
-            if (!task.lastEntryStartDateTime) return { dateKey: "", displayLabel: "" };
+            if (!task.lastEntryStartDateTime)
+              return { dateKey: "", displayLabel: "" };
             const iso = String(task.lastEntryStartDateTime);
             const d = new Date(iso);
-            if (Number.isNaN(d.getTime())) return { dateKey: "", displayLabel: "" };
+            if (Number.isNaN(d.getTime()))
+              return { dateKey: "", displayLabel: "" };
 
             // dateKey in local date (YYYY-MM-DD) so grouping uses local days
             const y = d.getFullYear();
@@ -78,14 +83,16 @@ export const TasksList: FC = () => {
 
             if (dateKey && dateKey !== lastDateKey) {
               nodes.push(
-                <DateSeparator key={`sep-${dateKey}-${i}`} label={displayLabel || dateKey} />,
+                <DateSeparator
+                  key={`sep-${dateKey}-${i}`}
+                  label={displayLabel || dateKey}
+                />,
               );
               lastDateKey = dateKey;
             }
 
-            const isLastTask = i === items.length - 1 && !query.isLoading && !query.hasNextPage;
             nodes.push(
-              <div key={`task-${idStrKey}-${i}`} className={isLastTask ? "mb-8" : ""}>
+              <div key={`task-${idStrKey}-${i}`}>
                 <TaskCard task={task} />
               </div>,
             );
@@ -93,7 +100,7 @@ export const TasksList: FC = () => {
 
           if (query.isLoading) {
             nodes.push(
-              <div key="loading" className="mt-2 mb-8 flex items-center justify-center">
+              <div key="loading" className="flex items-center justify-center">
                 <span className="text-sm text-zinc-600">Loading…</span>
               </div>,
             );
@@ -101,8 +108,12 @@ export const TasksList: FC = () => {
 
           if (query.hasNextPage) {
             nodes.push(
-              <div key="load-more" className="mt-2 mb-8 flex items-center justify-center">
-                <Button variant="outline" onClick={() => query.fetchNextPage()} disabled={query.isFetching}>
+              <div key="load-more" className="flex items-center justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => query.fetchNextPage()}
+                  disabled={query.isFetching}
+                >
                   {query.isFetching ? "Loading…" : "Load more"}
                 </Button>
               </div>,

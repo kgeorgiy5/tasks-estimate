@@ -279,11 +279,11 @@ export class TasksService {
     taskPayloads: ManageTaskDto[],
   ) {
     const tasks: TaskInsertItem[] = taskPayloads.map(
-      ({ timeSeconds: _timeSeconds, title, classIds, projectId }) => ({
+      ({ timeSeconds: _timeSeconds, title, projectId, categories }) => ({
         userId,
         title,
-        classIds,
         projectId,
+        categories,
       }),
     );
 
@@ -365,7 +365,7 @@ export class TasksService {
     userId: Types.ObjectId,
     taskPayload: CreateTaskDto,
   ) {
-    const { classIds, ...taskData } = taskPayload;
+    const { ...taskData } = taskPayload;
 
     if ((taskData as any).projectId) {
       await this.ensureProjectExists(
@@ -377,7 +377,6 @@ export class TasksService {
     const task = new this.taskModel({
       userId,
       ...taskData,
-      classIds,
     });
 
     const createdTask = await task.save();
@@ -567,10 +566,8 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException(ErrorIds.RESOURCE_NOT_FOUND);
     }
-
-    if (!task.classIds?.length) {
-      return;
-    }
+    // classification was previously based on `classIds`; field removed.
+    // Classification pipeline is intentionally a no-op until reimplemented.
   }
 
   /**

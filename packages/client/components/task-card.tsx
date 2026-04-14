@@ -13,6 +13,9 @@ type TaskCardProps = {
   task: ListTaskDto;
 };
 
+/**
+ * `TaskCard` — renders a task row with title, project info, categories and controls.
+ */
 export const TaskCard: FC<TaskCardProps> = ({ task }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -65,6 +68,19 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
             />
             <span className="truncate">{task.projectTitle ?? "No project"}</span>
           </div>
+
+          {(task.categories && task.categories.length > 0) ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {task.categories.map((cat) => (
+                <span
+                  key={cat}
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-2 py-1 text-xs"
+                >
+                  <span>{cat}</span>
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 

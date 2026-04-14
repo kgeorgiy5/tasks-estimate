@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FC, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -11,12 +11,18 @@ export type CategoriesChipsProps = {
   categories: string[];
   onChange: (next: string[]) => void;
   disabled?: boolean;
+  showAdd?: boolean;
 };
 
 /**
  * Renders category chips with remove buttons and an input to add categories.
  */
-export function CategoriesChips({ categories, onChange, disabled = false }: CategoriesChipsProps) {
+export const CategoriesChips: FC<CategoriesChipsProps> = ({
+  categories,
+  onChange,
+  disabled = false,
+  showAdd = true,
+}) => {
   const [input, setInput] = useState("");
 
   const handleAdd = (value?: string) => {
@@ -53,29 +59,25 @@ export function CategoriesChips({ categories, onChange, disabled = false }: Cate
         ))}
       </div>
 
-      <div className="mt-2 flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Add category and press Enter or click Add"
-          disabled={disabled}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAdd();
-            }
-          }}
-        />
-        <Button
-          type="button"
-          onClick={() => handleAdd()}
-          disabled={disabled}
-        >
-          Add
-        </Button>
-      </div>
+      {showAdd && (
+        <div className="mt-2 flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Add category and press Enter or click Add"
+            disabled={disabled}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAdd();
+              }
+            }}
+          />
+          <Button type="button" onClick={() => handleAdd()} disabled={disabled}>
+            Add
+          </Button>
+        </div>
+      )}
     </div>
   );
-}
-
-export default CategoriesChips;
+};

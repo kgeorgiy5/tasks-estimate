@@ -4,14 +4,14 @@ export const TASK_MODEL_TOKEN = "Task";
 
 export interface Task extends Document {
   title: string;
-  classIds: Types.ObjectId[];
   userId: Types.ObjectId;
   projectId?: Types.ObjectId;
+  categories?: string[];
 }
 
 export const TaskSchema = new Schema<Task>({
   title: { type: String, required: true },
-  classIds: [{ type: SchemaTypes.ObjectId }],
+  categories: [{ type: String }],
   userId: { type: SchemaTypes.ObjectId, required: true },
   projectId: { type: SchemaTypes.ObjectId, ref: "Project" },
 });

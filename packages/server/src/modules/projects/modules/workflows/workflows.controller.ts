@@ -65,6 +65,21 @@ export class WorkflowsController {
   }
 
   /**
+   * Lists distinct workflow categories for a project (path param).
+   */
+  @Get(":projectId/categories")
+  public async listWorkflowCategoriesByProject(
+    @Req() req: AuthenticatedRequest,
+    @Param("projectId") projectId: string,
+  ) {
+    const userId = new Types.ObjectId(req.user.sub);
+    return await this.workflowsService.listWorkflowCategories(
+      userId,
+      new Types.ObjectId(projectId),
+    );
+  }
+
+  /**
    * Lists marketplace workflows (pre-seeded templates).
    */
   @Get("marketplace")

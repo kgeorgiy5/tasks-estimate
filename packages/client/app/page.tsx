@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCurrentEntryStore } from "@/stores";
 import useCurrentEntryQuery from "@/hooks/use-current-entry-query";
 import { useAuthStore } from "@/stores/auth-store";
-import { PlayButton, ProjectSelector, TasksList, Timer } from "@components/index";
+import { TasksList } from "@components/index";
+import { Header } from "@/app/components/header";
 
 export default function Home() {
   const _email = useAuthStore((s) => s.email);
@@ -12,6 +13,7 @@ export default function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(
     undefined,
   );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const currentEntry = useCurrentEntryStore((s) => s.entry);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentEntryQuery = useCurrentEntryQuery({ enabled: isAuthenticated });
@@ -39,43 +41,36 @@ export default function Home() {
     }
   }, [currentEntry]);
 
+  const prevEntryRef = useRef<typeof currentEntry | null>(currentEntry ?? null);
+  useEffect(() => {
+    const prev = prevEntryRef.current;
+    // NOTE: if there was an active entry and now there's none, clear inputs
+    if (prev && !currentEntry) {
+      setTitle("");
+      setSelectedProjectId(undefined);
+      setSelectedCategories([]);
+    }
+    prevEntryRef.current = currentEntry ?? null;
+  }, [currentEntry, setSelectedCategories]);
+
   const handleStarted = () => {};
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="h-screen w-full max-w-[80vw] grid grid-rows-5 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="w-full row-span-1 h-full flex items-center gap-2">
-          <div className="w-full flex flex-col gap-2">
-            <input
-              aria-label="Task title"
-              className="w-full rounded-md border px-3 py-2"
-              placeholder="New task title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={!!currentEntry}
-            />
-            <ProjectSelector
-              value={selectedProjectId}
-              onChange={setSelectedProjectId}
-              disabled={!!currentEntry}
-            />
-          </div>
-          <div className="ml-2 shrink-0">
-            <Timer />
-          </div>
-          <div className="ml-2 flex shrink-0 items-center">
-            {currentEntryQuery.isLoading ? (
-              <span className="text-sm text-zinc-600">Loading…</span>
-            ) : null}
-            <PlayButton
-              title={title}
-              projectId={selectedProjectId}
-              onStarted={handleStarted}
-            />
-          </div>
-        </div>
+      <main className="h-full w-full max-w-[80vw] flex flex-col py-8 px-16 bg-white dark:bg-black sm:items-start">
+        <Header
+          title={title}
+          setTitle={setTitle}
+          selectedProjectId={selectedProjectId}
+          setSelectedProjectId={setSelectedProjectId}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          currentEntry={currentEntry}
+          currentEntryQuery={currentEntryQuery}
+          onStarted={handleStarted}
+        />
 
-        <div className="w-full row-span-4 h-full">
+        <div className="w-full h-full">
           <TasksList />
         </div>
       </main>

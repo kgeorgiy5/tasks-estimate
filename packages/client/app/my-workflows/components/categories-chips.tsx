@@ -1,6 +1,7 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC } from "react";
+import { useCategoriesChips } from "@/components/use-categories-chips";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -23,20 +24,10 @@ export const CategoriesChips: FC<CategoriesChipsProps> = ({
   disabled = false,
   showAdd = true,
 }) => {
-  const [input, setInput] = useState("");
-
-  const handleAdd = (value?: string) => {
-    const v = (value ?? input).trim();
-    if (!v) return;
-    if (!categories.includes(v)) {
-      onChange([...categories, v]);
-    }
-    setInput("");
-  };
-
-  const handleRemove = (cat: string) => {
-    onChange(categories.filter((c) => c !== cat));
-  };
+  const { input, setInput, handleAdd, handleRemove } = useCategoriesChips(
+    categories,
+    onChange,
+  );
 
   return (
     <div>

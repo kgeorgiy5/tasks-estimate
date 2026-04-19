@@ -17,7 +17,7 @@ import {
   MarketplaceWorkflow,
   Workflow,
 } from "./models";
-import { defaultWorkflows } from "./config";
+import defaultWorkflows from "./config/default-workflows.config.json";
 
 @Injectable()
 export class WorkflowsService {
@@ -204,7 +204,10 @@ export class WorkflowsService {
     payload: ManageWorkflowDto,
   ) {
     if (payload.projectId) {
-      await this.ensureProjectExists(new Types.ObjectId(payload.projectId), userId);
+      await this.ensureProjectExists(
+        new Types.ObjectId(payload.projectId),
+        userId,
+      );
     }
 
     const setFields: Record<string, unknown> = {

@@ -1,9 +1,9 @@
-export const defaultWorkflows = [
+[
   {
-    domain: "personal",
-    title: "personal planning",
-    description: "Organizing personal priorities, routines, and commitments.",
-    categories: [
+    "domain": "personal",
+    "title": "personal planning",
+    "description": "Organizing personal priorities, routines, and commitments.",
+    "categories": [
       "annual goals",
       "quarterly goals",
       "monthly goals",
@@ -53,15 +53,14 @@ export const defaultWorkflows = [
       "message planning",
       "errands planning",
       "shopping plans",
-      "contingency planning",
-    ],
+      "contingency planning"
+    ]
   },
   {
-    domain: "personal",
-    title: "home management",
-    description:
-      "Household upkeep, logistics, and recurring non-work operations.",
-    categories: [
+    "domain": "personal",
+    "title": "home management",
+    "description": "Household upkeep, logistics, and recurring non-work operations.",
+    "categories": [
       "home cleaning",
       "deep cleaning",
       "laundry",
@@ -111,14 +110,14 @@ export const defaultWorkflows = [
       "chore scheduling",
       "chore delegation",
       "inventory restock",
-      "home automation",
-    ],
+      "home automation"
+    ]
   },
   {
-    domain: "personal",
-    title: "health and wellbeing",
-    description: "Physical and mental wellbeing activities and improvements.",
-    categories: [
+    "domain": "personal",
+    "title": "health and wellbeing",
+    "description": "Physical and mental wellbeing activities and improvements.",
+    "categories": [
       "workout planning",
       "strength training",
       "cardio sessions",
@@ -168,15 +167,14 @@ export const defaultWorkflows = [
       "health education",
       "community support",
       "wellbeing retrospectives",
-      "motivation planning",
-    ],
+      "motivation planning"
+    ]
   },
   {
-    domain: "software development",
-    title: "backend",
-    description:
-      "Server-side architecture and implementation for APIs and services.",
-    categories: [
+    "domain": "software development",
+    "title": "backend",
+    "description": "Server-side architecture and implementation for APIs and services.",
+    "categories": [
       "requirements analysis",
       "domain modeling",
       "api contract design",
@@ -226,15 +224,14 @@ export const defaultWorkflows = [
       "technical debt cleanup",
       "bug triage",
       "bug fixing",
-      "code review updates",
-    ],
+      "code review updates"
+    ]
   },
   {
-    domain: "software development",
-    title: "frontend",
-    description:
-      "Client-side implementation focused on UX, UI, and interaction.",
-    categories: [
+    "domain": "software development",
+    "title": "frontend",
+    "description": "Client-side implementation focused on UX, UI, and interaction.",
+    "categories": [
       "product requirement review",
       "ux flow mapping",
       "information architecture",
@@ -284,15 +281,14 @@ export const defaultWorkflows = [
       "analytics tracking",
       "consent handling",
       "release hardening",
-      "code review updates",
-    ],
+      "code review updates"
+    ]
   },
   {
-    domain: "software development",
-    title: "full-stack",
-    description:
-      "End-to-end feature delivery across frontend and backend layers.",
-    categories: [
+    "domain": "software development",
+    "title": "full-stack",
+    "description": "End-to-end feature delivery across frontend and backend layers.",
+    "categories": [
       "feature discovery",
       "technical scoping",
       "architecture decisions",
@@ -342,15 +338,14 @@ export const defaultWorkflows = [
       "technical debt cleanup",
       "stakeholder demo",
       "retrospective action items",
-      "code review updates",
-    ],
+      "code review updates"
+    ]
   },
   {
-    domain: "software development",
-    title: "devops",
-    description:
-      "Infrastructure, delivery pipelines, observability, and operations.",
-    categories: [
+    "domain": "software development",
+    "title": "devops",
+    "description": "Infrastructure, delivery pipelines, observability, and operations.",
+    "categories": [
       "infrastructure design",
       "infrastructure as code",
       "terraform modules",
@@ -400,14 +395,14 @@ export const defaultWorkflows = [
       "runbook maintenance",
       "platform documentation",
       "developer enablement",
-      "toil reduction",
-    ],
+      "toil reduction"
+    ]
   },
   {
-    domain: "marketing",
-    title: "marketing campaigns",
-    description: "Planning and executing marketing campaigns and promotions.",
-    categories: [
+    "domain": "marketing",
+    "title": "marketing campaigns",
+    "description": "Planning and executing marketing campaigns and promotions.",
+    "categories": [
       "campaign planning",
       "content calendar",
       "social media",
@@ -417,14 +412,14 @@ export const defaultWorkflows = [
       "analytics and reporting",
       "a/b testing",
       "influencer outreach",
-      "event promotion",
-    ],
+      "event promotion"
+    ]
   },
   {
-    domain: "sales",
-    title: "sales pipeline",
-    description: "Managing leads and opportunities through the sales funnel.",
-    categories: [
+    "domain": "sales",
+    "title": "sales pipeline",
+    "description": "Managing leads and opportunities through the sales funnel.",
+    "categories": [
       "lead capture",
       "lead qualification",
       "outreach cadence",
@@ -434,14 +429,14 @@ export const defaultWorkflows = [
       "contract signing",
       "customer onboarding",
       "pipeline reviews",
-      "forecasting",
-    ],
+      "forecasting"
+    ]
   },
   {
-    domain: "design",
-    title: "design process",
-    description: "Design discovery, prototyping, and handoff workflows.",
-    categories: [
+    "domain": "design",
+    "title": "design process",
+    "description": "Design discovery, prototyping, and handoff workflows.",
+    "categories": [
       "research and discovery",
       "wireframing",
       "prototyping",
@@ -451,15 +446,14 @@ export const defaultWorkflows = [
       "component library",
       "usability testing",
       "dev handoff",
-      "iteration",
-    ],
+      "iteration"
+    ]
   },
   {
-    domain: "operations",
-    title: "operations and support",
-    description:
-      "Internal operations, vendor management, and support workflows.",
-    categories: [
+    "domain": "operations",
+    "title": "operations and support",
+    "description": "Internal operations, vendor management, and support workflows.",
+    "categories": [
       "vendor management",
       "procurement",
       "facilities",
@@ -469,14 +463,14 @@ export const defaultWorkflows = [
       "vendor invoicing",
       "risk assessment",
       "business continuity",
-      "onboarding",
-    ],
+      "onboarding"
+    ]
   },
   {
-    domain: "finance",
-    title: "finance and accounting",
-    description: "Budgeting, reporting, and financial operations.",
-    categories: [
+    "domain": "finance",
+    "title": "finance and accounting",
+    "description": "Budgeting, reporting, and financial operations.",
+    "categories": [
       "budgeting",
       "month end close",
       "invoicing",
@@ -486,7 +480,7 @@ export const defaultWorkflows = [
       "financial reporting",
       "cash flow management",
       "forecasting",
-      "audit preparation",
-    ],
-  },
-];
+      "audit preparation"
+    ]
+  }
+]

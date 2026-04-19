@@ -10,6 +10,7 @@ export const listTaskSchema = z.object({
   projectTitle: z.string().optional(),
   projectIcon: projectIconSchema.optional(),
   projectColor: z.string().optional(),
+  categories: z.array(z.string()).optional(),
   timeSeconds: z.number().int().nonnegative().optional(),
   entriesCount: z.number().int().nonnegative().optional(),
   lastEntryStartDateTime: z.string().optional(),

@@ -72,7 +72,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="row-span-7 w-full h-full">
+        <div className="row-span-8 w-full h-full">
           <TasksList />
         </div>
       </main>

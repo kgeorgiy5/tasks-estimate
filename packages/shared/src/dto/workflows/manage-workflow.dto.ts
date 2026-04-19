@@ -3,7 +3,7 @@ import { MAX_TASK_TITLE_LENGTH, MIN_TASK_TITLE_LENGTH } from "../../config";
 import { objectIdSchema } from "../shared";
 
 export const manageWorkflowSchema = z.object({
-  projectId: objectIdSchema,
+  projectId: objectIdSchema.optional(),
   domain: z.string().min(MIN_TASK_TITLE_LENGTH).max(MAX_TASK_TITLE_LENGTH),
   title: z.string().min(MIN_TASK_TITLE_LENGTH).max(MAX_TASK_TITLE_LENGTH),
   description: z.string().min(MIN_TASK_TITLE_LENGTH),

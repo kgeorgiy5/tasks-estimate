@@ -172,20 +172,25 @@ export class WorkflowsService {
     userId: Types.ObjectId,
     payload: ManageWorkflowDto,
   ) {
-    const projectId = new Types.ObjectId(payload.projectId);
+    let projectId: Types.ObjectId | undefined = undefined;
 
-    await this.ensureProjectExists(projectId, userId);
+    if (payload.projectId) {
+      projectId = new Types.ObjectId(payload.projectId);
+      await this.ensureProjectExists(projectId, userId);
+    }
 
     const created = await this.workflowModel.create({
       userId,
-      projectId,
+      ...(projectId ? { projectId } : {}),
       domain: payload.domain,
       title: payload.title,
       description: payload.description,
       categories: payload.categories,
     });
 
-    await this.assignProjectWorkflow(projectId, userId, created._id);
+    if (projectId) {
+      await this.assignProjectWorkflow(projectId, userId, created._id);
+    }
 
     return getWorkflowSchema.parse(created.toObject());
   }
@@ -198,22 +203,28 @@ export class WorkflowsService {
     userId: Types.ObjectId,
     payload: ManageWorkflowDto,
   ) {
-    await this.ensureProjectExists(
-      new Types.ObjectId(payload.projectId),
-      userId,
-    );
+    if (payload.projectId) {
+      await this.ensureProjectExists(new Types.ObjectId(payload.projectId), userId);
+    }
+
+    const setFields: Record<string, unknown> = {
+      domain: payload.domain,
+      title: payload.title,
+      description: payload.description,
+      categories: payload.categories,
+    };
+
+    if (payload.projectId) {
+      setFields.projectId = payload.projectId;
+    } else {
+      setFields.projectId = undefined;
+    }
 
     const updated = await this.workflowModel
       .findOneAndUpdate(
         { _id: workflowId, userId },
         {
-          $set: {
-            projectId: payload.projectId,
-            domain: payload.domain,
-            title: payload.title,
-            description: payload.description,
-            categories: payload.categories,
-          },
+          $set: setFields,
         },
         { new: true },
       )

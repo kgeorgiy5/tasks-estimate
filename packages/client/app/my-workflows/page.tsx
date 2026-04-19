@@ -10,6 +10,7 @@ import {
 } from "@tasks-estimate/shared";
 import {
   applyWorkflowToProject,
+  createWorkflow,
   deleteWorkflow,
   editWorkflow,
   listMyWorkflows,
@@ -19,6 +20,7 @@ import { ConfirmDeleteDialog } from "@/components/index";
 import { Button } from "@/components/ui/button";
 import { EditWorkflowDialog } from "./components/edit-workflow-dialog";
 import { ApplyWorkflowDialog } from "./components/apply-workflow-dialog";
+import { CreateWorkflowDialog } from "./components/create-workflow-dialog";
 import { NavigationPaths } from "@/config";
 
 /**
@@ -61,6 +63,23 @@ export default function MyWorkflowsPage() {
         .map((c) => c.trim())
         .filter((c) => c.length > 0),
     [editCategories],
+  );
+
+  // Create workflow state
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createProjectId, setCreateProjectId] = useState("");
+  const [createDomain, setCreateDomain] = useState("");
+  const [createTitle, setCreateTitle] = useState("");
+  const [createDescription, setCreateDescription] = useState("");
+  const [createCategories, setCreateCategories] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
+  const createCategoriesArray = useMemo(
+    () =>
+      createCategories
+        .split(",")
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0),
+    [createCategories],
   );
 
   const workflowsQuery = useQuery({
@@ -115,6 +134,25 @@ export default function MyWorkflowsPage() {
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: async (payload: ManageWorkflowDto) => {
+      return await createWorkflow(payload);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["my-workflows"] });
+      setCreateOpen(false);
+      setCreateError(null);
+      setCreateProjectId("");
+      setCreateDomain("");
+      setCreateTitle("");
+      setCreateDescription("");
+      setCreateCategories("");
+    },
+    onError: (error: unknown) => {
+      setCreateError(parseErrorCode(error));
+    },
+  });
+
   const applyProjects = useMemo(() => {
     if (!workflowForApply) {
       return [];
@@ -154,6 +192,25 @@ export default function MyWorkflowsPage() {
     setEditCategories(workflowForEdit.categories.join(", "));
     setEditError(null);
   }, [workflowForEdit]);
+
+  useEffect(() => {
+    if (!createOpen) {
+      setCreateProjectId("");
+      setCreateDomain("");
+      setCreateTitle("");
+      setCreateDescription("");
+      setCreateCategories("");
+      setCreateError(null);
+      return;
+    }
+
+    setCreateProjectId("");
+    setCreateDomain("");
+    setCreateTitle("");
+    setCreateDescription("");
+    setCreateCategories("");
+    setCreateError(null);
+  }, [createOpen]);
 
   const handleApply = async () => {
     if (!workflowForApply || !applyProjectId) {
@@ -203,6 +260,35 @@ export default function MyWorkflowsPage() {
     });
   };
 
+  const handleCreate = async () => {
+    setCreateError(null);
+
+    const categories = createCategories
+      .split(",")
+      .map((category) => category.trim())
+      .filter((category) => category.length > 0);
+
+    if (!createDomain || !createTitle || !createDescription) {
+      setCreateError("Fill all required fields");
+      return;
+    }
+
+    if (categories.length === 0) {
+      setCreateError("At least one category is required");
+      return;
+    }
+
+    const payload: ManageWorkflowDto = {
+      ...(createProjectId ? { projectId: createProjectId } : {}),
+      domain: createDomain.trim(),
+      title: createTitle.trim(),
+      description: createDescription.trim(),
+      categories,
+    } as ManageWorkflowDto;
+
+    await createMutation.mutateAsync(payload);
+  };
+
   const workflows = workflowsQuery.data ?? [];
 
   return (
@@ -211,6 +297,11 @@ export default function MyWorkflowsPage() {
         <div className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-xl font-semibold">My workflows</h1>
+            <div>
+              <Button type="button" onClick={() => setCreateOpen(true)}>
+                Create workflow
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -341,6 +432,29 @@ export default function MyWorkflowsPage() {
         editError={editError}
         editMutation={editMutation}
         handleEdit={handleEdit}
+      />
+
+      <CreateWorkflowDialog
+        open={createOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateOpen(false);
+          }
+        }}
+        createProjectId={createProjectId}
+        setCreateProjectId={setCreateProjectId}
+        projects={projectsQuery.data ?? []}
+        createDomain={createDomain}
+        setCreateDomain={setCreateDomain}
+        createTitle={createTitle}
+        setCreateTitle={setCreateTitle}
+        createDescription={createDescription}
+        setCreateDescription={setCreateDescription}
+        createCategoriesArray={createCategoriesArray}
+        setCreateCategories={setCreateCategories}
+        createError={createError}
+        createMutation={createMutation}
+        handleCreate={handleCreate}
       />
 
       <ConfirmDeleteDialog

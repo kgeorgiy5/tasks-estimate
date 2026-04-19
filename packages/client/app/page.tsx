@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useCurrentEntryStore } from "@/stores";
@@ -10,9 +10,9 @@ import { Header } from "@/app/components/header";
 export default function Home() {
   const _email = useAuthStore((s) => s.email);
   const [title, setTitle] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedProjectId, setSelectedProjectId] = useState<
+    string | undefined
+  >(undefined);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const currentEntry = useCurrentEntryStore((s) => s.entry);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -25,7 +25,7 @@ export default function Home() {
     const titleFromEntry =
       task && typeof task === "object" && typeof task.title === "string"
         ? task.title
-        : (currentEntry as any).taskTitle ?? "";
+        : ((currentEntry as any).taskTitle ?? "");
 
     setTitle(titleFromEntry);
     const rawProject = task?.projectId ?? (currentEntry as any).projectId;
@@ -35,7 +35,7 @@ export default function Home() {
       else if (rawProject._id) projectIdFromEntry = String(rawProject._id);
       else projectIdFromEntry = String(rawProject);
     }
-    
+
     if (projectIdFromEntry) {
       setSelectedProjectId(projectIdFromEntry);
     }
@@ -57,20 +57,22 @@ export default function Home() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="h-full w-full max-w-[80vw] flex flex-col py-8 px-16 bg-white dark:bg-black sm:items-start">
-        <Header
-          title={title}
-          setTitle={setTitle}
-          selectedProjectId={selectedProjectId}
-          setSelectedProjectId={setSelectedProjectId}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
-          currentEntry={currentEntry}
-          currentEntryQuery={currentEntryQuery}
-          onStarted={handleStarted}
-        />
+      <main className="h-full w-full grid grid-rows-10 max-w-[80vw] py-8 px-16 bg-white dark:bg-black sm:items-start">
+        <div className="row-span-2">
+          <Header
+            title={title}
+            setTitle={setTitle}
+            selectedProjectId={selectedProjectId}
+            setSelectedProjectId={setSelectedProjectId}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            currentEntry={currentEntry}
+            currentEntryQuery={currentEntryQuery}
+            onStarted={handleStarted}
+          />
+        </div>
 
-        <div className="w-full h-full">
+        <div className="row-span-7 w-full h-full">
           <TasksList />
         </div>
       </main>

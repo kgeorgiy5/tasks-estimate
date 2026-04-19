@@ -17,16 +17,8 @@ import {
 } from "@/api";
 import { ConfirmDeleteDialog } from "@/components/index";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { CategoriesChips } from "./components/categories-chips";
+import { EditWorkflowDialog } from "./components/edit-workflow-dialog";
+import { ApplyWorkflowDialog } from "./components/apply-workflow-dialog";
 import { NavigationPaths } from "@/config";
 
 /**
@@ -289,15 +281,15 @@ export default function MyWorkflowsPage() {
                   >
                     Apply to another project
                   </Button>
-                    {workflow.projectId ? (
-                      <Button
-                        variant="ghost"
-                        onClick={() => setWorkflowForEdit(workflow)}
-                        disabled={editMutation.isPending}
-                      >
-                        Edit
-                      </Button>
-                    ) : null}
+                  {workflow.projectId ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setWorkflowForEdit(workflow)}
+                      disabled={editMutation.isPending}
+                    >
+                      Edit
+                    </Button>
+                  ) : null}
                   <Button
                     variant="destructive"
                     onClick={() => setWorkflowForDelete(workflow)}
@@ -312,160 +304,44 @@ export default function MyWorkflowsPage() {
         </div>
       </main>
 
-      <Dialog
+      <ApplyWorkflowDialog
         open={Boolean(workflowForApply)}
         onOpenChange={(open) => {
           if (!open) {
             setWorkflowForApply(null);
           }
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Apply workflow to another project</DialogTitle>
-          </DialogHeader>
+        applyProjectId={applyProjectId}
+        setApplyProjectId={setApplyProjectId}
+        applyProjects={applyProjects}
+        applyError={applyError}
+        applyMutation={applyMutation}
+        handleApply={handleApply}
+      />
 
-          <div className="space-y-3">
-            <label
-              htmlFor="apply-project"
-              className="text-xs text-muted-foreground"
-            >
-              Target project
-            </label>
-            <select
-              id="apply-project"
-              value={applyProjectId}
-              onChange={(event) => setApplyProjectId(event.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-input/20 px-2 text-sm outline-none"
-              disabled={applyMutation.isPending}
-            >
-              <option value="" disabled>
-                Select project
-              </option>
-              {applyProjects.map((project) => (
-                <option key={project._id} value={project._id}>
-                  {project.title}
-                </option>
-              ))}
-            </select>
-            {applyError ? (
-              <p className="text-xs text-destructive">{applyError}</p>
-            ) : null}
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setWorkflowForApply(null)}
-              disabled={applyMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              onClick={handleApply}
-              disabled={applyMutation.isPending || !applyProjectId}
-            >
-              {applyMutation.isPending ? "Applying..." : "Apply"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
+      <EditWorkflowDialog
         open={Boolean(workflowForEdit)}
         onOpenChange={(open) => {
           if (!open) {
             setWorkflowForEdit(null);
           }
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit workflow</DialogTitle>
-          </DialogHeader>
-
-          <form
-            className="space-y-3"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              await handleEdit();
-            }}
-          >
-            <label
-              htmlFor="edit-project"
-              className="block text-xs text-muted-foreground"
-            >
-              Project
-            </label>
-            <select
-              id="edit-project"
-              value={editProjectId}
-              onChange={(event) => setEditProjectId(event.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-input/20 px-2 text-sm outline-none"
-              disabled={editMutation.isPending}
-            >
-              <option value="" disabled>
-                Select project
-              </option>
-              {(projectsQuery.data ?? []).map((project) => (
-                <option key={project._id} value={project._id}>
-                  {project.title}
-                </option>
-              ))}
-            </select>
-
-            <Input
-              value={editDomain}
-              onChange={(event) => setEditDomain(event.target.value)}
-              placeholder="Domain"
-              disabled={editMutation.isPending}
-            />
-
-            <Input
-              value={editTitle}
-              onChange={(event) => setEditTitle(event.target.value)}
-              placeholder="Workflow title"
-              disabled={editMutation.isPending}
-            />
-
-            <Textarea
-              value={editDescription}
-              onChange={(event) => setEditDescription(event.target.value)}
-              placeholder="Workflow description"
-              disabled={editMutation.isPending}
-            />
-
-              <div>
-                <label className="text-xs text-muted-foreground block mb-2">Categories</label>
-                <CategoriesChips
-                  categories={editCategoriesArray}
-                  onChange={(arr) => setEditCategories(arr.join(", "))}
-                  disabled={editMutation.isPending}
-                />
-              </div>
-
-            {editError ? (
-              <p className="text-xs text-destructive">{editError}</p>
-            ) : null}
-
-            <DialogFooter>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setWorkflowForEdit(null)}
-                disabled={editMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={editMutation.isPending}>
-                {editMutation.isPending ? "Saving..." : "Save"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        workflowForEdit={workflowForEdit}
+        editProjectId={editProjectId}
+        setEditProjectId={setEditProjectId}
+        projects={projectsQuery.data ?? []}
+        editDomain={editDomain}
+        setEditDomain={setEditDomain}
+        editTitle={editTitle}
+        setEditTitle={setEditTitle}
+        editDescription={editDescription}
+        setEditDescription={setEditDescription}
+        editCategoriesArray={editCategoriesArray}
+        setEditCategories={setEditCategories}
+        editError={editError}
+        editMutation={editMutation}
+        handleEdit={handleEdit}
+      />
 
       <ConfirmDeleteDialog
         open={Boolean(workflowForDelete)}

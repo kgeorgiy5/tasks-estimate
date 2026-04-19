@@ -40,7 +40,7 @@ export const CategoriesChips: FC<CategoriesChipsProps> = ({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto pr-1">
+      <div className="flex flex-wrap gap-2 pr-1">
         {categories.map((cat) => (
           <span
             key={cat}

@@ -39,7 +39,7 @@ export const Header: FC<HeaderProps> = ({
   onStarted,
 }) => {
   return (
-    <div className="w-full h-full flex items-center gap-2">
+    <div className="w-full h-full flex items-center gap-4">
       <div className="w-full flex flex-col gap-2">
         <input
           aria-label="Task title"

@@ -9,6 +9,7 @@ import { PlayButtonIcon } from "./play-button-icon";
 type PlayButtonProps = {
   title: string;
   projectId?: string;
+  categories?: string[];
   onStarted?: () => void;
   variant?: "solid" | "ghost";
 };
@@ -16,6 +17,7 @@ type PlayButtonProps = {
 export const PlayButton: FC<PlayButtonProps> = ({
   title,
   projectId,
+  categories,
   onStarted,
   variant = "solid",
 }) => {
@@ -46,7 +48,7 @@ export const PlayButton: FC<PlayButtonProps> = ({
         }
       } else {
         if (!title) return;
-        await createTask({ title, projectId });
+        await createTask({ title, projectId, categories });
         await useCurrentEntryStore.getState().refresh();
         useCurrentEntryStore.getState().startPolling();
         onStarted?.();

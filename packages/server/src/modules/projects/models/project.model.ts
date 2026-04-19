@@ -22,6 +22,7 @@ export interface Project extends Document {
   title: string;
   icon?: ProjectIcon;
   color?: string;
+  workflowId?: Types.ObjectId;
 }
 
 export const ProjectSchema = new Schema<Project>({
@@ -29,4 +30,9 @@ export const ProjectSchema = new Schema<Project>({
   title: { type: String, required: true },
   icon: { type: String, required: false },
   color: { type: String, required: false },
+  workflowId: {
+    type: SchemaTypes.ObjectId,
+    required: false,
+    ref: "Workflow",
+  },
 });

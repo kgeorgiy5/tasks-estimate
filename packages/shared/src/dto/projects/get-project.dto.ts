@@ -8,6 +8,7 @@ export const getProjectSchema = z.object({
   title: z.string(),
   icon: projectIconSchema.optional(),
   color: z.string().optional(),
+  workflowId: objectIdSchema.optional(),
 });
 
 export type GetProjectDto = z.infer<typeof getProjectSchema>;

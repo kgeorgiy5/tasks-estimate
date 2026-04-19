@@ -383,7 +383,7 @@ Body:
 - none
 
 Description: Ends the active running task entry for the specified task. Calculates the duration in seconds, sets `endDateTime` and `timeSeconds` on the entry, and persists it. After ending, the task classification hook is triggered to populate `classIds` if needed.
-
+Description: Ends the active running task entry for the specified task. Calculates the duration in seconds, sets `endDateTime` and `timeSeconds` on the entry, and persists it. The task classification hook may run after ending; classification based on legacy `classIds` is currently unused.
 Response
 
 200:

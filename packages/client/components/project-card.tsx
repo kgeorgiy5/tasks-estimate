@@ -19,7 +19,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const deleteMutation = useMutation({
-    mutationFn: deleteProject,
+    mutationFn: ({ id, cascade }: { id: string; cascade?: boolean }) =>
+      deleteProject({ id, cascade }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
@@ -29,8 +30,8 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
     setDeleteOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    await deleteMutation.mutateAsync(project._id);
+  const handleConfirmDelete = async (cascade?: boolean) => {
+    await deleteMutation.mutateAsync({ id: project._id, cascade });
     setDeleteOpen(false);
   };
 

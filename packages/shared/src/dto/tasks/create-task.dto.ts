@@ -4,7 +4,7 @@ import { MAX_TASK_TITLE_LENGTH, MIN_TASK_TITLE_LENGTH } from "../../config";
 
 export const createTaskSchema = z.object({
   title: z.string().min(MIN_TASK_TITLE_LENGTH).max(MAX_TASK_TITLE_LENGTH),
-  classIds: z.array(objectIdSchema).optional(),
+  categories: z.array(z.string()).optional(),
   projectId: objectIdSchema.optional(),
 });
 

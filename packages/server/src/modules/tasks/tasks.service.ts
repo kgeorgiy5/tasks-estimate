@@ -242,7 +242,6 @@ export class TasksService {
     return entries.map((entry) => {
       const project = entry.taskId.projectId as
         | Types.ObjectId
-        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         | Project
         | undefined;
 
@@ -250,6 +249,7 @@ export class TasksService {
       if (project?._id) {
         projectId = project._id.toString();
       } else if (project) {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
         projectId = String(project);
       } else {
         projectId = undefined;

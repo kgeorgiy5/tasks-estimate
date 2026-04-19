@@ -18,16 +18,16 @@ export function DetailsStep({
   setColor,
   createMutationPending,
   onNext,
-}: {
+}: Readonly<{
   title: string;
   setTitle: (v: string) => void;
-  icon?: ProjectIconType | undefined;
+  icon?: ProjectIconType;
   setIcon: (v: ProjectIconType | undefined) => void;
-  color?: string | undefined;
+  color?: string;
   setColor: (v: string | undefined) => void;
   createMutationPending: boolean;
   onNext: () => void;
-}) {
+}>) {
   return (
     <form
       className="space-y-3 flex flex-col gap-6"

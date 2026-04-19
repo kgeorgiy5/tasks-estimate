@@ -12,7 +12,7 @@ export function FooterButtons({
   createMutationPending,
   selectedWorkflow,
   setStep,
-}: {
+}: Readonly<{
   step: CreateProjectStep;
   onClose: () => void;
   onBack: () => void;
@@ -21,7 +21,7 @@ export function FooterButtons({
   createMutationPending: boolean;
   selectedWorkflow: SelectedWorkflow | null;
   setStep: (s: CreateProjectStep) => void;
-}) {
+}>) {
   return (
     <>
       <Button variant="outline" type="button" onClick={onClose} disabled={createMutationPending}>

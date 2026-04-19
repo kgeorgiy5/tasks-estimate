@@ -12,14 +12,14 @@ export function MyWorkflowsStep({
   setSelectedWorkflow,
   createMutationPending,
   onOpenMarketplace,
-}: {
+}: Readonly<{
   query: UseQueryResult<ListUserWorkflowsDto, unknown>;
   workflows: ListUserWorkflowsDto;
   selectedWorkflow: SelectedWorkflow | null;
   setSelectedWorkflow: (sw: SelectedWorkflow | null) => void;
   createMutationPending: boolean;
   onOpenMarketplace: () => void;
-}) {
+}>) {
   const hasWorkflows = workflows.length > 0;
 
   return (

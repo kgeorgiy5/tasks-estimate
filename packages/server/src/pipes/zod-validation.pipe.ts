@@ -9,7 +9,7 @@ import { ZodError, ZodObject, ZodOptional } from "zod";
 
 @Injectable()
 export class ZodValidationPipe implements PipeTransform {
-  constructor(private schema: ZodObject<any> | ZodOptional<any>) {}
+  constructor(private readonly schema: ZodObject<any> | ZodOptional<any>) {}
 
   transform(value: unknown, _metadata: ArgumentMetadata) {
     try {

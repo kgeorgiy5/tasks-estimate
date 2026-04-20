@@ -24,6 +24,7 @@
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/platform-express": "^11.0.1",
     "@tasks-estimate/shared": "workspace:*",
@@ -72,7 +73,16 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.module.(t|j)s",
+      "!**/*.pipe.(t|j)s",
+      "!**/*.guard.(t|j)s",
+      "!**/index.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "\\.module\\.(t|j)s$",
+      "\\.pipe\\.(t|j)s$",
+      "\\.guard\\.(t|j)s$"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"

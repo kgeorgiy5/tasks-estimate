@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useT } from "@/i18n";
+import { LanguageSelector } from "@/components/language-selector";
 
 type FormSubmitEvent =
   Parameters<NonNullable<JSX.IntrinsicElements["form"]["onSubmit"]>>[0];
@@ -63,8 +64,13 @@ export default function SignUpPage(): JSX.Element {
     <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{t("SIGN_UP.TITLE")}</CardTitle>
-          <CardDescription>{t("SIGN_UP.DESCRIPTION")}</CardDescription>
+          <div className="flex items-start justify-between w-full">
+            <div>
+              <CardTitle>{t("SIGN_UP.TITLE")}</CardTitle>
+              <CardDescription>{t("SIGN_UP.DESCRIPTION")}</CardDescription>
+            </div>
+            <LanguageSelector />
+          </div>
         </CardHeader>
         <CardContent>
           <form className="space-y-3" onSubmit={handleSubmit}>

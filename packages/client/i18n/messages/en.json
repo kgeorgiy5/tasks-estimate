@@ -171,4 +171,8 @@
 	"TIME_ENTRIES.LOADING": "Loading entries...",
 	"TIME_ENTRIES.FAILED": "Failed to load time entries.",
 	"TIME_ENTRIES.ARIA_TIMELINE": "Time entries timeline"
+	,
+	"HEADER.TASK_TITLE_ARIA": "Task title",
+	"HEADER.NEW_TASK_TITLE_PLACEHOLDER": "New task",
+	"HEADER.LOADING": "Loading…"
 }

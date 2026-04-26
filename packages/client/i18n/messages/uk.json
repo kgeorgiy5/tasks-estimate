@@ -17,7 +17,7 @@
 	"CATEGORIES.NO_CATEGORIES": "Категорій немає"
 	,
 	"CATEGORIES_CHIPS.REMOVE": "Видалити {{name}}",
-	"CATEGORIES_CHIPS.PLACEHOLDER": "Додайте категорію та натисніть Enter або кнопку Додати",
+	"CATEGORIES_CHIPS.PLACEHOLDER": "Додайте категорію",
 	"CATEGORIES_CHIPS.ADD": "Додати"
 	,
 	"CONFIRM_DELETE_DIALOG.TITLE": "Підтвердити видалення",
@@ -171,4 +171,8 @@
 	"TIME_ENTRIES.LOADING": "Завантаження записів...",
 	"TIME_ENTRIES.FAILED": "Не вдалося завантажити записи часу.",
 	"TIME_ENTRIES.ARIA_TIMELINE": "Таймлайн записів часу"
+	,
+	"HEADER.TASK_TITLE_ARIA": "Назва завдання",
+	"HEADER.NEW_TASK_TITLE_PLACEHOLDER": "Нове завдання",
+	"HEADER.LOADING": "Завантаження…"
 }

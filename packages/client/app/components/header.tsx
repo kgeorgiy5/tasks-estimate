@@ -1,6 +1,7 @@
 "use client";
 
-import { FC } from "react";
+import type { FC } from "react";
+import { useT } from "@/i18n";
 import {
   PlayButton,
   ProjectSelector,
@@ -38,13 +39,15 @@ export const Header: FC<HeaderProps> = ({
   currentEntryQuery,
   onStarted,
 }) => {
+  const { t } = useT();
+
   return (
     <div className="w-full h-full flex items-center gap-4">
       <div className="w-full flex flex-col gap-2">
         <input
-          aria-label="Task title"
+          aria-label={t("HEADER.TASK_TITLE_ARIA")}
           className="w-full rounded-md border px-3 py-2"
-          placeholder="New task title"
+          placeholder={t("HEADER.NEW_TASK_TITLE_PLACEHOLDER")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={!!currentEntry}
@@ -76,7 +79,7 @@ export const Header: FC<HeaderProps> = ({
       </div>
       <div className="flex shrink-0 items-center">
         {currentEntryQuery.isLoading ? (
-          <span className="text-sm text-zinc-600">Loading…</span>
+          <span className="text-sm text-zinc-600">{t("HEADER.LOADING")}</span>
         ) : null}
         <PlayButton
           title={title}

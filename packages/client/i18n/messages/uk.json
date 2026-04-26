@@ -17,7 +17,7 @@
 	"CATEGORIES.NO_CATEGORIES": "Категорій немає"
 	,
 	"CATEGORIES_CHIPS.REMOVE": "Видалити {{name}}",
-	"CATEGORIES_CHIPS.PLACEHOLDER": "Додайте категорію та натисніть Enter або кнопку Додати",
+	"CATEGORIES_CHIPS.PLACEHOLDER": "Додайте категорію",
 	"CATEGORIES_CHIPS.ADD": "Додати"
 	,
 	"CONFIRM_DELETE_DIALOG.TITLE": "Підтвердити видалення",
@@ -148,6 +148,7 @@
 	"SIGN_IN.PASSWORD": "Пароль",
 	"SIGN_IN.SIGNING_IN": "Вхід...",
 	"SIGN_IN.SIGN_IN": "Увійти",
+	"SIGN_IN.CONTINUE_WITH_GOOGLE": "Google",
 	"SIGN_IN.NO_ACCOUNT": "Ще немає акаунта?",
 	"SIGN_IN.GO_TO_SIGN_UP": "Перейти до реєстрації",
 	"SIGN_IN.UNKNOWN_ERROR": "Не вдалося увійти"
@@ -170,4 +171,8 @@
 	"TIME_ENTRIES.LOADING": "Завантаження записів...",
 	"TIME_ENTRIES.FAILED": "Не вдалося завантажити записи часу.",
 	"TIME_ENTRIES.ARIA_TIMELINE": "Таймлайн записів часу"
+	,
+	"HEADER.TASK_TITLE_ARIA": "Назва завдання",
+	"HEADER.NEW_TASK_TITLE_PLACEHOLDER": "Нове завдання",
+	"HEADER.LOADING": "Завантаження…"
 }

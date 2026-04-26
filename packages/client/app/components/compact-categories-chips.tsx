@@ -1,9 +1,10 @@
 "use client";
 
-import { FC } from "react";
+import type { FC } from "react";
 import { useCategoriesChips } from "@/components/use-categories-chips";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 /**
  * CategoriesChips props
@@ -22,6 +23,7 @@ export const CompactCategoriesChips: FC<CompactCategoriesChipsProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const { t } = useT();
   const { input, setInput, handleAdd, handleRemove } = useCategoriesChips(
     categories,
     onChange,
@@ -37,7 +39,7 @@ export const CompactCategoriesChips: FC<CompactCategoriesChipsProps> = ({
           <span>{cat}</span>
           <button
             type="button"
-            aria-label={`Remove ${cat}`}
+            aria-label={t("CATEGORIES_CHIPS.REMOVE", { name: cat })}
             onClick={() => handleRemove(cat)}
             className="text-zinc-500 hover:text-zinc-800"
           >
@@ -51,7 +53,7 @@ export const CompactCategoriesChips: FC<CompactCategoriesChipsProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="w-50"
-          placeholder="Add category"
+          placeholder={t("CATEGORIES_CHIPS.PLACEHOLDER")}
           disabled={disabled}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -61,7 +63,7 @@ export const CompactCategoriesChips: FC<CompactCategoriesChipsProps> = ({
           }}
         />
         <Button type="button" onClick={() => handleAdd()} disabled={disabled}>
-          Add
+          {t("CATEGORIES_CHIPS.ADD")}
         </Button>
       </div>
     </>

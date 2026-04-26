@@ -12,6 +12,19 @@ import {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 const SERVER_AUTH_SIGNIN = "/users/auth/sign-in";
 const SERVER_AUTH_SIGNUP = "/users/auth/sign-up";
+const SERVER_AUTH_GOOGLE = "/users/auth/google";
+
+/**
+ * Builds backend URL for starting Google OAuth flow.
+ * @returns string
+ */
+export function getGoogleAuthUrl(): string {
+  if (API_BASE.length === 0) {
+    return SERVER_AUTH_GOOGLE;
+  }
+
+  return `${API_BASE}${SERVER_AUTH_GOOGLE}`;
+}
 
 /**
  * Sign in against backend using JSON HTTP request.

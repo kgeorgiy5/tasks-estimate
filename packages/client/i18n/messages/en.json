@@ -148,6 +148,7 @@
 	"SIGN_IN.PASSWORD": "Password",
 	"SIGN_IN.SIGNING_IN": "Signing in...",
 	"SIGN_IN.SIGN_IN": "Sign in",
+	"SIGN_IN.CONTINUE_WITH_GOOGLE": "Continue with Google",
 	"SIGN_IN.NO_ACCOUNT": "No account yet?",
 	"SIGN_IN.GO_TO_SIGN_UP": "Go to sign up",
 	"SIGN_IN.UNKNOWN_ERROR": "Unable to sign in"

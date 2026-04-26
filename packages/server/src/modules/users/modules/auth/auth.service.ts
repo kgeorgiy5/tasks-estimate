@@ -12,6 +12,7 @@ import { USER_MODEL_TOKEN, User } from "../../models";
 import { compare, hash } from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { randomUUID } from "node:crypto";
 
 @Injectable()
 export class AuthService {
@@ -21,10 +22,16 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * Compares plain text password with a stored hash.
+   */
   private compareHash(password: string, hash: string): Promise<boolean> {
     return compare(password, hash);
   }
 
+  /**
+   * Hashes password using configured salt rounds.
+   */
   private hashPassword(password: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const saltRounds = Number(this.configService.get<number>("BCRYPT_SALT"));
@@ -39,6 +46,39 @@ export class AuthService {
     });
   }
 
+  /**
+   * Builds and signs JWT token payload for a user.
+   */
+  private async createAuthResponse(user: Pick<User, "_id" | "email">): Promise<AuthResponseDto> {
+    const jwtPayload = {
+      sub: user._id.toString(),
+      email: user.email,
+    };
+
+    return authResponseSchema.parse({
+      access_token: await this.jwtService.signAsync(jwtPayload),
+    });
+  }
+
+  /**
+   * Finds existing user by email or creates one for Google OAuth.
+   */
+  private async getOrCreateGoogleUser(email: string): Promise<User> {
+    const existingUser = await this.userModel.findOne({ email });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    return this.userModel.create({
+      email,
+      password: await this.hashPassword(randomUUID()),
+    });
+  }
+
+  /**
+   * Signs in user with email and password.
+   */
   public async signIn({
     email,
     password,
@@ -53,16 +93,12 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const jwtPayload = {
-      sub: user._id.toString(),
-      email: user.email,
-    };
-
-    return authResponseSchema.parse({
-      access_token: await this.jwtService.signAsync(jwtPayload),
-    });
+    return this.createAuthResponse(user);
   }
 
+  /**
+   * Registers a new user with email and password.
+   */
   public async signUp({
     email,
     password,
@@ -80,13 +116,15 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const jwtPayload = {
-      sub: user._id.toString(),
-      email: user.email,
-    };
+    return this.createAuthResponse(user);
+  }
 
-    return authResponseSchema.parse({
-      access_token: await this.jwtService.signAsync(jwtPayload),
-    });
+  /**
+   * Signs in or creates a user authenticated by Google.
+   */
+  public async signInWithGoogle(email: string): Promise<AuthResponseDto> {
+    const user = await this.getOrCreateGoogleUser(email);
+
+    return this.createAuthResponse(user);
   }
 }

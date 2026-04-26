@@ -3,13 +3,17 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { USER_MODEL_TOKEN, UserSchema } from "../../models";
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { AuthGuard } from "./guards/auth.guard";
+import { GoogleAuthGuard } from "./guards";
+import { GoogleStrategy } from "./strategies";
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: USER_MODEL_TOKEN, schema: UserSchema }]),
+    PassportModule.register({ session: false }),
     JwtModule.registerAsync({
       global: true,
       imports: [ConfigModule],
@@ -33,8 +37,8 @@ import { AuthGuard } from "./guards/auth.guard";
       },
     }),
   ],
-  providers: [AuthService, AuthGuard],
-  exports: [AuthGuard, JwtModule],
+  providers: [AuthService, AuthGuard, GoogleAuthGuard, GoogleStrategy],
+  exports: [AuthGuard, GoogleAuthGuard, JwtModule],
   controllers: [AuthController],
 })
 export class AuthModule {}

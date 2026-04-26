@@ -148,6 +148,7 @@
 	"SIGN_IN.PASSWORD": "Пароль",
 	"SIGN_IN.SIGNING_IN": "Вхід...",
 	"SIGN_IN.SIGN_IN": "Увійти",
+	"SIGN_IN.CONTINUE_WITH_GOOGLE": "Продовжити через Google",
 	"SIGN_IN.NO_ACCOUNT": "Ще немає акаунта?",
 	"SIGN_IN.GO_TO_SIGN_UP": "Перейти до реєстрації",
 	"SIGN_IN.UNKNOWN_ERROR": "Не вдалося увійти"

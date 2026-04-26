@@ -14,11 +14,17 @@ const { AuthController } = require("./auth.controller");
 describe("AuthController", () => {
   let controller: InstanceType<typeof AuthController>;
   let authService: any;
+  let configService: any;
 
   beforeEach(() => {
-    authService = { signIn: jest.fn(), signUp: jest.fn() };
+    authService = {
+      signIn: jest.fn(),
+      signUp: jest.fn(),
+      signInWithGoogle: jest.fn(),
+    };
+    configService = { get: jest.fn().mockReturnValue("http://localhost:3001") };
     // @ts-ignore
-    controller = new AuthController(authService);
+    controller = new AuthController(authService, configService);
   });
 
   it("forwards signIn to service", async () => {
@@ -39,5 +45,18 @@ describe("AuthController", () => {
 
     expect(authService.signUp).toHaveBeenCalledWith(payload);
     expect(res).toEqual({ access_token: "t2" });
+  });
+
+  it("redirects google callback with issued token", async () => {
+    const request = { user: { email: "google@user.com" } };
+    const response = { redirect: jest.fn() };
+    authService.signInWithGoogle.mockResolvedValue({ access_token: "tg" });
+
+    await controller.googleAuthCallback(request as any, response as any);
+
+    expect(authService.signInWithGoogle).toHaveBeenCalledWith("google@user.com");
+    expect(response.redirect).toHaveBeenCalledWith(
+      "http://localhost:3001/sign-in?access_token=tg",
+    );
   });
 });

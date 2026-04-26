@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
-import { signIn } from "@/api/users";
+import { getGoogleAuthUrl, signIn } from "@/api/users";
 import { parseErrorCode } from "@tasks-estimate/shared";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useT } from "@/i18n";
+import { useAuthStore } from "@/stores";
 
 type FormSubmitEvent =
   Parameters<NonNullable<JSX.IntrinsicElements["form"]["onSubmit"]>>[0];
@@ -30,11 +31,24 @@ const UNKNOWN_ERROR_MESSAGE = "Unable to sign in";
  */
 export default function SignInPage(): JSX.Element {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { t } = useT();
+  const googleAuthUrl = getGoogleAuthUrl();
+
+  useEffect(() => {
+    const accessToken = searchParams.get("access_token");
+
+    if (!accessToken) {
+      return;
+    }
+
+    useAuthStore.getState().setFromToken(accessToken);
+    router.replace(NavigationPaths.HOME);
+  }, [router, searchParams]);
 
   /**
    * Submits sign-in credentials and redirects to home on success.
@@ -94,6 +108,9 @@ export default function SignInPage(): JSX.Element {
             ) : null}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? t("SIGN_IN.SIGNING_IN") : t("SIGN_IN.SIGN_IN")}
+            </Button>
+            <Button type="button" variant="outline" className="w-full" asChild>
+              <a href={googleAuthUrl}>{t("SIGN_IN.CONTINUE_WITH_GOOGLE")}</a>
             </Button>
           </form>
         </CardContent>

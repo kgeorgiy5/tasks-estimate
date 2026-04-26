@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useReducer } from "react";
-import { i18next } from "./config";
+import { initI18n, i18next } from "./config";
+
+initI18n();
 
 /**
  * useT hook — returns translator function and current language.

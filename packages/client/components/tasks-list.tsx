@@ -4,6 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { listTasks } from "@/api";
 import { DateSeparator } from "./date-separator";
 import { TaskCard } from "./task-card";
+import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import type { ListTaskDto } from "@tasks-estimate/shared";
 import { FC, JSX } from "react";
@@ -39,6 +40,7 @@ export const TasksList: FC = () => {
 
   const pages = (query.data?.pages as ListTasksResponse[] | undefined) ?? [];
   const items = pages.flatMap((p) => p.items ?? []);
+  const { t } = useT();
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -101,7 +103,7 @@ export const TasksList: FC = () => {
           if (query.isLoading) {
             nodes.push(
               <div key="loading" className="flex items-center justify-center">
-                <span className="text-sm text-zinc-600">Loading…</span>
+                <span className="text-sm text-zinc-600">{t("TASKS_LIST.LOADING")}</span>
               </div>,
             );
           }
@@ -114,7 +116,7 @@ export const TasksList: FC = () => {
                   onClick={() => query.fetchNextPage()}
                   disabled={query.isFetching}
                 >
-                  {query.isFetching ? "Loading…" : "Load more"}
+                  {query.isFetching ? t("TASKS_LIST.LOADING_MORE") : t("TASKS_LIST.LOAD_MORE")}
                 </Button>
               </div>,
             );

@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useT } from "@/i18n";
 import { DetailsStep } from "./details-step";
 import { MyWorkflowsStep } from "./my-workflows-step";
 import { MarketplaceStep } from "./marketplace-step";
@@ -141,6 +142,8 @@ export function CreateProjectDialog({
     setError(null);
   }, [open]);
 
+  const { t } = useT();
+
   /**
    * Moves from project details step to workflow selection.
    */
@@ -149,7 +152,7 @@ export function CreateProjectDialog({
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setError("Project title is required");
+      setError(t("CREATE_PROJECT_DIALOG.ERROR_TITLE_REQUIRED"));
       return;
     }
 
@@ -165,13 +168,13 @@ export function CreateProjectDialog({
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setError("Project title is required");
+      setError(t("CREATE_PROJECT_DIALOG.ERROR_TITLE_REQUIRED"));
       setStep("details");
       return;
     }
 
     if (!selectedWorkflow) {
-      setError("Select a workflow first");
+      setError(t("CREATE_PROJECT_DIALOG.ERROR_SELECT_WORKFLOW"));
       return;
     }
 
@@ -193,7 +196,7 @@ export function CreateProjectDialog({
 
   const stepLabel = getStepLabel(step);
 
-  const stepTitle = step === "details" ? "Create project" : "Select workflow";
+  const stepTitle = step === "details" ? t("CREATE_PROJECT_DIALOG.TITLE_CREATE") : t("CREATE_PROJECT_DIALOG.TITLE_SELECT_WORKFLOW");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[50vw]! max-w-[50vw]! h-[90vh] flex flex-col">

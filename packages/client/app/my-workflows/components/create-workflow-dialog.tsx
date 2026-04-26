@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CategoriesChips } from "./categories-chips";
+import { useT } from "@/i18n";
 
 type CreateMutationLike = { isPending: boolean };
 
@@ -53,17 +54,18 @@ export function CreateWorkflowDialog(props: Readonly<CreateWorkflowDialogProps>)
     createMutation,
     handleCreate,
   } = props;
+  const { t } = useT();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[70vw]! h-[80vh]! max-w-none! flex flex-col overflow-auto">
         <DialogHeader>
-          <DialogTitle>Create workflow</DialogTitle>
+          <DialogTitle>{t("CREATE_WORKFLOW_DIALOG.TITLE")}</DialogTitle>
         </DialogHeader>
 
         <form className="space-y-3">
           <label htmlFor="create-project" className="block text-xs text-muted-foreground">
-            Project (optional)
+            {t("CREATE_WORKFLOW_DIALOG.PROJECT_LABEL")}
           </label>
           <select
             id="create-project"
@@ -72,7 +74,7 @@ export function CreateWorkflowDialog(props: Readonly<CreateWorkflowDialogProps>)
             className="h-9 w-full rounded-md border border-input bg-input/20 px-2 text-sm outline-none"
             disabled={createMutation.isPending}
           >
-            <option value="">No project</option>
+            <option value="">{t("CREATE_WORKFLOW_DIALOG.NO_PROJECT")}</option>
             {projects.map((project) => (
               <option key={project._id} value={project._id}>
                 {project.title}
@@ -80,21 +82,22 @@ export function CreateWorkflowDialog(props: Readonly<CreateWorkflowDialogProps>)
             ))}
           </select>
 
-          <Input value={createDomain} onChange={(e) => setCreateDomain(e.target.value)} placeholder="Domain" disabled={createMutation.isPending} />
 
-          <Input value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} placeholder="Workflow title" disabled={createMutation.isPending} />
+          <Input value={createDomain} onChange={(e) => setCreateDomain(e.target.value)} placeholder={t("CREATE_WORKFLOW_DIALOG.DOMAIN_PLACEHOLDER")} disabled={createMutation.isPending} />
 
-          <Textarea value={createDescription} onChange={(e) => setCreateDescription(e.target.value)} placeholder="Workflow description" disabled={createMutation.isPending} />
+          <Input value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} placeholder={t("CREATE_WORKFLOW_DIALOG.TITLE_PLACEHOLDER")} disabled={createMutation.isPending} />
+
+          <Textarea value={createDescription} onChange={(e) => setCreateDescription(e.target.value)} placeholder={t("CREATE_WORKFLOW_DIALOG.DESCRIPTION_PLACEHOLDER")} disabled={createMutation.isPending} />
 
           <div>
-            <div className="text-xs text-muted-foreground block mb-2">Categories</div>
+            <div className="text-xs text-muted-foreground block mb-2">{t("CREATE_WORKFLOW_DIALOG.CATEGORIES_LABEL")}</div>
             <CategoriesChips categories={createCategoriesArray} onChange={(arr) => setCreateCategories(arr.join(", "))} disabled={createMutation.isPending} />
           </div>
 
           {createError ? <p className="text-xs text-destructive">{createError}</p> : null}
         </form>
 
-        <DialogFooter className="mt-12 gap-4 sm:justify-center">
+          <DialogFooter className="mt-12 gap-4 sm:justify-center">
           <Button
             variant="outline"
             type="button"
@@ -104,7 +107,7 @@ export function CreateWorkflowDialog(props: Readonly<CreateWorkflowDialogProps>)
             }}
             disabled={createMutation.isPending}
           >
-            Cancel
+            {t("CREATE_WORKFLOW_DIALOG.CANCEL")}
           </Button>
           <Button
             type="button"
@@ -114,7 +117,7 @@ export function CreateWorkflowDialog(props: Readonly<CreateWorkflowDialogProps>)
             }}
             disabled={createMutation.isPending}
           >
-            {createMutation.isPending ? "Creating..." : "Create"}
+            {createMutation.isPending ? t("CREATE_WORKFLOW_DIALOG.CREATING") : t("CREATE_WORKFLOW_DIALOG.CREATE")}
           </Button>
         </DialogFooter>
       </DialogContent>

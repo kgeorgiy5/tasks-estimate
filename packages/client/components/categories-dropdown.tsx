@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, useState } from "react";
+import { useT } from "@/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,9 @@ export type CategoriesDropdownProps = {
   className?: string;
 };
 
+/**
+ * CategoriesDropdown — dropdown for selecting workflow categories.
+ */
 export const CategoriesDropdown: FC<CategoriesDropdownProps> = ({
   projectId,
   selected,
@@ -28,6 +32,7 @@ export const CategoriesDropdown: FC<CategoriesDropdownProps> = ({
   className,
 }) => {
   const [open, setOpen] = useState(false);
+  const { t } = useT();
 
   const categoriesQuery = useQuery({
     queryKey: ["workflow-categories", projectId],
@@ -59,34 +64,34 @@ export const CategoriesDropdown: FC<CategoriesDropdownProps> = ({
           className={cn("", className)}
         >
           {selected.length > 0
-            ? `Categories (${selected.length})`
-            : "Categories"}
+            ? t("CATEGORIES.COUNT", { count: selected.length })
+            : t("CATEGORIES.BUTTON")}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-[40vw] max-h-[50vh] bg-white p-3">
-        <div className="flex flex-wrap gap-2">
-          {categoriesQuery.isLoading ? (
-            <div className="text-sm text-zinc-600">Loading…</div>
-          ) : available.length === 0 ? (
-            <div className="text-sm text-zinc-600">No categories</div>
-          ) : (
-            available.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => toggle(cat)}
-                className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs ${
-                  selected.includes(cat)
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-zinc-100 text-zinc-800"
-                }`}
-              >
-                <span>{cat}</span>
-              </button>
-            ))
-          )}
-        </div>
+        <DropdownMenuContent align="start" className="w-[40vw] max-h-[50vh] bg-white p-3">
+          <div className="flex flex-wrap gap-2">
+            {categoriesQuery.isLoading ? (
+              <div className="text-sm text-zinc-600">{t("CATEGORIES.LOADING")}</div>
+            ) : available.length === 0 ? (
+              <div className="text-sm text-zinc-600">{t("CATEGORIES.NO_CATEGORIES")}</div>
+            ) : (
+              available.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggle(cat)}
+                  className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs ${
+                    selected.includes(cat)
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-zinc-100 text-zinc-800"
+                  }`}
+                >
+                  <span>{cat}</span>
+                </button>
+              ))
+            )}
+          </div>
 
         <div className="mt-3">
           <CategoriesChips

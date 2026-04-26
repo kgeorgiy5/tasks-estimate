@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCurrentEntryStore } from "@/stores";
 import { createTask, endTaskEntry } from "@/api";
 import { PlayButtonIcon } from "./play-button-icon";
+import { useT } from "@/i18n";
 
 type PlayButtonProps = {
   title: string;
@@ -59,6 +60,7 @@ export const PlayButton: FC<PlayButtonProps> = ({
   };
 
   const isRunning = Boolean(entry);
+  const { t } = useT();
 
   const baseClasses =
     "ml-2 rounded-full w-10 h-10 flex items-center justify-center disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed";
@@ -76,7 +78,7 @@ export const PlayButton: FC<PlayButtonProps> = ({
     <button
       onClick={handleClick}
       disabled={loading || (!entry && !title)}
-      aria-label={isRunning ? "Stop timer" : "Start timer"}
+      aria-label={isRunning ? t("PLAY_BUTTON.ARIA_STOP") : t("PLAY_BUTTON.ARIA_START")}
       className={classes}
     >
       <PlayButtonIcon isRunning={isRunning} loading={loading} />

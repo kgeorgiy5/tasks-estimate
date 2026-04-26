@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useT } from "@/i18n";
 import type { ListTaskEntryDto } from "@tasks-estimate/shared";
 import {
   addDaysLocal,
@@ -48,6 +49,7 @@ const ENTRY_TITLE_TRUNCATE_LENGTH = 100;
 export default function TimeEntriesPage(): JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useT();
 
   const initialStart = searchParams?.get("start") ?? toDateInputValue(new Date());
   const initialDayCount = Number(searchParams?.get("days") ?? DEFAULT_DAY_COUNT) || DEFAULT_DAY_COUNT;
@@ -257,7 +259,7 @@ export default function TimeEntriesPage(): JSX.Element {
       <div className="mx-auto min-h-screen bg-white flex w-full max-w-[80vw] flex-col gap-4">
         <div className="grid gap-3 rounded p-4 sm:grid-cols-3">
           <label className="flex flex-col gap-1 text-sm">
-            Start day
+            {t("TIME_ENTRIES.START_DAY")}
             <Input
               type="date"
               className="w-auto"
@@ -267,7 +269,7 @@ export default function TimeEntriesPage(): JSX.Element {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
-            Consecutive days
+            {t("TIME_ENTRIES.CONSECUTIVE_DAYS")}
             <Select
               value={String(dayCount)}
               onValueChange={(value) => setDayCount(Number(value))}
@@ -285,7 +287,7 @@ export default function TimeEntriesPage(): JSX.Element {
             </Select>
           </label>
           <div className="flex items-center justify-end gap-2">
-            <div className="text-sm text-zinc-600">Timeline</div>
+            <div className="text-sm text-zinc-600">{t("TIME_ENTRIES.TIMELINE")}</div>
             <Button
               size="icon-sm"
               variant="outline"
@@ -307,13 +309,13 @@ export default function TimeEntriesPage(): JSX.Element {
 
         {entriesQuery.isLoading ? (
           <div className="rounded bg-white p-4 text-sm text-zinc-600">
-            Loading entries...
+            {t("TIME_ENTRIES.LOADING")}
           </div>
         ) : null}
 
         {entriesQuery.isError ? (
           <div className="rounded p-4 text-sm text-red-700">
-            Failed to load time entries.
+            {t("TIME_ENTRIES.FAILED")}
           </div>
         ) : null}
 
@@ -331,8 +333,8 @@ export default function TimeEntriesPage(): JSX.Element {
                     className="z-20 border border-zinc-200 bg-zinc-100 px-2 py-2 text-left font-medium"
                     style={{ width: `${TIME_COLUMN_WIDTH_PX}px` }}
                   >
-                    <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
-                      <span>Time</span>
+                      <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
+                      <span>{t("TIME_ENTRIES.TIME")}</span>
                     </div>
                   </div>
 
@@ -382,7 +384,7 @@ export default function TimeEntriesPage(): JSX.Element {
                       <svg
                         ref={svgRef}
                         className="block"
-                        aria-label="Time entries timeline"
+                        aria-label={t("TIME_ENTRIES.ARIA_TIMELINE")}
                       />
                     </div>
                   </div>

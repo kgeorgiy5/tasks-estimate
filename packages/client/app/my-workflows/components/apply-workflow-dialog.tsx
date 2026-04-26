@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useT } from "@/i18n";
 
 /**
  * Props for ApplyWorkflowDialog.
@@ -23,17 +24,18 @@ export interface ApplyWorkflowDialogProps {
  */
 export function ApplyWorkflowDialog(props: Readonly<ApplyWorkflowDialogProps>) {
   const { open, onOpenChange, applyProjectId, setApplyProjectId, applyProjects, applyError, applyMutation, handleApply } = props;
+  const { t } = useT();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Apply workflow to another project</DialogTitle>
+          <DialogTitle>{t("APPLY_WORKFLOW_DIALOG.TITLE")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3">
           <label htmlFor="apply-project" className="text-xs text-muted-foreground">
-            Target project
+            {t("APPLY_WORKFLOW_DIALOG.LABEL_TARGET_PROJECT")}
           </label>
           <select
             id="apply-project"
@@ -43,7 +45,7 @@ export function ApplyWorkflowDialog(props: Readonly<ApplyWorkflowDialogProps>) {
             disabled={applyMutation.isPending}
           >
             <option value="" disabled>
-              Select project
+              {t("APPLY_WORKFLOW_DIALOG.SELECT_PROJECT")}
             </option>
             {applyProjects.map((project) => (
               <option key={project._id} value={project._id}>
@@ -56,10 +58,10 @@ export function ApplyWorkflowDialog(props: Readonly<ApplyWorkflowDialogProps>) {
 
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={applyMutation.isPending}>
-            Cancel
+            {t("APPLY_WORKFLOW_DIALOG.CANCEL")}
           </Button>
           <Button type="button" onClick={handleApply} disabled={applyMutation.isPending || !applyProjectId}>
-            {applyMutation.isPending ? "Applying..." : "Apply"}
+            {applyMutation.isPending ? t("APPLY_WORKFLOW_DIALOG.APPLYING") : t("APPLY_WORKFLOW_DIALOG.APPLY")}
           </Button>
         </DialogFooter>
       </DialogContent>

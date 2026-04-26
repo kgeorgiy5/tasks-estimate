@@ -4,6 +4,7 @@ import { FC } from "react";
 import { useCategoriesChips } from "@/components/use-categories-chips";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 /**
  * CategoriesChips props
@@ -28,6 +29,7 @@ export const CategoriesChips: FC<CategoriesChipsProps> = ({
     categories,
     onChange,
   );
+  const { t } = useT();
 
   return (
     <div>
@@ -40,7 +42,7 @@ export const CategoriesChips: FC<CategoriesChipsProps> = ({
             <span>{cat}</span>
             <button
               type="button"
-              aria-label={`Remove ${cat}`}
+              aria-label={t("CATEGORIES_CHIPS.REMOVE", { name: cat })}
               onClick={() => handleRemove(cat)}
               className="text-zinc-500 hover:text-zinc-800"
             >
@@ -51,23 +53,23 @@ export const CategoriesChips: FC<CategoriesChipsProps> = ({
       </div>
 
       {showAdd && (
-        <div className="mt-2 flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Add category and press Enter or click Add"
-            disabled={disabled}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAdd();
-              }
-            }}
-          />
-          <Button type="button" onClick={() => handleAdd()} disabled={disabled}>
-            Add
-          </Button>
-        </div>
+          <div className="mt-2 flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={t("CATEGORIES_CHIPS.PLACEHOLDER")}
+              disabled={disabled}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAdd();
+                }
+              }}
+            />
+            <Button type="button" onClick={() => handleAdd()} disabled={disabled}>
+              {t("CATEGORIES_CHIPS.ADD")}
+            </Button>
+          </div>
       )}
     </div>
   );

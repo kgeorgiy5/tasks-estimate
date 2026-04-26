@@ -19,6 +19,9 @@ export default function TaskPlayButton({
   ariaLabel,
   variant = "ghost",
 }: Readonly<TaskPlayButtonProps>) {
+  const { t } = require("@/i18n");
+  // prefer provided ariaLabel, fallback to localized start label
+  const finalAria = ariaLabel ?? (typeof t === "function" ? t("PLAY_BUTTON.ARIA_START") : "Start");
   const isDisabled = Boolean(disabled || loading);
 
   const base = "rounded-full w-8 h-8 flex items-center justify-center disabled:opacity-50";
@@ -28,7 +31,7 @@ export default function TaskPlayButton({
   const classes = `${base} ${cursor} ${variant === "solid" ? solid : ghost}`;
 
   return (
-    <button onClick={onClick} disabled={isDisabled} aria-label={ariaLabel} className={classes}>
+    <button onClick={onClick} disabled={isDisabled} aria-label={finalAria} className={classes}>
       {loading ? (
         <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeOpacity="0.25" />

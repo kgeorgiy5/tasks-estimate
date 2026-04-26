@@ -17,6 +17,7 @@ import { FC, useMemo, useState } from "react";
 import { ProjectIcon } from "./project-icon";
 import { CreateProjectDialog } from "./create-project-dialog";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
 
 type ProjectSelectorProps = Readonly<{
   value?: string;
@@ -51,9 +52,11 @@ export const ProjectSelector: FC<ProjectSelectorProps> = ({
     [projects, value],
   );
 
+  const { t } = useT();
+
   let triggerContent: any = null;
   if (projectsQuery.isLoading) {
-    triggerContent = "Loading projects...";
+    triggerContent = t("PROJECT_SELECTOR.LOADING");
   } else if (selectedProject) {
     triggerContent = (
       <div className="flex items-center gap-3 w-full">
@@ -66,7 +69,7 @@ export const ProjectSelector: FC<ProjectSelectorProps> = ({
       </div>
     );
   } else {
-    triggerContent = "Select project";
+    triggerContent = t("PROJECT_SELECTOR.SELECT");
   }
 
   return (
@@ -85,7 +88,7 @@ export const ProjectSelector: FC<ProjectSelectorProps> = ({
           align="start"
           className="w-full"
         >
-          <DropdownMenuLabel>Projects</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("PROJECT_SELECTOR.LABEL")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={value ?? NO_PROJECT_VALUE}
@@ -99,10 +102,10 @@ export const ProjectSelector: FC<ProjectSelectorProps> = ({
             }}
           >
             <DropdownMenuRadioItem value={NO_PROJECT_VALUE}>
-              No project
+              {t("PROJECT_SELECTOR.NO_PROJECT")}
             </DropdownMenuRadioItem>
             {projects.length === 0 ? (
-              <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
+              <DropdownMenuItem disabled>{t("PROJECT_SELECTOR.NO_PROJECTS")}</DropdownMenuItem>
             ) : (
               projects.map((project) => (
                 <DropdownMenuRadioItem
@@ -123,7 +126,7 @@ export const ProjectSelector: FC<ProjectSelectorProps> = ({
           </DropdownMenuRadioGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setIsCreateDialogOpen(true)}>
-            Create a project
+            {t("PROJECT_SELECTOR.CREATE")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

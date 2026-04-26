@@ -8,6 +8,7 @@ import TaskPlayButton from "@/components/task-play-button";
 import type { ListTaskDto } from "@tasks-estimate/shared";
 import { ProjectIcon } from "./project-icon";
 import { formatHHMMSS } from "@tasks-estimate/shared";
+import { useT } from "@/i18n";
 
 type TaskCardProps = {
   task: ListTaskDto;
@@ -17,6 +18,7 @@ type TaskCardProps = {
  * `TaskCard` — renders a task row with title, project info, categories and controls.
  */
 export const TaskCard: FC<TaskCardProps> = ({ task }) => {
+  const { t } = useT();
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const currentEntry = useCurrentEntryStore((s) => s.entry);
@@ -59,14 +61,14 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
           >
             {task.title}
           </div>
-          <div className="text-xs text-zinc-500 mt-0.5 truncate flex items-center gap-2">
+            <div className="text-xs text-zinc-500 mt-0.5 truncate flex items-center gap-2">
             <ProjectIcon
               icon={task.projectIcon}
               color={task.projectColor ?? undefined}
               className="h-5 w-5"
               iconClassName="h-3 w-3"
             />
-            <span className="truncate">{task.projectTitle ?? "No project"}</span>
+            <span className="truncate">{task.projectTitle ?? t("TASK_CARD.NO_PROJECT")}</span>
           </div>
 
           {(task.categories && task.categories.length > 0) ? (
@@ -85,19 +87,21 @@ export const TaskCard: FC<TaskCardProps> = ({ task }) => {
       </div>
 
       <div className="ml-4 shrink-0 flex items-center gap-3">
-        <div className="w-20 text-left text-sm text-zinc-600">
-          {formatHHMMSS(task.timeSeconds ?? 0)}
-        </div>
+          <div className="w-20 text-left text-sm text-zinc-600">
+            {formatHHMMSS(task.timeSeconds ?? 0)}
+          </div>
 
-        <TaskPlayButton
-          onClick={handleStart}
-          loading={loading}
-          disabled={!!currentEntry}
-          ariaLabel={
-            currentEntry ? "Another entry is running" : `Start ${task.title}`
-          }
-          variant="ghost"
-        />
+          <TaskPlayButton
+            onClick={handleStart}
+            loading={loading}
+            disabled={!!currentEntry}
+            ariaLabel={
+              currentEntry
+                ? t("TASK_CARD.ANOTHER_RUNNING")
+                : t("TASK_CARD.START", { title: task.title })
+            }
+            variant="ghost"
+          />
       </div>
     </div>
   );

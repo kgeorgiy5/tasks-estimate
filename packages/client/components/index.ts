@@ -15,3 +15,4 @@ export * from "./project-icon-picker";
 export * from "./project-color-picker";
 export * from "./sidebar";
 export * from "./categories-dropdown";
+export * from "./language-selector";

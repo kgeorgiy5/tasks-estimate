@@ -33,7 +33,7 @@ function getInitialLanguage(): AppLanguage {
  */
 export function initI18n(): typeof i18next {
   if (!i18next.isInitialized) {
-    void i18next.init({
+    i18next.init({
       resources,
       lng: getInitialLanguage(),
       fallbackLng: defaultLanguage,
@@ -42,7 +42,7 @@ export function initI18n(): typeof i18next {
         escapeValue: false,
       },
       returnEmptyString: false,
-    });
+    }).catch(() => undefined);
   }
 
   return i18next;

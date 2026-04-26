@@ -22,6 +22,7 @@ import { EditWorkflowDialog } from "./components/edit-workflow-dialog";
 import { ApplyWorkflowDialog } from "./components/apply-workflow-dialog";
 import { CreateWorkflowDialog } from "./components/create-workflow-dialog";
 import { NavigationPaths } from "@/config";
+import { useT } from "@/i18n";
 
 /**
  * Ensures workflow title starts with uppercase letter.
@@ -39,6 +40,7 @@ function formatTitle(title: string): string {
  */
 export default function MyWorkflowsPage() {
   const queryClient = useQueryClient();
+  const { t } = useT();
 
   const [workflowForApply, setWorkflowForApply] =
     useState<ListUserWorkflowDto | null>(null);
@@ -214,7 +216,7 @@ export default function MyWorkflowsPage() {
 
   const handleApply = async () => {
     if (!workflowForApply || !applyProjectId) {
-      setApplyError("Select a target project");
+      setApplyError(t("MY_WORKFLOWS.ERROR_SELECT_PROJECT"));
       return;
     }
 
@@ -237,12 +239,12 @@ export default function MyWorkflowsPage() {
       .filter((category) => category.length > 0);
 
     if (!editProjectId || !editDomain || !editTitle || !editDescription) {
-      setEditError("Fill all required fields");
+      setEditError(t("MY_WORKFLOWS.ERROR_FILL_FIELDS"));
       return;
     }
 
     if (categories.length === 0) {
-      setEditError("At least one category is required");
+      setEditError(t("MY_WORKFLOWS.ERROR_AT_LEAST_ONE_CATEGORY"));
       return;
     }
 
@@ -269,12 +271,12 @@ export default function MyWorkflowsPage() {
       .filter((category) => category.length > 0);
 
     if (!createDomain || !createTitle || !createDescription) {
-      setCreateError("Fill all required fields");
+      setCreateError(t("MY_WORKFLOWS.ERROR_FILL_FIELDS"));
       return;
     }
 
     if (categories.length === 0) {
-      setCreateError("At least one category is required");
+      setCreateError(t("MY_WORKFLOWS.ERROR_AT_LEAST_ONE_CATEGORY"));
       return;
     }
 
@@ -296,22 +298,22 @@ export default function MyWorkflowsPage() {
       <main className="h-screen w-full max-w-[80vw] bg-white dark:bg-black sm:items-start">
         <div className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-xl font-semibold">My workflows</h1>
+            <h1 className="text-xl font-semibold">{t("MY_WORKFLOWS_PAGE.TITLE")}</h1>
             <div>
               <Button type="button" onClick={() => setCreateOpen(true)}>
-                Create workflow
+                {t("MY_WORKFLOWS_PAGE.CREATE")}
               </Button>
             </div>
           </div>
 
           <div className="space-y-2">
             {workflowsQuery.isLoading ? (
-              <div className="text-sm text-zinc-600">Loading...</div>
+              <div className="text-sm text-zinc-600">{t("MY_WORKFLOWS_PAGE.LOADING")}</div>
             ) : null}
 
             {workflowsQuery.isError ? (
               <div className="text-sm text-red-700">
-                Failed to load workflows.
+                {t("MY_WORKFLOWS_PAGE.FAILED")}
               </div>
             ) : null}
 
@@ -319,14 +321,14 @@ export default function MyWorkflowsPage() {
             !workflowsQuery.isError &&
             workflows.length === 0 ? (
               <div className="flex items-center justify-center w-full py-16 text-sm text-zinc-600">
-                No workflows yet. Visit the{" "}
+                {t("MY_WORKFLOWS_PAGE.NO_WORKFLOWS_PREFIX")} {" "}
                 <Link
                   href={NavigationPaths.MARKETPLACE}
                   className="text-primary underline mx-1"
                 >
-                  Marketplace
+                  {t("MARKETPLACE_PAGE.TITLE")}
                 </Link>{" "}
-                to add workflows.
+                {t("MY_WORKFLOWS_PAGE.NO_WORKFLOWS_SUFFIX")}
               </div>
             ) : null}
 
@@ -354,11 +356,11 @@ export default function MyWorkflowsPage() {
                     </div>
                     {workflow.projectId ? (
                       <div className="truncate text-xs text-zinc-500">
-                        {`Project: ${workflow.projectTitle ?? "Unknown project"}`}
+                        {t("MY_WORKFLOWS_PAGE.PROJECT_PREFIX", { title: workflow.projectTitle ?? t("PROJECT_SELECTOR.NO_PROJECT") })}
                       </div>
                     ) : (
                       <div className="truncate text-xs text-red-500">
-                        No project assigned
+                        {t("MY_WORKFLOWS_PAGE.NO_PROJECT_ASSIGNED")}
                       </div>
                     )}
                   </div>
@@ -370,7 +372,7 @@ export default function MyWorkflowsPage() {
                     onClick={() => setWorkflowForApply(workflow)}
                     disabled={applyMutation.isPending}
                   >
-                    Apply to another project
+                    {t("MY_WORKFLOWS_PAGE.APPLY")}
                   </Button>
                   {workflow.projectId ? (
                     <Button
@@ -378,7 +380,7 @@ export default function MyWorkflowsPage() {
                       onClick={() => setWorkflowForEdit(workflow)}
                       disabled={editMutation.isPending}
                     >
-                      Edit
+                      {t("MY_WORKFLOWS_PAGE.EDIT")}
                     </Button>
                   ) : null}
                   <Button
@@ -386,7 +388,7 @@ export default function MyWorkflowsPage() {
                     onClick={() => setWorkflowForDelete(workflow)}
                     disabled={deleteMutation.isPending}
                   >
-                    Delete
+                    {t("MY_WORKFLOWS_PAGE.DELETE")}
                   </Button>
                 </div>
               </div>

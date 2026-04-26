@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/i18n";
 
 type FormSubmitEvent =
   Parameters<NonNullable<JSX.IntrinsicElements["form"]["onSubmit"]>>[0];
@@ -33,6 +34,7 @@ export default function SignInPage(): JSX.Element {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useT();
 
   /**
    * Submits sign-in credentials and redirects to home on success.
@@ -47,9 +49,9 @@ export default function SignInPage(): JSX.Element {
       router.replace(NavigationPaths.HOME);
     } catch (error) {
       try {
-        setErrorMessage(parseErrorCode(error) ?? UNKNOWN_ERROR_MESSAGE);
+        setErrorMessage(parseErrorCode(error) ?? t("SIGN_IN.UNKNOWN_ERROR"));
       } catch {
-        setErrorMessage(UNKNOWN_ERROR_MESSAGE);
+        setErrorMessage(t("SIGN_IN.UNKNOWN_ERROR"));
       }
     } finally {
       setIsSubmitting(false);
@@ -60,13 +62,13 @@ export default function SignInPage(): JSX.Element {
     <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Enter your email and password</CardDescription>
+          <CardTitle>{t("SIGN_IN.TITLE")}</CardTitle>
+          <CardDescription>{t("SIGN_IN.DESCRIPTION")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("SIGN_IN.EMAIL")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -77,7 +79,7 @@ export default function SignInPage(): JSX.Element {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("SIGN_IN.PASSWORD")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -91,14 +93,14 @@ export default function SignInPage(): JSX.Element {
               <p className="text-xs text-destructive">{errorMessage}</p>
             ) : null}
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? t("SIGN_IN.SIGNING_IN") : t("SIGN_IN.SIGN_IN")}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="justify-between gap-3">
-          <p className="text-xs text-muted-foreground">No account yet?</p>
+          <p className="text-xs text-muted-foreground">{t("SIGN_IN.NO_ACCOUNT")}</p>
           <Button variant="outline" asChild>
-            <Link href={NavigationPaths.SIGN_UP}>Go to sign up</Link>
+            <Link href={NavigationPaths.SIGN_UP}>{t("SIGN_IN.GO_TO_SIGN_UP")}</Link>
           </Button>
         </CardFooter>
       </Card>

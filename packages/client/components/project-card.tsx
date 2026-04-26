@@ -8,15 +8,20 @@ import type { GetProjectDto } from "@tasks-estimate/shared";
 import { ManageProjectDialog } from "./manage-project-dialog";
 import { ConfirmDeleteDialog } from "./confirm-delete-dialog";
 import { ProjectIcon } from "./project-icon";
+import { useT } from "@/i18n";
 
 type ProjectCardProps = {
   project: GetProjectDto;
 };
 
+/**
+ * ProjectCard — displays a project row with edit and delete actions.
+ */
 export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { t } = useT();
 
   const deleteMutation = useMutation({
     mutationFn: ({ id, cascade }: { id: string; cascade?: boolean }) =>
@@ -51,7 +56,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
           variant="ghost"
           onClick={() => setEditOpen(true)}
           className="cursor-pointer"
-          aria-label={`Edit ${project.title}`}
+          aria-label={t("PROJECT_CARD.EDIT_ARIA", { title: project.title })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +79,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
           variant="destructive"
           onClick={handleDelete}
           className="cursor-pointer"
-          aria-label={`Delete ${project.title}`}
+          aria-label={t("PROJECT_CARD.DELETE_ARIA", { title: project.title })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +115,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title={project.title}
-        type="project"
+        type={t("PROJECT_CARD.TYPE_PROJECT")}
         onConfirm={handleConfirmDelete}
       />
     </div>

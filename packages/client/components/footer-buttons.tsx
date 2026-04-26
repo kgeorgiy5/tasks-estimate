@@ -2,7 +2,11 @@
 
 import { Button } from "./ui/button";
 import type { CreateProjectStep, SelectedWorkflow } from "../types/create-project";
+import { useT } from "@/i18n";
 
+/**
+ * FooterButtons — dialog footer actions for project creation flow.
+ */
 export function FooterButtons({
   step,
   onClose,
@@ -22,25 +26,26 @@ export function FooterButtons({
   selectedWorkflow: SelectedWorkflow | null;
   setStep: (s: CreateProjectStep) => void;
 }>) {
+  const { t } = useT();
   return (
     <>
       <Button variant="outline" type="button" onClick={onClose} disabled={createMutationPending}>
-        Cancel
+        {t("CREATE_PROJECT_DIALOG.CANCEL")}
       </Button>
 
       {step === "details" && (
         <Button type="button" onClick={onNext} disabled={createMutationPending}>
-          Next
+          {t("CREATE_PROJECT_DIALOG.NEXT")}
         </Button>
       )}
 
       {step === "my-workflows" && (
         <>
           <Button variant="outline" type="button" onClick={onBack} disabled={createMutationPending}>
-            Back
+            {t("CREATE_PROJECT_DIALOG.BACK")}
           </Button>
           <Button type="button" onClick={onCreate} disabled={createMutationPending || selectedWorkflow?.source !== "my"}>
-            {createMutationPending ? "Creating..." : "Create project"}
+            {createMutationPending ? t("CREATE_PROJECT_DIALOG.CREATING") : t("CREATE_PROJECT_DIALOG.CREATE_PROJECT")}
           </Button>
         </>
       )}
@@ -48,10 +53,10 @@ export function FooterButtons({
       {step === "marketplace" && (
         <>
           <Button variant="outline" type="button" onClick={() => setStep("my-workflows")} disabled={createMutationPending}>
-            Back
+            {t("CREATE_PROJECT_DIALOG.BACK")}
           </Button>
           <Button type="button" onClick={onCreate} disabled={createMutationPending || selectedWorkflow?.source !== "marketplace"}>
-            {createMutationPending ? "Creating..." : "Create project"}
+            {createMutationPending ? t("CREATE_PROJECT_DIALOG.CREATING") : t("CREATE_PROJECT_DIALOG.CREATE_PROJECT")}
           </Button>
         </>
       )}

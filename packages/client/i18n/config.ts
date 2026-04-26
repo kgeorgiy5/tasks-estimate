@@ -14,15 +14,14 @@ const supportedLanguages = Object.keys(resources);
 export type AppLanguage = keyof typeof resources;
 
 /**
- * Resolves the initial UI language from env config and falls back to English.
+ * Resolves the initial UI language from env or falls back to English.
+ * NOTE: localStorage is not read here — it runs on the server too.
+ * Stored language is applied client-side by LanguageSelector after init.
  */
 function getInitialLanguage(): AppLanguage {
   const envLanguage = process.env.NEXT_PUBLIC_I18N_DEFAULT_LANGUAGE;
 
-  if (
-    envLanguage &&
-    supportedLanguages.includes(envLanguage)
-  ) {
+  if (envLanguage && supportedLanguages.includes(envLanguage)) {
     return envLanguage as AppLanguage;
   }
 

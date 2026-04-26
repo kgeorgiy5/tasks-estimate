@@ -3,6 +3,7 @@
 import { UseQueryResult } from "@tanstack/react-query";
 import { ListMarketplaceWorkflowDto } from "@tasks-estimate/shared";
 import { getDomainVisual, WorkflowCard } from "@/app/marketplace/components";
+import { useT } from "@/i18n";
 import type { SelectedWorkflow } from "../types/create-project";
 
 export function MarketplaceStep({
@@ -18,12 +19,13 @@ export function MarketplaceStep({
   setSelectedWorkflow: (sw: SelectedWorkflow | null) => void;
   createMutationPending: boolean;
 }>) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <p className="text-sm text-zinc-600 dark:text-zinc-300">Select one marketplace workflow for the new project.</p>
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">{t("MARKETPLACE_STEP.DESCRIPTION")}</p>
 
-      {query.isLoading && <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading marketplace workflows...</p>}
-      {query.isError && <p className="text-sm text-destructive">Failed to load marketplace workflows.</p>}
+      {query.isLoading && <p className="text-sm text-zinc-600 dark:text-zinc-300">{t("MARKETPLACE_STEP.LOADING")}</p>}
+      {query.isError && <p className="text-sm text-destructive">{t("MARKETPLACE_STEP.FAILED")}</p>}
 
       {workflows.length > 0 && (
         <div className="overflow-x-auto hide-scrollbar max-w-full">
@@ -36,7 +38,7 @@ export function MarketplaceStep({
                   key={workflow._id}
                   workflow={workflow}
                   visual={getDomainVisual(workflow.domain)}
-                  actionLabel={isSelected ? "Selected" : "Use this workflow"}
+                  actionLabel={isSelected ? t("MARKETPLACE_STEP.SELECTED") : t("MARKETPLACE_STEP.USE_WORKFLOW")}
                   onAction={() => setSelectedWorkflow({ source: "marketplace", workflow })}
                   disabled={createMutationPending}
                   selected={isSelected}

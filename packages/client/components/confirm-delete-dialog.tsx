@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useId } from "react";
+import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,12 +22,16 @@ type ConfirmDeleteDialogProps = Readonly<{
   onConfirm: (cascade?: boolean) => Promise<void> | void;
 }>;
 
+/**
+ * ConfirmDeleteDialog — dialog to confirm destructive deletion actions.
+ */
 export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm }: ConfirmDeleteDialogProps) {
   const [input, setInput] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [cascade, setCascade] = useState(false);
   const inputId = useId();
   const matches = input === title;
+  const { t } = useT();
 
   useEffect(() => {
     if (!open) setInput("");
@@ -47,15 +52,15 @@ export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirm delete</DialogTitle>
+          <DialogTitle>{t("CONFIRM_DELETE_DIALOG.TITLE")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete "{title}" {type}?
+            {t("CONFIRM_DELETE_DIALOG.DESCRIPTION", { title, type })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
-          <label htmlFor={inputId} className="text-xs text-muted-foreground block">Type the title to confirm</label>
-          <Input id={inputId} value={input} onChange={(e) => setInput(e.target.value)} placeholder={`Type "${title}" to confirm`} />
+          <label htmlFor={inputId} className="text-xs text-muted-foreground block">{t("CONFIRM_DELETE_DIALOG.TYPE_PROMPT_LABEL")}</label>
+          <Input id={inputId} value={input} onChange={(e) => setInput(e.target.value)} placeholder={t("CONFIRM_DELETE_DIALOG.INPUT_PLACEHOLDER", { title })} />
         </div>
 
         <label className="flex items-center gap-2 mt-3 cursor-pointer">
@@ -65,12 +70,12 @@ export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm
             className="cursor-pointer"
             onCheckedChange={(v) => setCascade(Boolean(v))}
           />
-          <span className="text-sm select-none">Delete all tasks assigned to this {type}</span>
+          <span className="text-sm select-none">{t("CONFIRM_DELETE_DIALOG.CASCADE_LABEL", { type })}</span>
         </label>
 
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
+            {t("CONFIRM_DELETE_DIALOG.CANCEL")}
           </Button>
           <Button
             type="button"
@@ -78,7 +83,7 @@ export function ConfirmDeleteDialog({ open, onOpenChange, title, type, onConfirm
             onClick={handleConfirm}
             disabled={!matches || isPending}
           >
-            {isPending ? "Deleting..." : "Delete"}
+            {isPending ? t("CONFIRM_DELETE_DIALOG.DELETING") : t("CONFIRM_DELETE_DIALOG.DELETE")}
           </Button>
         </DialogFooter>
       </DialogContent>

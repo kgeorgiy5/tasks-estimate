@@ -1,3 +1,5 @@
+"use client";
+
 import { FC } from "react";
 
 type PlayButtonIconProps = {
@@ -5,6 +7,9 @@ type PlayButtonIconProps = {
   isRunning: boolean;
 };
 
+/**
+ * PlayButtonIcon — small SVG icon used for play/stop/loading states.
+ */
 export const PlayButtonIcon: FC<PlayButtonIconProps> = ({
   isRunning,
   loading,

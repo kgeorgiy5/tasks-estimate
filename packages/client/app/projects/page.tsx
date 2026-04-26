@@ -5,9 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { listProjects } from "@/api";
 import { CreateProjectDialog, ProjectCard } from "@/components/index";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 export default function ProjectsPage() {
   const [open, setOpen] = useState(false);
+
+  const { t } = useT();
 
   const query = useQuery({
     queryKey: ["projects"],
@@ -19,13 +22,13 @@ export default function ProjectsPage() {
       <main className="h-screen w-full max-w-[80vw] bg-white dark:bg-black sm:items-start">
         <div className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Projects</h1>
-            <Button onClick={() => setOpen(true)}>Create a new project</Button>
+            <h1 className="text-xl font-semibold">{t("PROJECTS_PAGE.TITLE")}</h1>
+            <Button onClick={() => setOpen(true)}>{t("PROJECTS_PAGE.CREATE")}</Button>
           </div>
 
           <div className="space-y-2">
             {query.isLoading ? (
-              <div className="text-sm text-zinc-600">Loading…</div>
+              <div className="text-sm text-zinc-600">{t("PROJECTS_PAGE.LOADING")}</div>
             ) : null}
 
             {(query.data ?? []).map((p) => (

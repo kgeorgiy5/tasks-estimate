@@ -3,8 +3,13 @@
 import { useEffect, useState, type FC } from "react";
 import { initI18n, i18next, type AppLanguage } from "@/i18n";
 import "flag-icons/css/flag-icons.min.css";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 type LanguageOption = {
   code: AppLanguage;
@@ -12,10 +17,11 @@ type LanguageOption = {
   flag: string;
 };
 
-const OPTIONS: ReadonlyArray<LanguageOption> = [ 
+const OPTIONS: ReadonlyArray<LanguageOption> = [
   { code: "en", label: "English", flag: "us" },
   { code: "uk", label: "Українська", flag: "ua" },
 ];
+const STORAGE_KEY = "tasks-estimate.language";
 
 /**
  * LanguageSelector — custom dropdown showing flags inside options.
@@ -26,8 +32,21 @@ export const LanguageSelector: FC = () => {
 
   useEffect(() => {
     initI18n();
-    const current = (i18next.language ?? "en") as AppLanguage;
-    setLanguage(current);
+
+    const stored = globalThis?.localStorage?.getItem?.(STORAGE_KEY) ?? null;
+    const valid: AppLanguage =
+      stored !== null && OPTIONS.some((o) => o.code === stored)
+        ? (stored as AppLanguage)
+        : "en";
+    try {
+      globalThis?.localStorage?.setItem?.(STORAGE_KEY, valid);
+    } catch {
+      // ignore storage errors
+    }
+    i18next.changeLanguage(valid).catch(() => {
+      // ignore change errors
+    });
+    setLanguage(valid);
     const onChange = (lng: string) => setLanguage(lng as AppLanguage);
     i18next.on("languageChanged", onChange);
     return () => {
@@ -35,10 +54,19 @@ export const LanguageSelector: FC = () => {
     };
   }, []);
 
+  const { t } = useT();
+
   const current = OPTIONS.find((o) => o.code === language) ?? OPTIONS[0];
 
   function handleSelect(code: AppLanguage) {
+    const STORAGE_KEY = "tasks-estimate.language";
     i18next.changeLanguage(code);
+    try {
+      if (globalThis.localStorage !== undefined)
+        globalThis.localStorage.setItem(STORAGE_KEY, code);
+    } catch {
+      // ignore localStorage errors
+    }
     setOpen(false);
   }
 
@@ -46,7 +74,9 @@ export const LanguageSelector: FC = () => {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          aria-label={`Language: ${current.label}`}
+          aria-label={`${t("LANGUAGE_SELECTOR.ARIA")}: ${t(
+            `LANGUAGE_SELECTOR.${current.code.toUpperCase()}`,
+          )}`}
           variant="ghost"
           size="icon"
           className="p-1 cursor-pointer bg-transparent"
@@ -55,7 +85,12 @@ export const LanguageSelector: FC = () => {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent side="top" align="end" sideOffset={8} className="w-36 p-1 gap-0">
+      <PopoverContent
+        side="top"
+        align="end"
+        sideOffset={8}
+        className="w-36 p-1 gap-0"
+      >
         {OPTIONS.map((opt) => (
           <Button
             key={opt.code}
@@ -64,8 +99,10 @@ export const LanguageSelector: FC = () => {
             onClick={() => handleSelect(opt.code)}
             className="cursor-pointer w-full justify-start px-3 py-2"
           >
-            <span className={`fi fi-${opt.flag}`} aria-hidden />
-            <span className="ml-2">{opt.label}</span>
+            <span className={`fi fi-${opt.flag} text-3xl`} aria-hidden />
+            <span className="ml-2">
+              {t(`LANGUAGE_SELECTOR.${opt.code.toUpperCase()}`)}
+            </span>
           </Button>
         ))}
       </PopoverContent>

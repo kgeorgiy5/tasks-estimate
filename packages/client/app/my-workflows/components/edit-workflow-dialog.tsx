@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CategoriesChips } from "./categories-chips";
+import { useT } from "@/i18n";
 
 type EditMutationLike = { isPending: boolean };
 
@@ -61,17 +62,18 @@ export function EditWorkflowDialog(props: Readonly<EditWorkflowDialogProps>) {
     editMutation,
     handleEdit,
   } = props;
+  const { t } = useT();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[70vw]! h-[80vh]! max-w-none! flex flex-col overflow-auto">
         <DialogHeader>
-          <DialogTitle>Edit workflow</DialogTitle>
+          <DialogTitle>{t("EDIT_WORKFLOW_DIALOG.TITLE")}</DialogTitle>
         </DialogHeader>
 
         <form className="space-y-3">
           <label htmlFor="edit-project" className="block text-xs text-muted-foreground">
-            Project
+            {t("EDIT_WORKFLOW_DIALOG.PROJECT_LABEL")}
           </label>
           <select
             id="edit-project"
@@ -81,7 +83,7 @@ export function EditWorkflowDialog(props: Readonly<EditWorkflowDialogProps>) {
             disabled={editMutation.isPending}
           >
             <option value="" disabled>
-              Select project
+              {t("EDIT_WORKFLOW_DIALOG.SELECT_PROJECT")}
             </option>
             {projects.map((project) => (
               <option key={project._id} value={project._id}>
@@ -90,14 +92,14 @@ export function EditWorkflowDialog(props: Readonly<EditWorkflowDialogProps>) {
             ))}
           </select>
 
-          <Input value={editDomain} onChange={(e) => setEditDomain(e.target.value)} placeholder="Domain" disabled={editMutation.isPending} />
+          <Input value={editDomain} onChange={(e) => setEditDomain(e.target.value)} placeholder={t("EDIT_WORKFLOW_DIALOG.DOMAIN_PLACEHOLDER")} disabled={editMutation.isPending} />
 
-          <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Workflow title" disabled={editMutation.isPending} />
+          <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder={t("EDIT_WORKFLOW_DIALOG.TITLE_PLACEHOLDER")} disabled={editMutation.isPending} />
 
-          <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Workflow description" disabled={editMutation.isPending} />
+          <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder={t("EDIT_WORKFLOW_DIALOG.DESCRIPTION_PLACEHOLDER")} disabled={editMutation.isPending} />
 
           <div>
-            <div className="text-xs text-muted-foreground block mb-2">Categories</div>
+            <div className="text-xs text-muted-foreground block mb-2">{t("EDIT_WORKFLOW_DIALOG.CATEGORIES_LABEL")}</div>
             <CategoriesChips categories={editCategoriesArray} onChange={(arr) => setEditCategories(arr.join(", "))} disabled={editMutation.isPending} />
           </div>
 
@@ -114,7 +116,7 @@ export function EditWorkflowDialog(props: Readonly<EditWorkflowDialogProps>) {
             }}
             disabled={editMutation.isPending}
           >
-            Cancel
+            {t("EDIT_WORKFLOW_DIALOG.CANCEL")}
           </Button>
           <Button
             type="button"
@@ -124,7 +126,7 @@ export function EditWorkflowDialog(props: Readonly<EditWorkflowDialogProps>) {
             }}
             disabled={editMutation.isPending}
           >
-            {editMutation.isPending ? "Saving..." : "Save"}
+            {editMutation.isPending ? t("EDIT_WORKFLOW_DIALOG.SAVING") : t("EDIT_WORKFLOW_DIALOG.SAVE")}
           </Button>
         </DialogFooter>
       </DialogContent>

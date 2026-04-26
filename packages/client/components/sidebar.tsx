@@ -7,6 +7,7 @@ import { type FC } from "react";
 import { useAuthStore } from "@/stores";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import { LanguageSelector } from "@/components/language-selector";
+import { useT } from "@/i18n";
 import { HugeiconsIcon } from "@hugeicons/react";
 import * as HIcons from "@hugeicons/core-free-icons";
 
@@ -17,39 +18,25 @@ export const Sidebar: FC = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  const { t } = useT();
+
   const navItems: ReadonlyArray<{
-    title: string;
+    titleKey: string;
     path: string;
     iconName: string;
   }> = [
-    { title: "Dashboard", path: NavigationPaths.HOME, iconName: "HomeIcon" },
-    {
-      title: "Time Entries",
-      path: NavigationPaths.TIME_ENTRIES,
-      iconName: "ClockIcon",
-    },
-    {
-      title: "Projects",
-      path: NavigationPaths.PROJECTS,
-      iconName: "FolderIcon",
-    },
-    {
-      title: "My Workflows",
-      path: NavigationPaths.MY_WORKFLOWS,
-      iconName: "AllBookmarkIcon",
-    },
-    {
-      title: "Marketplace",
-      path: NavigationPaths.MARKETPLACE,
-      iconName: "StoreIcon",
-    },
+    { titleKey: "SIDEBAR.DASHBOARD", path: NavigationPaths.HOME, iconName: "HomeIcon" },
+    { titleKey: "SIDEBAR.TIME_ENTRIES", path: NavigationPaths.TIME_ENTRIES, iconName: "ClockIcon" },
+    { titleKey: "SIDEBAR.PROJECTS", path: NavigationPaths.PROJECTS, iconName: "FolderIcon" },
+    { titleKey: "SIDEBAR.MY_WORKFLOWS", path: NavigationPaths.MY_WORKFLOWS, iconName: "AllBookmarkIcon" },
+    { titleKey: "SIDEBAR.MARKETPLACE", path: NavigationPaths.MARKETPLACE, iconName: "StoreIcon" },
   ];
 
   return (
     <aside className="w-60 shrink-0 bg-white/80 dark:bg-slate-900/80 border-r border-slate-200 dark:border-slate-800 h-screen sticky top-0">
       <div className="h-full flex flex-col">
         <div className="px-4 py-6">
-          <h1 className="text-lg font-semibold">Tasks</h1>
+          <h1 className="text-lg font-semibold">{t("SIDEBAR.TITLE")}</h1>
         </div>
 
         <nav className="flex-1 px-2">
@@ -67,7 +54,7 @@ export const Sidebar: FC = () => {
               }`;
 
               return (
-                <li key={item.title}>
+                <li key={item.path}>
                   <Link href={item.path} className={linkClass}>
                     <span className="inline-flex items-center gap-2">
                       {icon ? (
@@ -77,7 +64,7 @@ export const Sidebar: FC = () => {
                           strokeWidth={2}
                         />
                       ) : null}
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </span>
                   </Link>
                 </li>
@@ -118,7 +105,7 @@ export const Sidebar: FC = () => {
                 <path d="M15 12H3" />
                 <path d="M21 19V5a2 2 0 0 0-2-2h-7" />
               </svg>
-              Logout
+              {t("SIDEBAR.LOGOUT")}
             </button>
             <LanguageSelector />
           </div>

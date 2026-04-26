@@ -4,6 +4,7 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { ListUserWorkflowsDto, ListUserWorkflowDto } from "@tasks-estimate/shared";
 import { getDomainVisual, WorkflowCard } from "@/app/marketplace/components";
 import type { SelectedWorkflow } from "../types/create-project";
+import { useT } from "@/i18n";
 
 export function MyWorkflowsStep({
   query,
@@ -20,30 +21,28 @@ export function MyWorkflowsStep({
   createMutationPending: boolean;
   onOpenMarketplace: () => void;
 }>) {
+  const { t } = useT();
   const hasWorkflows = workflows.length > 0;
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-zinc-600 dark:text-zinc-300">
-        Select one of your workflows or import from marketplace.
-      </p>
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">{t("MY_WORKFLOWS_STEP.DESCRIPTION")}</p>
 
-      {query.isLoading && <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading your workflows...</p>}
-      {query.isError && <p className="text-sm text-destructive">Failed to load your workflows.</p>}
+      {query.isLoading && <p className="text-sm text-zinc-600 dark:text-zinc-300">{t("MY_WORKFLOWS_STEP.LOADING")}</p>}
+      {query.isError && <p className="text-sm text-destructive">{t("MY_WORKFLOWS_STEP.FAILED")}</p>}
 
       {hasWorkflows && (
         <div className="overflow-x-auto max-w-full hide-scrollbar">
           <div className="flex w-max gap-4 pb-2">
             {workflows.map((workflow: ListUserWorkflowDto) => {
-              const isSelected =
-                selectedWorkflow?.source === "my" && selectedWorkflow.workflow._id === workflow._id;
+              const isSelected = selectedWorkflow?.source === "my" && selectedWorkflow.workflow._id === workflow._id;
 
               return (
                 <WorkflowCard
                   key={workflow._id}
                   workflow={workflow}
                   visual={getDomainVisual(workflow.domain)}
-                  actionLabel={isSelected ? "Selected" : "Use this workflow"}
+                  actionLabel={isSelected ? t("MY_WORKFLOWS_STEP.SELECTED") : t("MY_WORKFLOWS_STEP.USE_WORKFLOW")}
                   onAction={() => setSelectedWorkflow({ source: "my", workflow })}
                   disabled={createMutationPending}
                   selected={isSelected}
@@ -56,7 +55,7 @@ export function MyWorkflowsStep({
       )}
 
       {!hasWorkflows && query.isSuccess && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">You do not have your own workflows yet.</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300">{t("MY_WORKFLOWS_STEP.NO_WORKFLOWS")}</p>
       )}
 
       <button
@@ -65,7 +64,7 @@ export function MyWorkflowsStep({
         disabled={createMutationPending}
         className="cursor-pointer text-primary underline underline-offset-2 hover:text-primary/80 disabled:opacity-50"
       >
-        Import marketplace workflow
+        {t("MY_WORKFLOWS_STEP.IMPORT")}
       </button>
     </div>
   );

@@ -15,6 +15,7 @@ import { ProjectColorPicker } from "./project-color-picker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { parseErrorCode, type ProjectIcon } from "@tasks-estimate/shared";
 import { useEffect, useState } from "react";
+import { useT } from "@/i18n";
 
 type ManageProjectDialogProps = Readonly<{
   open: boolean;
@@ -31,12 +32,16 @@ type ManageProjectDialogProps = Readonly<{
   onSaved?: (projectId: string) => void;
 }>;
 
+/**
+ * ManageProjectDialog — create or edit a project.
+ */
 export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitle, initialIcon, initialColor, onSaved }: ManageProjectDialogProps) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState<ProjectIcon | undefined>(undefined);
   const [color, setColor] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useT();
 
   const mutation = useMutation({
     mutationFn: async (payload: { title: string; icon?: ProjectIcon; color?: string }) => {
@@ -65,7 +70,7 @@ export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitl
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Project wizard</DialogTitle>
+          <DialogTitle>{t("MANAGE_PROJECT_DIALOG.TITLE")}</DialogTitle>
         </DialogHeader>
 
         <form
@@ -74,11 +79,11 @@ export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitl
             e.preventDefault();
             setError(null);
             const t = title.trim();
-            if (!t) return setError("Project title is required");
+            if (!t) return setError(t);
             await mutation.mutateAsync({ title: t, icon: icon ?? undefined, color: color ?? undefined });
           }}
         >
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Project title" autoFocus disabled={mutation.isPending} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("MANAGE_PROJECT_DIALOG.PLACEHOLDER_TITLE")} autoFocus disabled={mutation.isPending} />
           <div className="flex gap-2 items-center">
             <ProjectIconPicker value={icon} onChange={setIcon} disabled={mutation.isPending} />
             <ProjectColorPicker value={color} onChange={setColor} disabled={mutation.isPending} />
@@ -87,10 +92,10 @@ export function ManageProjectDialog({ open, onOpenChange, projectId, initialTitl
 
           <DialogFooter>
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
-              Cancel
+              {t("MANAGE_PROJECT_DIALOG.CANCEL")}
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Saving..." : "Save"}
+              {mutation.isPending ? t("MANAGE_PROJECT_DIALOG.SAVING") : t("MANAGE_PROJECT_DIALOG.SAVE")}
             </Button>
           </DialogFooter>
         </form>

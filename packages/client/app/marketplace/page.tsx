@@ -14,6 +14,7 @@ import {
 import { getDomainVisual, WorkflowCard } from "./components";
 import { CreateProjectDialog } from "@/components/index";
 import { useState } from "react";
+import { useT } from "@/i18n";
 
 /**
  * Formats a domain key to a readable title.
@@ -75,13 +76,15 @@ export default function MarketplacePage() {
   const [selectedMarketplaceWorkflow, setSelectedMarketplaceWorkflow] =
     useState<null | ListMarketplaceWorkflowDto[number]>(null);
 
+  const { t } = useT();
+
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="h-screen w-full max-w-[80vw] overflow-hidden bg-white dark:bg-black">
         <section className="h-[20%] min-h-38 border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
-          <h1 className="text-2xl font-semibold">Marketplace</h1>
+          <h1 className="text-2xl font-semibold">{t("MARKETPLACE_PAGE.TITLE")}</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-            Browse workflows by domain
+            {t("MARKETPLACE_PAGE.DESCRIPTION")}
           </p>
 
           <div className="mt-4 overflow-x-auto hide-scrollbar">
@@ -92,7 +95,7 @@ export default function MarketplacePage() {
                 className="h-14 min-w-55 justify-start rounded-xl px-4 text-base font-semibold"
                 onClick={() => selectDomain()}
               >
-                All domains
+                {t("MARKETPLACE_PAGE.ALL_DOMAINS")}
               </Button>
 
               {domains.map((domain) => {
@@ -126,13 +129,13 @@ export default function MarketplacePage() {
         <section className="h-[80%] overflow-y-auto p-6">
           {workflowsQuery.isLoading ? (
             <div className="text-sm text-zinc-600 dark:text-zinc-300">
-              Loading workflows...
+              {t("MARKETPLACE_PAGE.LOADING_WORKFLOWS")}
             </div>
           ) : null}
 
           {workflowsQuery.isError ? (
             <div className="text-sm text-red-700 dark:text-red-300">
-              Failed to load marketplace workflows.
+              {t("MARKETPLACE_PAGE.FAILED")}
             </div>
           ) : null}
 
@@ -146,7 +149,7 @@ export default function MarketplacePage() {
                     key={workflow._id}
                     workflow={workflow}
                     visual={visual}
-                    actionLabel="Apply the workflow"
+                      actionLabel={t("MARKETPLACE_PAGE.APPLY")}
                     onAction={() => {
                       setSelectedMarketplaceWorkflow(workflow);
                       setCreateOpen(true);

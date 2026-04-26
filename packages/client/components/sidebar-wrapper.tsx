@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Sidebar from "./sidebar";
+import { Sidebar } from "./sidebar";
 import { NavigationPaths } from "@/config/navigation-paths.config";
 import type { FC } from "react";
 
@@ -9,7 +9,7 @@ import type { FC } from "react";
  * Client wrapper that conditionally renders the Sidebar.
  * Hides the sidebar on auth pages (sign-in / sign-up).
  */
-const SidebarWrapper: FC = () => {
+export const SidebarWrapper: FC = () => {
   const pathname = usePathname();
 
   if (
@@ -22,4 +22,3 @@ const SidebarWrapper: FC = () => {
   return <Sidebar />;
 };
 
-export default SidebarWrapper;

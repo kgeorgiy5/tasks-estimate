@@ -25,7 +25,7 @@ export const DraftClassificationButton: FC<DraftClassificationButtonProps> = ({
     <button
       type="button"
       onClick={() => {
-        void onClick();
+        onClick();
       }}
       disabled={disabled || isLoading}
       aria-label={

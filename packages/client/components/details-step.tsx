@@ -27,7 +27,7 @@ export function DetailsStep({
   color?: string;
   setColor: (v: string | undefined) => void;
   createMutationPending: boolean;
-  onNext: () => void;
+  onNext: () => void | Promise<void>;
 }>) {
   const { t } = useT();
   return (

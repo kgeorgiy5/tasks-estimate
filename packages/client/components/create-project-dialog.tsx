@@ -47,6 +47,8 @@ export function CreateProjectDialog({
   open,
   onOpenChange,
   onSaved,
+  initialSelectedWorkflow,
+  initialStep,
 }: CreateProjectDialogProps) {
   const queryClient = useQueryClient();
 
@@ -59,6 +61,7 @@ export function CreateProjectDialog({
   const [selectedWorkflow, setSelectedWorkflow] =
     useState<SelectedWorkflow | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isWorkflowPreselected = Boolean(initialSelectedWorkflow);
 
   const myWorkflowsQuery = useQuery<ListUserWorkflowsDto>({
     queryKey: ["my-workflows"],
@@ -137,17 +140,17 @@ export function CreateProjectDialog({
       return;
     }
 
-    setStep("details");
-    setSelectedWorkflow(null);
+    setStep(isWorkflowPreselected ? "details" : (initialStep ?? "details"));
+    setSelectedWorkflow(initialSelectedWorkflow ?? null);
     setError(null);
-  }, [open]);
+  }, [initialSelectedWorkflow, initialStep, isWorkflowPreselected, open]);
 
   const { t } = useT();
 
   /**
    * Moves from project details step to workflow selection.
    */
-  const handleNextFromDetails = () => {
+  const handleNextFromDetails = async () => {
     setError(null);
 
     const trimmedTitle = title.trim();
@@ -157,6 +160,17 @@ export function CreateProjectDialog({
     }
 
     setTitle(trimmedTitle);
+
+    if (isWorkflowPreselected && initialSelectedWorkflow) {
+      await createMutation.mutateAsync({
+        title: trimmedTitle,
+        icon,
+        color,
+        selectedWorkflow: initialSelectedWorkflow,
+      });
+      return;
+    }
+
     setStep("my-workflows");
   };
 
@@ -173,7 +187,9 @@ export function CreateProjectDialog({
       return;
     }
 
-    if (!selectedWorkflow) {
+    const workflowToUse = selectedWorkflow ?? initialSelectedWorkflow ?? null;
+
+    if (!workflowToUse) {
       setError(t("CREATE_PROJECT_DIALOG.ERROR_SELECT_WORKFLOW"));
       return;
     }
@@ -182,7 +198,7 @@ export function CreateProjectDialog({
       title: trimmedTitle,
       icon,
       color,
-      selectedWorkflow,
+      selectedWorkflow: workflowToUse,
     });
   };
 
@@ -194,7 +210,8 @@ export function CreateProjectDialog({
     setStep("marketplace");
   };
 
-  const stepLabel = getStepLabel(step);
+  const stepLabel =
+    isWorkflowPreselected && step === "details" ? "Step 1 of 1" : getStepLabel(step);
 
   const stepTitle = step === "details" ? t("CREATE_PROJECT_DIALOG.TITLE_CREATE") : t("CREATE_PROJECT_DIALOG.TITLE_SELECT_WORKFLOW");
   return (
@@ -257,6 +274,7 @@ export function CreateProjectDialog({
             createMutationPending={createMutation.isPending}
             selectedWorkflow={selectedWorkflow}
             setStep={setStep}
+            detailsAction={isWorkflowPreselected ? "create" : "next"}
           />
         </DialogFooter>
       </DialogContent>

@@ -5,8 +5,13 @@ jest.mock("ai", () => ({
   },
 }));
 
+jest.mock("@ai-sdk/openai", () => ({
+  createOpenAI: jest.fn(),
+}));
+
 import { InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output } from "ai";
 import { AiService } from "./ai.service";
 import { classifySystemPrompt } from "./prompts/classify.prompt";
@@ -14,13 +19,18 @@ import { classifySystemPrompt } from "./prompts/classify.prompt";
 describe("AiService", () => {
   const mockedGenerateText = jest.mocked(generateText);
   const mockedOutputJson = jest.mocked(Output.json);
+  const mockedCreateOpenAI = jest.mocked(createOpenAI);
   let configService: Pick<ConfigService, "get">;
+  let mockedOpenAIModelFactory: jest.Mock;
+  const mockedOpenAIModel = { provider: "openai", id: "gpt-4o-mini" };
 
   beforeEach(() => {
     jest.clearAllMocks();
     configService = {
       get: jest.fn().mockReturnValue("test-api-key"),
     };
+    mockedOpenAIModelFactory = jest.fn().mockReturnValue(mockedOpenAIModel);
+    mockedCreateOpenAI.mockReturnValue(mockedOpenAIModelFactory as never);
   });
 
   it("passes the expected prompt payload and filters AI output to allowed categories", async () => {
@@ -34,7 +44,7 @@ describe("AiService", () => {
     const result = await service.classify(
       "Fix broken login form",
       categories,
-      "openai:gpt-4.1-mini",
+      "gpt-4.1-mini",
       0.3,
     );
 
@@ -44,8 +54,10 @@ describe("AiService", () => {
       description:
         "A JSON array of the best matching categories for the task from the allowed options.",
     });
+    expect(mockedCreateOpenAI).toHaveBeenCalledWith({ apiKey: "test-api-key" });
+    expect(mockedOpenAIModelFactory).toHaveBeenCalledWith("gpt-4.1-mini");
     expect(mockedGenerateText).toHaveBeenCalledWith({
-      model: "openai:gpt-4.1-mini",
+      model: mockedOpenAIModel,
       temperature: 0.3,
       system: classifySystemPrompt,
       prompt:
@@ -56,6 +68,40 @@ describe("AiService", () => {
           "A JSON array of the best matching categories for the task from the allowed options.",
       },
     });
+  });
+
+  it("accepts object-wrapped categories in AI response", async () => {
+    mockedGenerateText.mockResolvedValue({
+      output: {
+        categories: ["Bug", "Ignored", "Feature"],
+      },
+    } as unknown as Awaited<ReturnType<typeof generateText>>);
+
+    const service = new AiService(configService as ConfigService);
+
+    const result = await service.classify("Fix broken login form", [
+      "Bug",
+      "Feature",
+    ]);
+
+    expect(result).toEqual({ categories: ["Bug", "Feature"] });
+  });
+
+  it("normalizes AI category values and deduplicates against allowed categories", async () => {
+    mockedGenerateText.mockResolvedValue({
+      output: {
+        categories: [" bug ", "FEATURE", "feature", "Unknown"],
+      },
+    } as unknown as Awaited<ReturnType<typeof generateText>>);
+
+    const service = new AiService(configService as ConfigService);
+
+    const result = await service.classify("Fix broken login form", [
+      "Bug",
+      "Feature",
+    ]);
+
+    expect(result).toEqual({ categories: ["Bug", "Feature"] });
   });
 
   it("throws when the OpenAI API key is missing", async () => {

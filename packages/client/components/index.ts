@@ -4,6 +4,7 @@ export * from "./timer";
 export * from "./date-separator";
 export * from "./task-card";
 export * from "./play-button-icon";
+export * from "./draft-classification-button";
 export * from "./tasks-list";
 export * from "./play-button";
 export * from "./project-selector";

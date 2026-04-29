@@ -3,6 +3,7 @@
 import type { FC } from "react";
 import { useT } from "@/i18n";
 import {
+  DraftClassificationButton,
   PlayButton,
   ProjectSelector,
   Timer,
@@ -22,6 +23,8 @@ export interface HeaderProps {
   setSelectedCategories: (c: string[]) => void;
   currentEntry: unknown;
   currentEntryQuery: { isLoading?: boolean };
+  isClassifyingDraftTask?: boolean;
+  onClassifyDraftTask?: () => void | Promise<void>;
   onStarted?: () => void;
 }
 
@@ -37,9 +40,12 @@ export const Header: FC<HeaderProps> = ({
   setSelectedCategories,
   currentEntry,
   currentEntryQuery,
+  isClassifyingDraftTask = false,
+  onClassifyDraftTask,
   onStarted,
 }) => {
   const { t } = useT();
+  const isCategoriesDisabled = !!currentEntry || isClassifyingDraftTask;
 
   return (
     <div className="w-full h-full flex items-center gap-4">
@@ -64,15 +70,22 @@ export const Header: FC<HeaderProps> = ({
             projectId={selectedProjectId}
             selected={selectedCategories}
             onChange={setSelectedCategories}
-            disabled={!!currentEntry}
+            disabled={isCategoriesDisabled}
           />
 
           <CompactCategoriesChips
             categories={selectedCategories}
             onChange={setSelectedCategories}
-            disabled={!!currentEntry}
+            disabled={isCategoriesDisabled}
           />
         </div>
+      </div>
+      <div className="shrink-0">
+        <DraftClassificationButton
+          onClick={onClassifyDraftTask ?? (() => undefined)}
+          isLoading={isClassifyingDraftTask}
+          disabled={!!currentEntry || !title || !selectedProjectId}
+        />
       </div>
       <div className="shrink-0">
         <Timer />

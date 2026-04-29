@@ -55,6 +55,9 @@
 	"PLAY_BUTTON.ARIA_START": "Start timer",
 	"PLAY_BUTTON.ARIA_STOP": "Stop timer"
 	,
+	"CLASSIFY_BUTTON.ARIA_CLASSIFY": "Classify task with AI",
+	"CLASSIFY_BUTTON.ARIA_CLASSIFYING": "Classifying task with AI"
+	,
 	"MANAGE_PROJECT_DIALOG.TITLE": "Project wizard",
 	"PROJECT_CARD.EDIT_ARIA": "Edit {{title}}",
 	"PROJECT_CARD.DELETE_ARIA": "Delete {{title}}",

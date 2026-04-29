@@ -55,6 +55,9 @@
 	"PLAY_BUTTON.ARIA_START": "Запустити таймер",
 	"PLAY_BUTTON.ARIA_STOP": "Зупинити таймер"
 	,
+	"CLASSIFY_BUTTON.ARIA_CLASSIFY": "Класифікувати завдання за допомогою AI",
+	"CLASSIFY_BUTTON.ARIA_CLASSIFYING": "AI класифікує завдання"
+	,
 	"MANAGE_PROJECT_DIALOG.TITLE": "Майстер проєкту",
 	"PROJECT_CARD.EDIT_ARIA": "Редагувати {{title}}",
 	"PROJECT_CARD.DELETE_ARIA": "Видалити {{title}}",

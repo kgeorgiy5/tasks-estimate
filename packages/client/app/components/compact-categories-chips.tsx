@@ -41,7 +41,8 @@ export const CompactCategoriesChips: FC<CompactCategoriesChipsProps> = ({
             type="button"
             aria-label={t("CATEGORIES_CHIPS.REMOVE", { name: cat })}
             onClick={() => handleRemove(cat)}
-            className="text-zinc-500 hover:text-zinc-800"
+            disabled={disabled}
+            className="text-zinc-500 hover:text-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ×
           </button>

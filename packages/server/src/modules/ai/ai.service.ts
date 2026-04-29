@@ -1,16 +1,23 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { generateText, Output } from "ai";
 import { classifySystemPrompt } from "./prompts/classify.prompt";
 
 @Injectable()
 export class AiService {
-  private readonly apiKey = process.env.OPENAI_API_KEY;
+  /**
+   * Creates an AI service instance.
+   * @param configService - Accessor for environment-based configuration
+   */
+  public constructor(private readonly configService: ConfigService) {}
 
   /**
    * Ensures the OpenAI API key is available.
    */
   private ensureApiKey() {
-    if (!this.apiKey) {
+    const apiKey = this.configService.get<string>("OPENAI_API_KEY");
+
+    if (!apiKey) {
       throw new InternalServerErrorException(
         "OPENAI_API_KEY is not configured",
       );
@@ -41,7 +48,7 @@ export class AiService {
       model,
       temperature,
       system: classifySystemPrompt,
-      prompt: `Task title: ${title}`,
+      prompt: `Task title: ${title}\nAllowed categories: ${JSON.stringify(categories)}`,
       output: Output.json({
         name: "task-categories",
         description:

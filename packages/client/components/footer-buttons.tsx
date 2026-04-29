@@ -16,17 +16,27 @@ export function FooterButtons({
   createMutationPending,
   selectedWorkflow,
   setStep,
+  detailsAction = "next",
 }: Readonly<{
   step: CreateProjectStep;
   onClose: () => void;
   onBack: () => void;
-  onNext: () => void;
+  onNext: () => void | Promise<void>;
   onCreate: () => void;
   createMutationPending: boolean;
   selectedWorkflow: SelectedWorkflow | null;
   setStep: (s: CreateProjectStep) => void;
+  detailsAction?: "next" | "create";
 }>) {
   const { t } = useT();
+  let detailsLabel = t("CREATE_PROJECT_DIALOG.NEXT");
+
+  if (detailsAction === "create") {
+    detailsLabel = createMutationPending
+      ? t("CREATE_PROJECT_DIALOG.CREATING")
+      : t("CREATE_PROJECT_DIALOG.CREATE_PROJECT");
+  }
+
   return (
     <>
       <Button variant="outline" type="button" onClick={onClose} disabled={createMutationPending}>
@@ -34,8 +44,12 @@ export function FooterButtons({
       </Button>
 
       {step === "details" && (
-        <Button type="button" onClick={onNext} disabled={createMutationPending}>
-          {t("CREATE_PROJECT_DIALOG.NEXT")}
+        <Button
+          type="button"
+          onClick={detailsAction === "create" ? onCreate : onNext}
+          disabled={createMutationPending}
+        >
+          {detailsLabel}
         </Button>
       )}
 

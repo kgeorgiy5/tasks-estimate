@@ -1,5 +1,9 @@
 import { createApiClient } from "../../utils/api";
-import { CreateTaskDto } from "@tasks-estimate/shared";
+import {
+  ClassifyDraftTaskDto,
+  CreateTaskDto,
+  TaskClassificationResultDto,
+} from "@tasks-estimate/shared";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -12,6 +16,18 @@ export async function createTask(payload: CreateTaskDto) {
   const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
 
   const response = await client.post(TASKS_BASE, payload);
+  return response.data;
+}
+
+/**
+ * Classifies a draft task before it is created.
+ */
+export async function classifyDraftTask(
+  payload: ClassifyDraftTaskDto,
+): Promise<TaskClassificationResultDto> {
+  const client = createApiClient(API_BASE ?? process.env.NEXT_PUBLIC_API_URL ?? "");
+  const response = await client.post(`${TASKS_BASE}/classification/draft`, payload);
+
   return response.data;
 }
 

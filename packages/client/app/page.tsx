@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { classifyDraftTask } from "@/api";
 import { useCurrentEntryStore } from "@/stores";
 import useCurrentEntryQuery from "@/hooks/use-current-entry-query";
 import { useAuthStore } from "@/stores/auth-store";
@@ -14,6 +15,7 @@ export default function Home() {
     string | undefined
   >(undefined);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isClassifyingDraftTask, setIsClassifyingDraftTask] = useState(false);
   const currentEntry = useCurrentEntryStore((s) => s.entry);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const currentEntryQuery = useCurrentEntryQuery({ enabled: isAuthenticated });
@@ -55,6 +57,30 @@ export default function Home() {
 
   const handleStarted = () => {};
 
+  /**
+   * Classifies the current draft task and updates the selected categories.
+   */
+  const handleClassifyDraftTask = async () => {
+    if (!title || !selectedProjectId || isClassifyingDraftTask) {
+      return;
+    }
+
+    setIsClassifyingDraftTask(true);
+
+    try {
+      const result = await classifyDraftTask({
+        title,
+        projectId: selectedProjectId,
+      });
+
+      setSelectedCategories(result.categories);
+    } catch {
+      return;
+    } finally {
+      setIsClassifyingDraftTask(false);
+    }
+  };
+
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="h-full w-full grid grid-rows-10 max-w-[80vw] py-8 px-16 bg-white dark:bg-black sm:items-start">
@@ -68,6 +94,8 @@ export default function Home() {
             setSelectedCategories={setSelectedCategories}
             currentEntry={currentEntry}
             currentEntryQuery={currentEntryQuery}
+            isClassifyingDraftTask={isClassifyingDraftTask}
+            onClassifyDraftTask={handleClassifyDraftTask}
             onStarted={handleStarted}
           />
         </div>

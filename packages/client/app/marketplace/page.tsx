@@ -166,6 +166,9 @@ export default function MarketplacePage() {
             setCreateOpen(v);
             if (!v) setSelectedMarketplaceWorkflow(null);
           }}
+          onSaved={() => {
+            router.push(NavigationPaths.PROJECTS);
+          }}
           initialSelectedWorkflow={
             selectedMarketplaceWorkflow
               ? { source: "marketplace", workflow: selectedMarketplaceWorkflow }

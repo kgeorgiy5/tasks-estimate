@@ -9,6 +9,7 @@ import { EstimatesModule } from "./modules/estimates/estimates.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ProjectsModule } from "./modules/projects/projects.module";
+import { AiModule } from "./modules/ai/ai.module";
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProjectsModule } from "./modules/projects/projects.module";
     EstimatesModule,
     DocumentsModule,
     ProjectsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
